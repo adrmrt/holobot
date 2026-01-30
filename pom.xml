@@ -184,6 +184,13 @@
             <version>1.22.2</version>
         </dependency>
 
+        <!-- GraphQL for AniList -->
+        <dependency>
+            <groupId>com.netflix.graphql.dgs</groupId>
+            <artifactId>graphql-dgs-client</artifactId>
+            <version>11.1.0</version>
+        </dependency>
+
         <!-- Java Database Connectivity -->
         <dependency>
             <groupId>org.xerial</groupId>
@@ -195,6 +202,7 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>12.6.1</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- JLyrics to browse lyrics and song information -->
