@@ -72,9 +72,18 @@ public final class HoloHttp {
         return GSON.fromJson(body, clazz);
     }
 
-    private static @NotNull HttpResponse<String> sendGet(@NotNull String url, @Nullable Map<String, String> headers) throws HttpTransportException {
-        Objects.requireNonNull(url, "url");
+    public static @NotNull JsonObject postJsonObject(@NotNull String url, @NotNull JsonObject jsonBody, @Nullable Map<String, String> headers) throws HttpStatusException, HttpTransportException {
+        String body = postString(url, jsonBody.toString(), headers);
+        return JsonParser.parseString(body).getAsJsonObject();
+    }
 
+    public static @NotNull String postString(@NotNull String url, @NotNull String body, @Nullable Map<String, String> headers) throws HttpStatusException, HttpTransportException {
+        HttpResponse<String> res = sendPost(url, body, headers);
+        ensure2xx(url, res);
+        return res.body() == null ? "" : res.body();
+    }
+
+    private static @NotNull HttpResponse<String> sendGet(@NotNull String url, @Nullable Map<String, String> headers) throws HttpTransportException {
         final URI uri;
         try {
             uri = URI.create(url);
@@ -96,6 +105,43 @@ public final class HoloHttp {
                 .GET()
                 .header("User-Agent", DEFAULT_USER_AGENT)
                 .header("Accept", "application/json, text/plain;q=0.9, */*;q=0.8");
+
+        if (headers != null) {
+            headers.forEach(builder::header);
+        }
+
+        HttpRequest req = builder.build();
+
+        try {
+            return CLIENT.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new HttpTransportException("I/O error while requesting " + uri, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new HttpTransportException("Interrupted while requesting " + uri, e);
+        }
+    }
+
+    private static @NotNull HttpResponse<String> sendPost(@NotNull String url, @NotNull String body, @Nullable Map<String, String> headers) throws HttpTransportException {
+        final URI uri;
+        try {
+            uri = URI.create(url);
+        } catch (IllegalArgumentException e) {
+            throw new HttpTransportException("Invalid URL: " + url, e);
+        }
+
+        HoloRateLimiter limiter = HOST_LIMITERS.get(uri.getHost());
+        if (limiter != null) {
+            limiter.acquire();
+        }
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(uri)
+                .timeout(Duration.ofSeconds(20))
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                .header("User-Agent", DEFAULT_USER_AGENT)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json; charset=utf-8");
 
         if (headers != null) {
             headers.forEach(builder::header);
