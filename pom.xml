@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.zawarudo</groupId>
     <artifactId>holobot</artifactId>
-    <version>3.5.2</version>
+    <version>3.5.3</version>
 
     <name>HoloBot</name>
     <description>Java Discord Bot</description>
