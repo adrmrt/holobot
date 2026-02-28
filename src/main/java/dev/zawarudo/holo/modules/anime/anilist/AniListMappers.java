@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.AnimeResult;
 import dev.zawarudo.holo.modules.anime.MangaResult;
+import dev.zawarudo.holo.utils.Formatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +56,7 @@ public final class AniListMappers {
 
         String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
 
-        String description = getSafeString(object, "description");
+        String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
         int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
@@ -102,7 +103,7 @@ public final class AniListMappers {
 
         String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
 
-        String description = getSafeString(object, "description");
+        String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
         int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
