@@ -40,7 +40,7 @@ public final class HoloHttp {
 
     public static @NotNull String getString(@NotNull String url, @Nullable Map<String, String> headers)
             throws HttpStatusException, HttpTransportException {
-        HttpResponse<String> res = sendGet(url, headers);
+        HttpResponse<String> res = sendGetRequest(url, headers);
         ensure2xx(url, res);
         return res.body() == null ? "" : res.body();
     }
@@ -78,12 +78,12 @@ public final class HoloHttp {
     }
 
     public static @NotNull String postString(@NotNull String url, @NotNull String body, @Nullable Map<String, String> headers) throws HttpStatusException, HttpTransportException {
-        HttpResponse<String> res = sendPost(url, body, headers);
+        HttpResponse<String> res = sendPostRequest(url, body, headers);
         ensure2xx(url, res);
         return res.body() == null ? "" : res.body();
     }
 
-    private static @NotNull HttpResponse<String> sendGet(@NotNull String url, @Nullable Map<String, String> headers) throws HttpTransportException {
+    private static @NotNull HttpResponse<String> sendGetRequest(@NotNull String url, @Nullable Map<String, String> headers) throws HttpTransportException {
         final URI uri;
         try {
             uri = URI.create(url);
@@ -122,7 +122,7 @@ public final class HoloHttp {
         }
     }
 
-    private static @NotNull HttpResponse<String> sendPost(@NotNull String url, @NotNull String body, @Nullable Map<String, String> headers) throws HttpTransportException {
+    private static @NotNull HttpResponse<String> sendPostRequest(@NotNull String url, @NotNull String body, @Nullable Map<String, String> headers) throws HttpTransportException {
         final URI uri;
         try {
             uri = URI.create(url);
@@ -130,9 +130,12 @@ public final class HoloHttp {
             throw new HttpTransportException("Invalid URL: " + url, e);
         }
 
-        HoloRateLimiter limiter = HOST_LIMITERS.get(uri.getHost());
-        if (limiter != null) {
-            limiter.acquire();
+        String host = uri.getHost();
+        if (host != null) {
+            HoloRateLimiter limiter = HOST_LIMITERS.get(host);
+            if (limiter != null) {
+                limiter.acquire();
+            }
         }
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
