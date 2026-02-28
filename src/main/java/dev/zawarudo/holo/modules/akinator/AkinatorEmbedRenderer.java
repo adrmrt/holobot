@@ -72,7 +72,7 @@ public final class AkinatorEmbedRenderer {
         return new Rendered(eb.build(), attach);
     }
 
-    public Rendered renderFinal(EndScreen endScreen, Guess finalGuess) {
+    public Rendered renderFinal(EndScreen endScreen, Guess finalGuess, long questionsAnswered) {
         EmbedBuilder eb = base();
 
         String description = switch (endScreen) {
@@ -83,6 +83,10 @@ public final class AkinatorEmbedRenderer {
         };
 
         if (endScreen == EndScreen.VICTORY && finalGuess != null) {
+            if (questionsAnswered >= 0) {
+                description += "\n\nGuessed in **" + questionsAnswered + "** questions.";
+            }
+
             description += "\n\n" + finalGuess.getName();
 
             if (!finalGuess.getDescription().isBlank()) {

@@ -245,7 +245,7 @@ public final class AkinatorSession {
     private void editFinal(AkinatorEmbedRenderer.EndScreen screen) {
         if (message == null) return;
 
-        var rendered = renderer.renderFinal(screen, finalGuess);
+        var rendered = renderer.renderFinal(screen, finalGuess, questionsAnswered);
 
         message.editMessageEmbeds(rendered.embed())
                 .setComponents(ActionRow.of(
