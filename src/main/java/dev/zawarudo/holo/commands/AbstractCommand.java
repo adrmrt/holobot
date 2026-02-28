@@ -237,17 +237,6 @@ public abstract class AbstractCommand {
     }
 
     /**
-     * Checks if a message has pings or mentions in it.
-     *
-     * @param msg The message to check.
-     * @return True if the message has pings or mentions, false otherwise.
-     */
-    public boolean hasPings(@NotNull Message msg) {
-        Mentions mentions = msg.getMentions();
-        return !mentions.getMembers().isEmpty() || !mentions.getRoles().isEmpty() || !mentions.getUsers().isEmpty();
-    }
-
-    /**
      * Tries to get the given user, either from a mention or from the given id. If there is none to be
      * found, simply return the author of the message.
      */
