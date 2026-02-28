@@ -6,7 +6,7 @@ import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
+import dev.zawarudo.holo.modules.anime.AnimeResult;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.CommandCategory;
@@ -146,7 +146,7 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
             case ANILIST -> "AniList Score";
             case MAL_JIKAN -> "MAL Score";
         };
-        String scoreValue = formatScore(anime.score());
+        String scoreValue = anime.score();
         String rankLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Rank";
             case MAL_JIKAN -> "MAL Rank";
@@ -171,10 +171,6 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
 
     private String formatEpisodes(int episodes) {
         return episodes == 0 ? "TBA" : String.valueOf(episodes);
-    }
-
-    private String formatScore(double score) {
-        return score == 0.0 ? "N/A" : String.valueOf(score);
     }
 
     private String formatRank(int rank) {

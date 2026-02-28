@@ -1,12 +1,11 @@
-package dev.zawarudo.holo.modules.anime.provider;
+package dev.zawarudo.holo.modules.anime.anilist;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
-import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
-import dev.zawarudo.holo.modules.anime.anilist.AniListMappers;
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
-import dev.zawarudo.holo.modules.anime.model.MangaResult;
+import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
+import dev.zawarudo.holo.modules.anime.AnimeResult;
+import dev.zawarudo.holo.modules.anime.MangaResult;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 

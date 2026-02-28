@@ -1,13 +1,13 @@
-package dev.zawarudo.holo.modules.anime.provider;
+package dev.zawarudo.holo.modules.anime.jikan;
 
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
-import dev.zawarudo.holo.modules.anime.jikan.JikanApiClient;
+import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.anime.jikan.model.Anime;
 import dev.zawarudo.holo.modules.anime.jikan.model.Images;
 import dev.zawarudo.holo.modules.anime.jikan.model.Manga;
 import dev.zawarudo.holo.modules.anime.jikan.model.Nameable;
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
-import dev.zawarudo.holo.modules.anime.model.MangaResult;
+import dev.zawarudo.holo.modules.anime.AnimeResult;
+import dev.zawarudo.holo.modules.anime.MangaResult;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
@@ -40,6 +40,8 @@ public final class JikanProvider implements MediaSearchProvider {
     }
 
     private static AnimeResult mapAnime(Anime anime) {
+        String score = anime.getScore() == 0.0 ? "N/A" : String.valueOf(anime.getScore());
+
         return new AnimeResult(
                 MediaPlatform.MAL_JIKAN,
                 anime.getId(),
@@ -53,7 +55,7 @@ public final class JikanProvider implements MediaSearchProvider {
                 anime.getTitleEnglish().orElse(null),
                 anime.getTitleJapanese().orElse(null),
 
-                anime.getScore(),
+                score,
                 anime.getRank(),
                 anime.getEpisodes(),
 
@@ -68,6 +70,8 @@ public final class JikanProvider implements MediaSearchProvider {
     }
 
     private static MangaResult mapManga(Manga manga) {
+        String score = manga.getScore() == 0.0 ? "N/A" : String.valueOf(manga.getScore());
+
         return new MangaResult(
                 MediaPlatform.MAL_JIKAN,
                 manga.getId(),
@@ -82,7 +86,7 @@ public final class JikanProvider implements MediaSearchProvider {
                 manga.getTitleEnglish().orElse(null),
                 manga.getTitleJapanese().orElse(null),
 
-                manga.getScore(),
+                score,
                 manga.getRank(),
                 manga.getChapters(),
                 manga.getVolumes(),
