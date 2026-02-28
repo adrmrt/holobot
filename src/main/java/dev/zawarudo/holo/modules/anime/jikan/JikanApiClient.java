@@ -7,7 +7,7 @@ import dev.zawarudo.holo.modules.anime.jikan.model.*;
 import dev.zawarudo.holo.modules.anime.jikan.model.Character;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.HoloHttp;
-import dev.zawarudo.holo.utils.RateLimiter;
+import dev.zawarudo.holo.utils.HoloRateLimiter;
 import dev.zawarudo.holo.utils.TypeTokenUtils;
 import dev.zawarudo.holo.utils.exceptions.*;
 
@@ -21,7 +21,7 @@ public final class JikanApiClient {
     private static final String BASE_URL = "https://api.jikan.moe/v4";
     private static int limit = 10;
 
-    private static final RateLimiter RATE_LIMITER = new RateLimiter(1);
+    private static final HoloRateLimiter RATE_LIMITER = new HoloRateLimiter(1);
 
     private JikanApiClient() {
     }

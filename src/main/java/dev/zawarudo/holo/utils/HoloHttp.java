@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class HoloHttp {
 
-    public static final String DEFAULT_USER_AGENT = "HoloBot (+https://github.com/zaw4rud0/holobot)";
+    public static final String DEFAULT_USER_AGENT = "HoloBot (+https://github.com/adrmrt/holobot)";
     private static final Gson GSON = new Gson();
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()
@@ -27,7 +27,7 @@ public final class HoloHttp {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    private static final Map<String, RateLimiter> HOST_LIMITERS = new ConcurrentHashMap<>();
+    private static final Map<String, HoloRateLimiter> HOST_LIMITERS = new ConcurrentHashMap<>();
 
     private HoloHttp() {
         throw new UnsupportedOperationException();
@@ -81,10 +81,12 @@ public final class HoloHttp {
             throw new HttpTransportException("Invalid URL: " + url, e);
         }
 
-        // Optional per-host limiter
-        RateLimiter limiter = HOST_LIMITERS.get(uri.getHost());
-        if (limiter != null) {
-            limiter.acquire();
+        String host = uri.getHost();
+        if (host != null) {
+            HoloRateLimiter limiter = HOST_LIMITERS.get(host);
+            if (limiter != null) {
+                limiter.acquire();
+            }
         }
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -123,7 +125,7 @@ public final class HoloHttp {
         return s.substring(0, max) + "...";
     }
 
-    public static void setHostRateLimit(@NotNull String host, @NotNull RateLimiter limiter) {
+    public static void setHostRateLimit(@NotNull String host, @NotNull HoloRateLimiter limiter) {
         HOST_LIMITERS.put(Objects.requireNonNull(host), Objects.requireNonNull(limiter));
     }
 

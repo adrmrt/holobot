@@ -30,6 +30,9 @@ hs_err_pid*
 /.idea/
 *.iml
 
+# VS Code Files
+/.vscode/
+
 # Resources files
 /src/main/resources/dev/zawarudo/holo/image/template
 /src/main/resources/experimental/

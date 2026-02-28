@@ -1,23 +1,25 @@
 package dev.zawarudo.holo.utils;
 
+import com.google.common.util.concurrent.RateLimiter;
+
 /**
  * A wrapper class around the unstable API.
  */
 @SuppressWarnings({"UnstableApiUsage", "unused"})
-public class RateLimiter {
+public class HoloRateLimiter {
 
-    private final com.google.common.util.concurrent.RateLimiter rateLimiter;
+    private final RateLimiter rateLimiter;
 
     /**
      * Creates an object with the specified permits per second.
      *
      * @param permitsPerSecond Number of times an action can be executed. Must be a positive non-null value.
      */
-    public RateLimiter(int permitsPerSecond) {
+    public HoloRateLimiter(int permitsPerSecond) {
         if (permitsPerSecond < 1) {
             throw new IllegalArgumentException("Parameter value must be greater than zero! Given value: " + permitsPerSecond);
         }
-        rateLimiter = com.google.common.util.concurrent.RateLimiter.create(permitsPerSecond);
+        rateLimiter = RateLimiter.create(permitsPerSecond);
     }
 
     /**
