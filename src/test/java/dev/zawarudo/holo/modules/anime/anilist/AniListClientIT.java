@@ -1,8 +1,7 @@
 package dev.zawarudo.holo.modules.anime.anilist;
 
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
-import dev.zawarudo.holo.modules.anime.model.MangaResult;
-import dev.zawarudo.holo.modules.anime.provider.AniListProvider;
+import dev.zawarudo.holo.modules.anime.AnimeResult;
+import dev.zawarudo.holo.modules.anime.MangaResult;
 import dev.zawarudo.holo.utils.HoloHttp;
 import dev.zawarudo.holo.utils.HoloRateLimiter;
 import org.junit.jupiter.api.*;

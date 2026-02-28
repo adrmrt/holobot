@@ -10,11 +10,9 @@ import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
 
 import java.util.Map;
 
-/**
+/*
  * TODO:
- *  - https://netflix.github.io/dgs/advanced/java-client/
- *  - https://spec.graphql.org/draft/
- *  - https://graphql.org/learn/response/
+ *  - https://studio.apollographql.com/sandbox/explorer?endpoint=https://graphql.anilist.co
  */
 public final class AniListApiClient {
 
@@ -27,11 +25,20 @@ public final class AniListApiClient {
                   id
                   siteUrl
                   title { romaji english native }
+                  description
                   format
                   status
                   episodes
                   averageScore
-                  coverImage { large }
+                  coverImage { extraLarge large medium }
+                  genres
+                  season
+                  seasonYear
+                  rankings {
+                    rank
+                    type
+                    allTime
+                  }
                 }
               }
             }
@@ -44,12 +51,19 @@ public final class AniListApiClient {
                   id
                   siteUrl
                   title { romaji english native }
+                  description
                   format
                   status
                   chapters
                   volumes
                   averageScore
-                  coverImage { large }
+                  coverImage { extraLarge large medium}
+                  genres
+                  rankings {
+                    rank
+                    type
+                    allTime
+                  }
                 }
               }
             }

@@ -8,7 +8,7 @@ import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.core.misc.EmbedColor;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
-import dev.zawarudo.holo.modules.anime.model.MangaResult;
+import dev.zawarudo.holo.modules.anime.MangaResult;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.exceptions.APIException;
@@ -144,8 +144,20 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
 
         b.addBlankField(true);
 
-        b.addField("MAL Score", formatScore(manga.score()), true);
-        b.addField("MAL Rank", formatRank(manga.rank()), true);
+        // Scores
+        String scoreLabel = switch (manga.platform()) {
+            case ANILIST -> "AniList Score";
+            case MAL_JIKAN -> "MAL Score";
+        };
+        String scoreValue = manga.score();
+        String rankLabel = switch (manga.platform()) {
+            case ANILIST -> "AniList Rank";
+            case MAL_JIKAN -> "MAL Rank";
+        };
+        String rankValue = formatRank(manga.rank());
+
+        b.addField(scoreLabel, scoreValue, true);
+        b.addField(rankLabel, rankValue, true);
         b.addBlankField(true);
 
         // Link
@@ -158,10 +170,6 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
 
         b.setAuthor(manga.platform().getName(), manga.platform().getUrl(), manga.platform().getIconUrl());
         return b;
-    }
-
-    private String formatScore(double score) {
-        return score == 0.0 ? "N/A" : String.valueOf(score);
     }
 
     private String formatRank(int rank) {
