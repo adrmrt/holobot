@@ -129,7 +129,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>6.3.2</version>
+            <version>6.4.1</version>
         </dependency>
 
         <!-- Maintained version of JDA Utilities -->
@@ -159,14 +159,14 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.5.0-jre</version>
+            <version>33.6.0-jre</version>
         </dependency>
 
         <!-- Akinator API wrapper -->
         <dependency>
             <groupId>org.eu.zajc</groupId>
             <artifactId>akiwrapper</artifactId>
-            <version>3.0.2</version>
+            <version>3.0.3</version>
         </dependency>
 
         <!-- LavaPlayer -->
@@ -188,13 +188,13 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.51.3.0</version>
+            <version>3.53.0.0</version>
         </dependency>
         <!-- Flyway for database migrations -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>12.1.1</version>
+            <version>12.4.0</version>
         </dependency>
 
         <!-- JLyrics to browse lyrics and song information -->
