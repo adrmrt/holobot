@@ -50,7 +50,7 @@ public final class Bootstrap {
         LOGGER.info("BOT_TOKEN: {}", mask(dotenv.get("BOT_TOKEN")));
         LOGGER.info("OWNER_ID: {}", dotenv.get("OWNER_ID"));
 
-        String version = VersionInfo.getVersion();
+        String version = VersionInfo.getBotVersion();
         LOGGER.info("Version: {}", version);
 
         BotConfig config = buildConfig(dotenv);

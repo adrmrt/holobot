@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class HoloHttp {
 
-    public static final String DEFAULT_USER_AGENT = "HoloBot (+https://github.com/adrmrt/holobot)";
+    public static final String DEFAULT_USER_AGENT =
+            "HoloBot/" + VersionInfo.getBotVersion() + " (+https://github.com/adrmrt/holobot) Java/" + VersionInfo.getJavaVersion();
     private static final Gson GSON = new Gson();
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()

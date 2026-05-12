@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.modules.urbandictionary;
 
 import dev.zawarudo.holo.utils.Formatter;
+import dev.zawarudo.holo.utils.HoloHttp;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,7 +22,7 @@ public final class UrbanDictionaryScraper {
         String url = String.format("%s/define.php?term=%s", BASE_URL, Formatter.encodeUrl(searchTerm));
 
         Document doc = Jsoup.connect(url)
-                .userAgent("HoloBot (+https://github.com/adrmrt/holobot)")
+                .userAgent(HoloHttp.DEFAULT_USER_AGENT)
                 .timeout(10_000)
                 .get();
 

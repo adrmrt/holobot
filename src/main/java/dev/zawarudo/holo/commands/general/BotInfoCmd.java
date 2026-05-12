@@ -40,8 +40,9 @@ public class BotInfoCmd extends AbstractCommand {
 		builder.setThumbnail(e.getJDA().getSelfUser().getEffectiveAvatarUrl().concat("?size=512"));
 		builder.setDescription(description);
 		builder.addField("Creator", "<@" + Bootstrap.holo.getConfig().getOwnerId() + ">", false);
-		builder.addField("Bot Version", "`" + VersionInfo.getVersion() + "`", false);
+		builder.addField("Bot Version", "`" + VersionInfo.getBotVersion() + "`", false);
 		builder.addField("JDA Version", "`" + JDAInfo.VERSION.replace("_" + JDAInfo.COMMIT_HASH, "") + "`", false);
+		builder.addField("Java Version", "`" + VersionInfo.getJavaVersion() + "`", false);
 		builder.addField("System Information", systemInfo, false);
 		builder.addField("Database Size", "`" + new File(Database.getDbPath()).length() / 1024 / 1024 + "MB`", false);
 		builder.addField("Source", "[GitHub](https://github.com/xHarlock/HoloBot)", false);
