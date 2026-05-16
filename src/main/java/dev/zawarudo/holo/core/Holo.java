@@ -18,8 +18,10 @@ import dev.zawarudo.holo.modules.MerriamWebsterClient;
 import dev.zawarudo.holo.modules.akinator.AkinatorSessionManager;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
-import dev.zawarudo.holo.modules.anime.provider.JikanProvider;
-import dev.zawarudo.holo.modules.anime.provider.MediaSearchProvider;
+import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
+import dev.zawarudo.holo.modules.anime.anilist.AniListProvider;
+import dev.zawarudo.holo.modules.anime.jikan.JikanProvider;
+import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
@@ -111,9 +113,14 @@ public class Holo extends ListenerAdapter {
         XkcdSyncService xkcdSyncService = new XkcdSyncService(xkcdDao, executors.io());
         BlacklistService blacklistService = new BlacklistService(blacklistedDao);
 
-        // Init anime search
-        List<MediaSearchProvider> providers = List.of(new JikanProvider());
-        List<MediaPlatform> order = List.of(MediaPlatform.MAL_JIKAN);
+        // Init anime stuff
+        AniListApiClient aniListClient = new AniListApiClient();
+
+        List<MediaSearchProvider> providers = List.of(
+                new AniListProvider(aniListClient),
+                new JikanProvider()
+        );
+        List<MediaPlatform> order = List.of(MediaPlatform.ANILIST, MediaPlatform.MAL_JIKAN);
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
 
         gitHubClient = new GitHubClient(botConfig.getGitHubToken());

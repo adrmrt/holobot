@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.net.URLEncoder;
@@ -213,6 +214,59 @@ public final class Formatter {
         // Any remaining "{...}" tokens you don't handle yet -> strip token markers but keep content conservative
         // (prevents raw tokens leaking into Discord)
         s = s.replaceAll("\\{/?[a-z_]+}", "");
+
+        return s.trim();
+    }
+
+    /**
+     * Converts basic HTML formatting into Discord-compatible Markdown.
+     */
+    public static @Nullable String htmlToDiscord(@Nullable String input) {
+        if (input == null || input.isBlank()) return null;
+
+        String s = input;
+
+        // Line breaks
+        s = s.replaceAll("(?i)<br\\s*/?>", "\n");
+
+        // Italic
+        s = s.replaceAll("(?i)<i>(.*?)</i>", "*$1*");
+        s = s.replaceAll("(?i)<em>(.*?)</em>", "*$1*");
+
+        // Bold
+        s = s.replaceAll("(?i)<b>(.*?)</b>", "**$1**");
+        s = s.replaceAll("(?i)<strong>(.*?)</strong>", "**$1**");
+
+        // Underline
+        s = s.replaceAll("(?i)<u>(.*?)</u>", "__$1__");
+
+        // Strikethrough
+        s = s.replaceAll("(?i)<s>(.*?)</s>", "~~$1~~");
+        s = s.replaceAll("(?i)<strike>(.*?)</strike>", "~~$1~~");
+
+        // Remove remaining HTML tags
+        s = s.replaceAll("<[^>]+>", "");
+
+        // Decode common HTML entities
+        s = s.replace("&quot;", "\"")
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&#039;", "'")
+                .replace("&nbsp;", " ");
+
+        // Normalize line endings
+        s = s.replace("\r", "");
+
+        // Trim whitespace around newlines
+        s = s.replaceAll("[ \\t]+\\n", "\n");
+        s = s.replaceAll("\\n[ \\t]+", "\n");
+
+        // Collapse excessive blank lines
+        s = s.replaceAll("\\n{3,}", "\n\n");
+
+        // Remove empty line before list items
+        s = s.replaceAll("\\n\\n(- )", "\n$1");
 
         return s.trim();
     }

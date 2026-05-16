@@ -1,8 +1,5 @@
 package dev.zawarudo.holo.modules.anime;
 
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
-import dev.zawarudo.holo.modules.anime.model.MangaResult;
-import dev.zawarudo.holo.modules.anime.provider.MediaSearchProvider;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 
