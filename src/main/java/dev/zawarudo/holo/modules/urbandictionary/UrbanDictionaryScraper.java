@@ -46,8 +46,10 @@ public final class UrbanDictionaryScraper {
     }
 
     private String extractTitle(Element element) {
-        Element titleElement = element.selectFirst("a.word");
-        return (titleElement != null) ? titleElement.wholeText() : null;
+        Element el = element.selectFirst("a.word");
+        if (el != null) return el.wholeText();
+        Element h2 = element.selectFirst("h2");
+        return h2 != null ? h2.wholeText() : null;
     }
 
     private String extractMeaning(Element element) {
@@ -67,8 +69,32 @@ public final class UrbanDictionaryScraper {
     }
 
     private String extractLink(Element element) {
-        Element titleElement = element.selectFirst("a.word");
-        return (titleElement != null) ? BASE_URL + titleElement.attr("href").replace(" ", "%20") : null;
+        Element el = element.selectFirst("a.word");
+        if (el != null) return BASE_URL + el.attr("href").replace(" ", "%20");
+
+        // Extract defid from share link (e.g. /ui/share?term=troll&defid=5096)
+        Element shareLink = element.selectFirst("a[href*='defid=']");
+        if (shareLink != null) {
+            String href = shareLink.attr("href");
+            String defid = extractQueryParam(href, "defid");
+            String term = extractQueryParam(href, "term");
+            if (defid != null && term != null) {
+                return "http://" + term.toLowerCase().replace(" ", "-") + ".urbanup.com/" + defid;
+            }
+        }
+
+        Element h2 = element.selectFirst("h2");
+        if (h2 != null) return BASE_URL + "/define.php?term=" + Formatter.encodeUrl(h2.wholeText().trim());
+        return null;
+    }
+
+    private static String extractQueryParam(String url, String param) {
+        String prefix = param + "=";
+        int start = url.indexOf(prefix);
+        if (start == -1) return null;
+        start += prefix.length();
+        int end = url.indexOf('&', start);
+        return end == -1 ? url.substring(start) : url.substring(start, end);
     }
 
     /**
