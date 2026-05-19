@@ -9,7 +9,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import org.jsoup.HttpStatusException;
+
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +25,18 @@ public final class UrbanDictionaryScraper {
     public @NotNull List<UrbanDictionaryEntry> fetch(@NotNull String searchTerm) throws IOException {
         String url = String.format("%s/define.php?term=%s", BASE_URL, Formatter.encodeUrl(searchTerm));
 
-        Document doc = Jsoup.connect(url)
-                .userAgent(HoloHttp.DEFAULT_USER_AGENT)
-                .timeout(10_000)
-                .get();
+        Document doc;
+        try {
+            doc = Jsoup.connect(url)
+                    .userAgent(HoloHttp.DEFAULT_USER_AGENT)
+                    .timeout(10_000)
+                    .get();
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == 404) {
+                return List.of();
+            }
+            throw e;
+        }
 
         Elements elements = doc.select("div.definition");
         int limit = Math.min(MAX_RESULTS, elements.size());
@@ -70,7 +82,7 @@ public final class UrbanDictionaryScraper {
 
     private String extractLink(Element element) {
         Element el = element.selectFirst("a.word");
-        if (el != null) return BASE_URL + el.attr("href").replace(" ", "%20");
+        if (el != null) return el.absUrl("href").replace(" ", "%20");
 
         // Extract defid from share link (e.g. /ui/share?term=troll&defid=5096)
         Element shareLink = element.selectFirst("a[href*='defid=']");
@@ -79,7 +91,8 @@ public final class UrbanDictionaryScraper {
             String defid = extractQueryParam(href, "defid");
             String term = extractQueryParam(href, "term");
             if (defid != null && term != null) {
-                return "http://" + term.toLowerCase().replace(" ", "-") + ".urbanup.com/" + defid;
+                String decoded = URLDecoder.decode(term, StandardCharsets.UTF_8);
+                return "https://" + decoded.toLowerCase().replace(" ", "-") + ".urbanup.com/" + defid;
             }
         }
 
@@ -103,7 +116,7 @@ public final class UrbanDictionaryScraper {
      */
     private String toDiscordMarkdown(@NotNull Element element) {
         for (Element a : element.select("a[href]")) {
-            String href = (BASE_URL + a.attr("href")).replace(" ", "%20");
+            String href = a.absUrl("href").replace(" ", "%20");
             String linkText = a.text();
             a.replaceWith(new TextNode("[" + linkText + "](" + href + ")"));
         }

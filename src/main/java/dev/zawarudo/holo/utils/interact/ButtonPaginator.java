@@ -68,6 +68,7 @@ public final class ButtonPaginator<T> {
         commandMessage.replyEmbeds(embed)
                 .addComponents(ActionRow.of(buttons))
                 .queue(msg -> await(msg, caller, index, items), err -> {
+                    System.out.println("Failed to send paginator message: " + err.getMessage());
                 });
     }
 
