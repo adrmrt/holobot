@@ -120,7 +120,7 @@ public class Holo extends ListenerAdapter {
                 new AniListProvider(aniListClient),
                 new JikanProvider()
         );
-        List<MediaPlatform> order = List.of(MediaPlatform.ANILIST, MediaPlatform.MAL_JIKAN);
+        List<MediaPlatform> order = List.of(MediaPlatform.MAL_JIKAN, MediaPlatform.ANILIST);
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
 
         gitHubClient = new GitHubClient(botConfig.getGitHubToken());

@@ -20,8 +20,6 @@ public final class AniListMappers {
     }
 
     public static @NotNull List<AnimeResult> toAnimeResults(@Nullable JsonArray media) {
-        System.out.println(media);
-
         if (media == null || media.isEmpty()) return List.of();
 
         List<AnimeResult> out = new ArrayList<>(media.size());
@@ -33,8 +31,6 @@ public final class AniListMappers {
     }
 
     public static @NotNull List<MangaResult> toMangaResults(@Nullable JsonArray media) {
-        System.out.println(media);
-
         if (media == null || media.isEmpty()) return List.of();
 
         List<MangaResult> out = new ArrayList<>(media.size());

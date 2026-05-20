@@ -195,6 +195,18 @@ public final class ReactionSelector<T> {
             @NotNull Function<T, String> lineFormatter,
             Color color
     ) {
+        return defaultNumberedListEmbed(title, items, lineFormatter, color, null, null, null);
+    }
+
+    public static <T> MessageEmbed defaultNumberedListEmbed(
+            @NotNull String title,
+            @NotNull List<T> items,
+            @NotNull Function<T, String> lineFormatter,
+            Color color,
+            @Nullable String authorName,
+            @Nullable String authorUrl,
+            @Nullable String authorIconUrl
+    ) {
         List<Emote> numbers = HoloUtils.getNumbers();
         int max = Math.min(items.size(), numbers.size());
 
@@ -210,6 +222,9 @@ public final class ReactionSelector<T> {
         b.setTitle(title);
         b.setDescription(sb + "\nTo select one item, please react with the corresponding number.");
         b.setColor(color);
+        if (authorName != null) {
+            b.setAuthor(authorName, authorUrl, authorIconUrl);
+        }
         return b.build();
     }
 }

@@ -195,7 +195,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>12.6.1</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- JLyrics to browse lyrics and song information -->
