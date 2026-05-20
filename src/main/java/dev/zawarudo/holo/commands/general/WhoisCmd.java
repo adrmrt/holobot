@@ -55,7 +55,7 @@ public class WhoisCmd extends AbstractCommand {
 
         Member member = memberOptional.get();
         setEmbedWithMemberDetails(builder, member);
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES, member.getColor());
+        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES, member.getColors().getPrimary());
     }
 
     private EmbedBuilder setEmbedWithUserDetails(User user, boolean hasMember) {

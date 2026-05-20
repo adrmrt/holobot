@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Locale;
 
 /**
@@ -64,7 +64,7 @@ public final class PokemonUtils {
 
     private static BufferedImage getBlackPokemon(Pokemon pokemon) throws IOException {
         String spriteUrl = pokemon.getSprites().getOther().getArtwork().getFrontDefault();
-        BufferedImage spriteImage = ImageIO.read(new URL(spriteUrl));
+        BufferedImage spriteImage = ImageIO.read(URI.create(spriteUrl).toURL());
         return ImageOperations.turnBlack(spriteImage);
     }
 
