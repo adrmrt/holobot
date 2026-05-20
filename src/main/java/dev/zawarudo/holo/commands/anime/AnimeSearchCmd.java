@@ -2,9 +2,12 @@ package dev.zawarudo.holo.commands.anime;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
-import dev.zawarudo.holo.modules.anime.model.AnimeResult;
+import dev.zawarudo.holo.modules.anime.AnimeResult;
+import org.jetbrains.annotations.Nullable;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.CommandCategory;
@@ -14,20 +17,19 @@ import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 import dev.zawarudo.holo.utils.interact.ReactionSelector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @CommandInfo(name = "animesearch",
-        description = "Use this command to search for an anime in the database of MyAnimeList.",
-        usage = "<title>",
-        example = "one piece",
+        description = "Use this command to search for an anime. Optionally specify a platform (mal or anilist) to search on.",
+        usage = "[mal|anilist] <title>",
+        example = "mal one piece",
         alias = {"as", "anime"},
         thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
         embedColor = EmbedColor.MAL,
         category = CommandCategory.ANIME)
-public class AnimeSearchCmd extends AbstractCommand {
+public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand {
 
     private final MediaSearchService searchService;
     private final ReactionSelector<AnimeResult> selector;
@@ -37,45 +39,67 @@ public class AnimeSearchCmd extends AbstractCommand {
 
         this.selector = new ReactionSelector<>(
                 waiter,
-                items -> ReactionSelector.defaultNumberedListEmbed(
-                        "Anime Search Results",
-                        items,
-                        a -> String.format("%s [%s]", a.title(), a.type()),
-                        getEmbedColor()
-                )
+                items -> {
+                    MediaPlatform platform = items.getFirst().platform();
+                    return ReactionSelector.defaultNumberedListEmbed(
+                            "Anime Search Results",
+                            items,
+                            a -> String.format("%s [%s]", a.title(), a.type()),
+                            getEmbedColor(),
+                            platform.getName(),
+                            platform.getUrl(),
+                            platform.getIconUrl()
+                    );
+                }
         );
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        sendTyping(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.reply().typing();
 
-        if (args.length == 0) {
-            sendErrorEmbed(event, "Please provide a title to search for.");
+        if (!ctx.hasArgs()) {
+            ctx.reply().errorEmbed("Please provide a title to search for.");
             return;
         }
 
-        String search = String.join(" ", args);
+        MediaPlatform platform = parsePlatformFlag(ctx.args().getFirst());
+        final String search = platform != null
+                ? String.join(" ", ctx.args().subList(1, ctx.args().size())).trim()
+                : ctx.argString();
+
+        if (search.isBlank()) {
+            ctx.reply().errorEmbed("Please provide a title to search for.");
+            return;
+        }
 
         final List<AnimeResult> results;
         try {
-            results = searchService.searchAnime(search, 10);
+            List<MediaPlatform> order = platform != null ? List.of(platform) : null;
+            results = order != null
+                    ? searchService.searchAnime(search, 10, order)
+                    : searchService.searchAnime(search, 10);
         } catch (APIException | InvalidRequestException ex) {
-            sendErrorEmbed(event, "An error occurred while trying to search for the anime! Please try again later.");
+            ctx.reply().errorEmbed("An error occurred while trying to search for the anime! Please try again later.");
             logger.error("Anime search failed: {}", search, ex);
             return;
         }
 
         if (results.isEmpty()) {
-            sendErrorEmbed(event, "I couldn't find any anime with your given search terms!");
+            ctx.reply().errorEmbed("I couldn't find any anime with your given search terms!");
             return;
         }
 
-        deleteInvoke(event);
-
-        selector.start(event.getMessage(), event.getAuthor(), results, (evt, selected, index) -> {
+        ctx.message().ifPresentOrElse(invokeMessage -> selector.start(invokeMessage, ctx.user(), results, (evt, selected, index) -> {
             EmbedBuilder builder = createEmbed(selected);
-            sendEmbed(event, builder, true, getEmbedColor());
+            builder.setColor(getEmbedColor());
+            ctx.reply().embed(builder);
+        }), () -> {
+            // TODO: Handle slash command version better
+            AnimeResult first = results.getFirst();
+            EmbedBuilder builder = createEmbed(first);
+            builder.setColor(getEmbedColor());
+            ctx.reply().embed(builder);
         });
     }
 
@@ -140,7 +164,7 @@ public class AnimeSearchCmd extends AbstractCommand {
             case ANILIST -> "AniList Score";
             case MAL_JIKAN -> "MAL Score";
         };
-        String scoreValue = formatScore(anime.score());
+        String scoreValue = anime.score();
         String rankLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Rank";
             case MAL_JIKAN -> "MAL Rank";
@@ -167,10 +191,6 @@ public class AnimeSearchCmd extends AbstractCommand {
         return episodes == 0 ? "TBA" : String.valueOf(episodes);
     }
 
-    private String formatScore(double score) {
-        return score == 0.0 ? "N/A" : String.valueOf(score);
-    }
-
     private String formatRank(int rank) {
         return rank == 0 ? "N/A" : String.valueOf(rank);
     }
@@ -185,5 +205,14 @@ public class AnimeSearchCmd extends AbstractCommand {
             return null;
         }
         return String.join(", ", list);
+    }
+
+    @Nullable
+    private static MediaPlatform parsePlatformFlag(String token) {
+        return switch (token.toLowerCase()) {
+            case "mal", "myanimelist" -> MediaPlatform.MAL_JIKAN;
+            case "anilist", "al" -> MediaPlatform.ANILIST;
+            default -> null;
+        };
     }
 }
