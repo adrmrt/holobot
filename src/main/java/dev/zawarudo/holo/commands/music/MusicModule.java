@@ -3,9 +3,7 @@ package dev.zawarudo.holo.commands.music;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import dev.zawarudo.holo.commands.CommandManager;
 import dev.zawarudo.holo.commands.CommandModule;
-import dev.zawarudo.holo.utils.annotations.Deactivated;
 
-@Deactivated
 public class MusicModule implements CommandModule {
 
     private final EventWaiter eventWaiter;

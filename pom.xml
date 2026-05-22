@@ -137,7 +137,6 @@
             <groupId>pw.chew</groupId>
             <artifactId>jda-chewtils</artifactId>
             <version>2.2.1</version>
-            <scope>compile</scope>
             <type>pom</type>
         </dependency>
 
@@ -170,11 +169,16 @@
         </dependency>
 
         <!-- LavaPlayer -->
-        <!-- TODO: Borked, remove -->
         <dependency>
-            <groupId>com.github.walkyst</groupId>
-            <artifactId>lavaplayer-fork</artifactId>
-            <version>1.4.3</version>
+            <groupId>dev.arbjerg</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>2.2.6</version>
+        </dependency>
+        <!-- YouTube source plugin for LavaPlayer 2.x -->
+        <dependency>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>v2</artifactId>
+            <version>1.18.0</version>
         </dependency>
 
         <!-- Jsoup HTML parser -->
@@ -303,14 +307,13 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>jcenter</id>
-            <name>jcenter-bintray</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-        <repository>
             <id>github</id>
             <name>GitHub repository of my packages</name>
             <url>https://maven.pkg.github.com/adrmrt</url>
+        </repository>
+        <repository>
+            <id>lavalink-releases</id>
+            <url>https://maven.lavalink.dev/releases</url>
         </repository>
     </repositories>
 </project>

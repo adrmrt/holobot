@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
@@ -20,7 +21,9 @@ public class PlayerManager {
 
 	public PlayerManager() {
 		musicManagers = new HashMap<>();
-		AudioSourceManagers.registerRemoteSources(audioPlayerManager = new DefaultAudioPlayerManager());
+		audioPlayerManager = new DefaultAudioPlayerManager();
+		audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+		AudioSourceManagers.registerRemoteSources(audioPlayerManager);
 		AudioSourceManagers.registerLocalSource(audioPlayerManager);
 	}
 
