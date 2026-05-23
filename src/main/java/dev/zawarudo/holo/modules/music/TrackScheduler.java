@@ -32,12 +32,17 @@ public class TrackScheduler extends AudioEventAdapter {
     public boolean looping;
     public boolean paused;
 
-    public TrackScheduler(AudioPlayer player) {
+    private final Runnable onIdle;
+    private final Runnable onActive;
+
+    public TrackScheduler(AudioPlayer player, Runnable onIdle, Runnable onActive) {
         queue = new LinkedBlockingQueue<>();
         history = new LinkedBlockingQueue<>();
         audioPlayer = player;
         looping = false;
         paused = false;
+        this.onIdle = onIdle;
+        this.onActive = onActive;
     }
 
     /**
@@ -45,6 +50,7 @@ public class TrackScheduler extends AudioEventAdapter {
      * it will be played by the {@link AudioPlayer}.
      */
     public void enqueue(AudioTrack track) {
+        onActive.run();
         if (queue.isEmpty() && audioPlayer.getPlayingTrack() == null) {
             addToHistory(track);
         }
@@ -133,6 +139,8 @@ public class TrackScheduler extends AudioEventAdapter {
         audioPlayer.startTrack(track, false);
         if (track != null) {
             addToHistory(track);
+        } else {
+            onIdle.run();
         }
     }
 }

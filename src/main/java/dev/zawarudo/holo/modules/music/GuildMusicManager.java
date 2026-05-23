@@ -2,24 +2,53 @@ package dev.zawarudo.holo.modules.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import net.dv8tion.jda.api.entities.Guild;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GuildMusicManager {
 
+	/** Minutes of silence before the bot disconnects automatically. */
+	private static final long IDLE_TIMEOUT_MINUTES = 5;
+
 	public final AudioPlayer audioPlayer;
 	public final TrackScheduler scheduler;
 	private final AudioPlayerSendHandler audioPlayerHandler;
+	private final Guild guild;
 	private boolean voting;
 	private final AtomicInteger counter;
+	private CompletableFuture<Void> autoLeaveTask;
 
-	public GuildMusicManager(AudioPlayerManager manager) {
+	public GuildMusicManager(AudioPlayerManager manager, Guild guild) {
+		this.guild = guild;
 		audioPlayer = manager.createPlayer();
-		scheduler = new TrackScheduler(audioPlayer);
+		scheduler = new TrackScheduler(audioPlayer, this::scheduleAutoLeave, this::cancelAutoLeave);
 		audioPlayer.addListener(scheduler);
-		audioPlayerHandler = new AudioPlayerSendHandler(audioPlayer);		
+		audioPlayerHandler = new AudioPlayerSendHandler(audioPlayer);
 		voting = false;
 		counter = new AtomicInteger(0);
+	}
+
+	private void scheduleAutoLeave() {
+		cancelAutoLeave();
+		autoLeaveTask = CompletableFuture.runAsync(
+				() -> {
+					if (guild.getAudioManager().isConnected()) {
+						clear();
+						CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
+								.execute(() -> guild.getAudioManager().closeAudioConnection());
+					}
+				},
+				CompletableFuture.delayedExecutor(IDLE_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+		);
+	}
+
+	private void cancelAutoLeave() {
+		if (autoLeaveTask != null) {
+			autoLeaveTask.cancel(false);
+		}
 	}
 
 	/**
@@ -67,5 +96,6 @@ public class GuildMusicManager {
 		scheduler.looping = false;
 		scheduler.queue.clear();
 		audioPlayer.stopTrack();
+		scheduleAutoLeave();
 	}
 }

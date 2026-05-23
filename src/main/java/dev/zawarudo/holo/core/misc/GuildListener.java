@@ -166,8 +166,6 @@ public class GuildListener extends ListenerAdapter {
         AudioChannelUnion botVoice = event.getGuild().getSelfMember().getVoiceState().getChannel();
 
         if (event.getChannelLeft().equals(botVoice) && botVoice.getMembers().size() <= 1) {
-            logInfo("No one is in the voice channel anymore. Leaving it...");
-
             GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
             musicManager.clear();
             // Delay closing to let in-flight DAVE re-keying messages drain before the native session is destroyed
