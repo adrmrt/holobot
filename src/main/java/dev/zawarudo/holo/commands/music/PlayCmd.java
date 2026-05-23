@@ -11,7 +11,6 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -40,18 +39,11 @@ public class PlayCmd extends AbstractMusicCommand {
             return;
         }
 
-        AudioManager audioManager = e.getGuild().getAudioManager();
-
-        if (isBotInAudioChannel(e.getGuild())) {
-            if (!isUserInSameAudioChannel(e)) {
-                builder.setTitle("Already playing elsewhere!");
-                builder.setDescription("I'm already in " + Objects.requireNonNull(getConnectedChannel(e.getGuild())).getAsMention() + "!");
-                sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);
-                return;
-            }
-        } else {
-            AudioChannelUnion userChannel = getMemberVoiceState(e.getMember()).getChannel();
-            audioManager.openAudioConnection(userChannel);
+        if (isBotInAudioChannel(e.getGuild()) && !isUserInSameAudioChannel(e)) {
+            builder.setTitle("Already playing elsewhere!");
+            builder.setDescription("I'm already in " + Objects.requireNonNull(getConnectedChannel(e.getGuild())).getAsMention() + "!");
+            sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);
+            return;
         }
 
         if (args.length == 0) {
@@ -68,6 +60,12 @@ public class PlayCmd extends AbstractMusicCommand {
             builder.setDescription("Please provide a valid link!");
             sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);
             return;
+        }
+
+        // Join VC after explicitly validating link
+        if (!isBotInAudioChannel(e.getGuild())) {
+            AudioChannelUnion userChannel = getMemberVoiceState(e.getMember()).getChannel();
+            e.getGuild().getAudioManager().openAudioConnection(userChannel);
         }
 
         AudioLoadResultHandler audioLoadResultHandler = getAudioLoadResultHandler(e, builder, link);
