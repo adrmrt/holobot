@@ -9,10 +9,13 @@ import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "play",
@@ -30,11 +33,25 @@ public class PlayCmd extends AbstractMusicCommand {
         String footerText = String.format("Invoked by %s", e.getMember() != null ? e.getMember().getEffectiveName() : e.getAuthor().getName());
         builder.setFooter(footerText, e.getAuthor().getEffectiveAvatarUrl());
 
-        if (!isUserInSameAudioChannel(e)) {
-            builder.setTitle("Not in same voice channel!");
-            builder.setDescription("You need to be in the same voice channel as me!");
+        if (e.getMember() == null || !isUserInAudioChannel(e.getMember())) {
+            builder.setTitle("Not in a voice channel!");
+            builder.setDescription("You need to be in a voice channel to use this command!");
             sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);
             return;
+        }
+
+        AudioManager audioManager = e.getGuild().getAudioManager();
+
+        if (isBotInAudioChannel(e.getGuild())) {
+            if (!isUserInSameAudioChannel(e)) {
+                builder.setTitle("Already playing elsewhere!");
+                builder.setDescription("I'm already in " + Objects.requireNonNull(getConnectedChannel(e.getGuild())).getAsMention() + "!");
+                sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);
+                return;
+            }
+        } else {
+            AudioChannelUnion userChannel = getMemberVoiceState(e.getMember()).getChannel();
+            audioManager.openAudioConnection(userChannel);
         }
 
         if (args.length == 0) {

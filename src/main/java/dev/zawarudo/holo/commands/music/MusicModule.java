@@ -28,7 +28,6 @@ public class MusicModule implements CommandModule {
 
         registry.addCommand(new ClearCmd(eventWaiter), moduleId);
         registry.addCommand(new CloneCmd(), moduleId);
-        registry.addCommand(new JoinCmd(), moduleId);
         registry.addCommand(new LeaveCmd(), moduleId);
         registry.addCommand(new LoopCmd(), moduleId);
         registry.addCommand(new NowPlayingCmd(), moduleId);

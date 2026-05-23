@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class that listens to changes inside a guild or any guild-related events.
@@ -168,7 +170,9 @@ public class GuildListener extends ListenerAdapter {
 
             GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
             musicManager.clear();
-            event.getGuild().getAudioManager().closeAudioConnection();
+            // Delay closing to let in-flight DAVE re-keying messages drain before the native session is destroyed
+            CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
+                    .execute(() -> event.getGuild().getAudioManager().closeAudioConnection());
         }
     }
 

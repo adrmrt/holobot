@@ -80,7 +80,7 @@ public class CommandListener extends ListenerAdapter {
         mdc.put("guildId", event.isFromGuild() ? event.getGuild().getId() : "DM");
         mdc.put("channelId", event.getChannel().getId());
         mdc.put("userId", event.getAuthor().getId());
-        mdc.put("command", invoke);
+        mdc.put("command", cmdManager.isValidName(invoke) ? cmdManager.getCommand(invoke).getName() : invoke);
 
         // Action cmd has been called
         ActionCmd actionCmd = (ActionCmd) cmdManager.getCommand("action");
