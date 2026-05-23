@@ -167,7 +167,7 @@ public class GuildListener extends ListenerAdapter {
 
         if (event.getChannelLeft().equals(botVoice) && botVoice.getMembers().size() <= 1) {
             long channelId = botVoice.getIdLong();
-            PlayerManager.getInstance().getMusicManager(event.getGuild()).clear();
+            PlayerManager.getInstance().getMusicManager(event.getGuild()).stop();
             // 500ms delay lets in-flight DAVE re-keying messages drain before the native session is destroyed
             CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
                     .execute(() -> disconnectIfStillAlone(event.getGuild(), channelId));

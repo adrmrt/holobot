@@ -35,11 +35,12 @@ public class GuildMusicManager {
 		cancelAutoLeave();
 		autoLeaveTask = CompletableFuture.runAsync(
 				() -> {
-					if (guild.getAudioManager().isConnected()) {
-						clear();
-						CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
-								.execute(() -> guild.getAudioManager().closeAudioConnection());
-					}
+					if (!guild.getAudioManager().isConnected()) return;
+					// Guard against cancellation losing the race: abort if playback resumed
+					if (audioPlayer.getPlayingTrack() != null || !scheduler.queue.isEmpty()) return;
+					// Bot is confirmed idle - no need to call clear(), just disconnect
+					CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
+							.execute(() -> guild.getAudioManager().closeAudioConnection());
 				},
 				CompletableFuture.delayedExecutor(IDLE_TIMEOUT_MINUTES, TimeUnit.MINUTES)
 		);
@@ -90,12 +91,22 @@ public class GuildMusicManager {
 	}
 	
 	/**
-	 * Clears the GuildMusicManager.
+	 * Stops playback and clears queue state without arming the idle-disconnect timer.
+	 * Use this when disconnecting immediately (e.g. empty VC, explicit leave).
 	 */
-	public void clear() {
+	public void stop() {
+		cancelAutoLeave();
 		scheduler.looping = false;
 		scheduler.queue.clear();
 		audioPlayer.stopTrack();
+	}
+
+	/**
+	 * Stops playback, clears queue state, and arms the idle-disconnect timer.
+	 * Use this when the bot stays in the VC but should leave if it remains idle.
+	 */
+	public void clear() {
+		stop();
 		scheduleAutoLeave();
 	}
 }
