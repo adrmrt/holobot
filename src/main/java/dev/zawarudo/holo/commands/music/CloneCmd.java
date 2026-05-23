@@ -40,7 +40,8 @@ public class CloneCmd extends AbstractMusicCommand {
 
 		EmbedBuilder builder = new EmbedBuilder();
 		builder.setTitle("Cloned track");
-		if (current.getInfo().artworkUrl != null) builder.setThumbnail(current.getInfo().artworkUrl);
+		String artworkUrl = getThumbnailUrl(current);
+		if (artworkUrl != null) builder.setThumbnail(artworkUrl);
 		builder.addField("Title", current.getInfo().title, false);
 		builder.addField("Uploader", current.getInfo().author, false);
 		builder.addField("Link", "[Open](" + current.getInfo().uri + ")", false);

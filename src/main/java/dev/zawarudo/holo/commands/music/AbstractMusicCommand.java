@@ -1,5 +1,6 @@
 package dev.zawarudo.holo.commands.music;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -45,6 +46,23 @@ public abstract class AbstractMusicCommand extends AbstractCommand {
             return false;
         }
         return member.getVoiceState().inAudioChannel();
+    }
+
+    /**
+     * Returns the thumbnail URL for a track. Uses artworkUrl when available; falls back
+     * to a YouTube thumbnail derived from the video ID for YouTube tracks.
+     */
+    @Nullable
+    protected String getThumbnailUrl(AudioTrack track) {
+        if (track.getInfo().artworkUrl != null) {
+            return track.getInfo().artworkUrl;
+        }
+        String[] parts = track.getInfo().uri.split("v=");
+        if (parts.length > 1) {
+            String videoId = parts[1].split("&")[0];
+            return "https://img.youtube.com/vi/" + videoId + "/hqdefault.jpg";
+        }
+        return null;
     }
 
     /**

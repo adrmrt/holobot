@@ -86,7 +86,7 @@ public class PlayCmd extends AbstractMusicCommand {
                 musicManager.scheduler.enqueue(track);
 
                 builder.setTitle("Added to the queue");
-                String artworkUrl = track.getInfo().artworkUrl;
+                String artworkUrl = getThumbnailUrl(track);
                 if (artworkUrl != null) builder.setThumbnail(artworkUrl);
                 builder.addField("Title", track.getInfo().title, false);
                 builder.addField("Uploader", track.getInfo().author, false);

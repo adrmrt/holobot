@@ -41,7 +41,8 @@ public class NowPlayingCmd extends AbstractMusicCommand {
 		String timestamp = "[`" + Formatter.formatTrackTime(audioPlayer.getPlayingTrack().getPosition()) + "`|`"
 				+ Formatter.formatTrackTime(audioPlayer.getPlayingTrack().getDuration()) + "`]";
 		
-		if (info.artworkUrl != null) builder.setThumbnail(info.artworkUrl);
+		String artworkUrl = getThumbnailUrl(audioPlayer.getPlayingTrack());
+		if (artworkUrl != null) builder.setThumbnail(artworkUrl);
 		builder.addField("Title", info.title, false);
 		builder.addField("Current Timestamp", timestamp, true);
 		builder.addField("Link", "[Open](" + info.uri + ")", false);
