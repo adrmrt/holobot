@@ -2,9 +2,9 @@ package dev.zawarudo.holo.core.misc;
 
 import dev.zawarudo.holo.core.GuildConfigManager;
 import dev.zawarudo.holo.database.DBOperations;
-import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.events.emoji.EmojiAddedEvent;
@@ -166,11 +166,11 @@ public class GuildListener extends ListenerAdapter {
         AudioChannelUnion botVoice = event.getGuild().getSelfMember().getVoiceState().getChannel();
 
         if (event.getChannelLeft().equals(botVoice) && botVoice.getMembers().size() <= 1) {
-            GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
-            musicManager.clear();
-            // Delay closing to let in-flight DAVE re-keying messages drain before the native session is destroyed
+            long channelId = botVoice.getIdLong();
+            PlayerManager.getInstance().getMusicManager(event.getGuild()).clear();
+            // 500ms delay lets in-flight DAVE re-keying messages drain before the native session is destroyed
             CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
-                    .execute(() -> event.getGuild().getAudioManager().closeAudioConnection());
+                    .execute(() -> disconnectIfStillAlone(event.getGuild(), channelId));
         }
     }
 
@@ -183,6 +183,19 @@ public class GuildListener extends ListenerAdapter {
             DBOperations.updateUser(event.getUser());
         } catch (SQLException ex) {
             logError("Something went wrong while the new username in the DB.", ex);
+        }
+    }
+
+    /**
+     * Closes the audio connection only if the bot is still alone in the channel it was in when the
+     * disconnect was scheduled. Guards against the race where someone rejoins within the 500ms DAVE delay.
+     */
+    private void disconnectIfStillAlone(Guild guild, long channelId) {
+        var selfState = guild.getSelfMember().getVoiceState();
+        if (selfState == null || !selfState.inAudioChannel()) return;
+        var channel = selfState.getChannel();
+        if (channel != null && channel.getIdLong() == channelId && channel.getMembers().size() <= 1) {
+            guild.getAudioManager().closeAudioConnection();
         }
     }
 
