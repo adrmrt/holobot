@@ -104,7 +104,7 @@ public class PlayCmd extends AbstractMusicCommand {
                 sendEmbed(e, builder, true, 1, TimeUnit.MINUTES);
 
                 if (logger.isErrorEnabled()) {
-                    logger.error("Load failed for track: " + link, exception);
+                    logger.error("Load failed for track: {}", link, exception);
                 }
             }
         };

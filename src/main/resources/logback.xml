@@ -91,4 +91,10 @@
     <logger name="audit" level="INFO" additivity="false">
         <appender-ref ref="ASYNC_AUDIT"/>
     </logger>
+
+    <!-- Temporary: debug voice + music pipeline -->
+    <logger name="net.dv8tion.jda.internal.audio" level="DEBUG"/>
+    <logger name="dev.zawarudo.holo.modules.music" level="DEBUG"/>
+    <logger name="dev.zawarudo.holo.commands.music" level="DEBUG"/>
+    <logger name="moe.kyokobot" level="DEBUG"/>
 </configuration>

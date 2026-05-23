@@ -181,6 +181,32 @@
             <version>1.18.0</version>
         </dependency>
 
+        <!-- Discord DAVE (E2EE voice) support -->
+        <dependency>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>adapter-jda</artifactId>
+            <version>0.1.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>impl-jni</artifactId>
+            <version>0.1.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>natives-linux-musl-x86-64</artifactId>
+            <version>0.1.3</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>natives-win-x86-64</artifactId>
+            <version>0.1.3</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Jsoup HTML parser -->
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -314,6 +340,10 @@
         <repository>
             <id>lavalink-releases</id>
             <url>https://maven.lavalink.dev/releases</url>
+        </repository>
+        <repository>
+            <id>lavalink-snapshots</id>
+            <url>https://maven.lavalink.dev/snapshots</url>
         </repository>
     </repositories>
 </project>

@@ -25,8 +25,11 @@ import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
+import moe.kyokobot.libdave.NativeDaveFactory;
+import moe.kyokobot.libdave.jda.LDJDADaveSessionFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -84,6 +87,8 @@ public class Holo extends ListenerAdapter {
 
         // Create a new JDA instance
         JDABuilder builder = JDABuilder.createDefault(getConfig().getBotToken());
+        builder.setAudioModuleConfig(new AudioModuleConfig()
+                .withDaveSessionFactory(new LDJDADaveSessionFactory(new NativeDaveFactory())));
         builder.enableIntents(EnumSet.allOf(GatewayIntent.class));
         builder.setChunkingFilter(ChunkingFilter.ALL);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
