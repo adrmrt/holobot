@@ -38,17 +38,12 @@ public class CloneCmd extends AbstractMusicCommand {
 
 		musicManager.scheduler.enqueueFirst(current.makeClone());
 
-		// Get thumbnail
-		String uri = musicManager.audioPlayer.getPlayingTrack().getInfo().uri.split("v=")[1].split("&")[0];
-		String thumbnail = "https://img.youtube.com/vi/" + uri + "/hqdefault.jpg";
-
-		// Display information of the cloned track
 		EmbedBuilder builder = new EmbedBuilder();
 		builder.setTitle("Cloned track");
-		builder.setThumbnail(thumbnail);
+		if (current.getInfo().artworkUrl != null) builder.setThumbnail(current.getInfo().artworkUrl);
 		builder.addField("Title", current.getInfo().title, false);
 		builder.addField("Uploader", current.getInfo().author, false);
-		builder.addField("Link", "[Youtube](" + current.getInfo().uri + ")", false);
+		builder.addField("Link", "[Open](" + current.getInfo().uri + ")", false);
 
 		sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
 	}

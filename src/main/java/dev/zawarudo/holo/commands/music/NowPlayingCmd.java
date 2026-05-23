@@ -41,14 +41,10 @@ public class NowPlayingCmd extends AbstractMusicCommand {
 		String timestamp = "[`" + Formatter.formatTrackTime(audioPlayer.getPlayingTrack().getPosition()) + "`|`"
 				+ Formatter.formatTrackTime(audioPlayer.getPlayingTrack().getDuration()) + "`]";
 		
-		// Get YouTube thumbnail
-		String uri = info.uri.split("v=")[1].split("&")[0];
-		String thumbnail = "https://img.youtube.com/vi/" + uri + "/hqdefault.jpg";
-		
-		builder.setThumbnail(thumbnail);
+		if (info.artworkUrl != null) builder.setThumbnail(info.artworkUrl);
 		builder.addField("Title", info.title, false);
 		builder.addField("Current Timestamp", timestamp, true);
-		builder.addField("Link", "[Youtube](" + info.uri + ")", false);
+		builder.addField("Link", "[Open](" + info.uri + ")", false);
 		
 		sendEmbed(e, builder, true, 1, TimeUnit.MINUTES);
 	}
