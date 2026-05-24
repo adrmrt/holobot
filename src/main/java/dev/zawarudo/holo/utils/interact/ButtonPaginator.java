@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public final class ButtonPaginator<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ButtonPaginator.class);
 
     public interface PageRenderer<T> {
         /**
@@ -62,14 +66,19 @@ public final class ButtonPaginator<T> {
         }
 
         int index = 0;
-        MessageEmbed embed = renderer.render(items.get(index), index, items.size());
+        MessageEmbed embed;
+        try {
+            embed = renderer.render(items.get(index), index, items.size());
+        } catch (Exception e) {
+            LOG.error("ButtonPaginator renderer failed on page 0", e);
+            return;
+        }
         List<Button> buttons = buildButtons(index, items.size());
 
         commandMessage.replyEmbeds(embed)
                 .addComponents(ActionRow.of(buttons))
-                .queue(msg -> await(msg, caller, index, items), err -> {
-                    System.out.println("Failed to send paginator message: " + err.getMessage());
-                });
+                .queue(msg -> await(msg, caller, index, items), err ->
+                        LOG.error("ButtonPaginator failed to send initial message", err));
     }
 
     private void await(@NotNull Message msg, @NotNull User caller, int index, @NotNull List<T> items) {
@@ -118,7 +127,14 @@ public final class ButtonPaginator<T> {
             newIndex = Math.min(items.size() - 1, index + 1);
         }
 
-        MessageEmbed embed = renderer.render(items.get(newIndex), newIndex, items.size());
+        MessageEmbed embed;
+        try {
+            embed = renderer.render(items.get(newIndex), newIndex, items.size());
+        } catch (Exception e) {
+            LOG.error("ButtonPaginator renderer failed on page {}", newIndex, e);
+            await(msg, caller, index, items);
+            return;
+        }
         List<Button> buttons = buildButtons(newIndex, items.size());
         final int nextIndex = newIndex;
 

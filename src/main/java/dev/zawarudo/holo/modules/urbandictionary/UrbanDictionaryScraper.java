@@ -92,7 +92,8 @@ public final class UrbanDictionaryScraper {
             String term = extractQueryParam(href, "term");
             if (defid != null && term != null) {
                 String decoded = URLDecoder.decode(term, StandardCharsets.UTF_8);
-                return "https://" + decoded.toLowerCase().replace(" ", "-") + ".urbanup.com/" + defid;
+                String subdomain = decoded.toLowerCase().replaceAll("[^a-z0-9\\s-]", "").trim().replaceAll("\\s+", "-");
+                return "https://" + subdomain + ".urbanup.com/" + defid;
             }
         }
 
