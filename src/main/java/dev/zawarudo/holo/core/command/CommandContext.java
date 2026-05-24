@@ -174,6 +174,8 @@ public final class CommandContext {
 
         void embed(@NotNull MessageEmbed embed, int duration, TimeUnit unit);
 
+        void embedAndDeleteInvoke(@NotNull CommandContext ctx, @NotNull MessageEmbed embed, int duration, TimeUnit unit);
+
         default void ephemeralText(@NotNull String content) {
             text(content);
         }

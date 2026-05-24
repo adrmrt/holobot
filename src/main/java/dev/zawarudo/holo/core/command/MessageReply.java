@@ -48,6 +48,13 @@ public final class MessageReply implements CommandContext.Reply {
     }
 
     @Override
+    public void embedAndDeleteInvoke(@NotNull CommandContext ctx, @NotNull MessageEmbed embed, int duration, TimeUnit unit) {
+        embed(embed, duration, unit);
+        ctx.message().ifPresent(msg ->
+                msg.delete().queueAfter(duration, unit, null, ignored -> {}));
+    }
+
+    @Override
     public void errorEmbed(@NotNull String content) {
         MessageEmbed embed = buildErrorEmbed(content);
         embed(embed, ERROR_DELETE_AFTER_SECONDS, TimeUnit.SECONDS);
