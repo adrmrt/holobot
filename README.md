@@ -4,7 +4,13 @@ HoloBot is a Discord bot written in Java and backed by [JDA (Java Discord API)](
 
 ## Features
 
-Coming soon!
+- **Music**: Play audio from YouTube, SoundCloud, Bandcamp, Vimeo, Twitch, and direct URLs; queue management, skip, shuffle, loop, and now-playing display
+- **Anime & Manga**: Search via MyAnimeList (Jikan) and AniList with interactive result selection
+- **Pokemon**: Random spawns across channels, catching, Pokédex, and team management
+- **Image processing**: Dominant color palette extraction, NSFW detection, and custom image filters
+- **Games**: Akinator and other interactive games
+- **Utility**: Dictionary (Merriam-Webster + Urban Dictionary), XKCD comics, countdowns, and more
+- **Per-guild configuration**: Custom prefix, NSFW toggle, and module enable/disable
 
 ## Running locally
 
@@ -40,6 +46,26 @@ mvn clean install
 java -jar holobot-VERSION.jar
 ```
 where `VERSION` is the current version defined in `pom.xml`.
+
+## Deploying with Docker
+
+The bot is available as a Docker image on the GitHub Container Registry:
+
+```
+ghcr.io/adrmrt/holobot:latest
+```
+
+Pull a specific version:
+```bash
+docker pull ghcr.io/adrmrt/holobot:3.7.0
+```
+
+Or always use the latest release:
+```bash
+docker pull ghcr.io/adrmrt/holobot:latest
+```
+
+See [`deploy/README.md`](deploy/README.md) for full VM setup and deployment instructions.
 
 ## Usage
 
