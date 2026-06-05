@@ -21,8 +21,6 @@ public class UwuCmd extends AbstractCommand implements ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {
-        ctx.invocation().deleteInvokeIfPossible();
-
         final List<String> args = ctx.args();
         final Message invokingMessage = ctx.message().orElse(null);
         final Message referenced = invokingMessage != null
@@ -57,24 +55,28 @@ public class UwuCmd extends AbstractCommand implements ExecutableCommand {
         }
 
         final String input;
+        final Message replyTarget;
         if (referenced != null) {
+            ctx.invocation().deleteInvokeIfPossible();
             input = referenced.getContentRaw();
+            replyTarget = referenced;
         } else {
             input = String.join(" ", args);
+            replyTarget = invokingMessage;
         }
 
         final String uwu = uwuify(input);
-        sendText(ctx, uwu);
+        sendText(replyTarget, uwu);
     }
 
-    private void sendText(CommandContext ctx, String text) {
+    private void sendText(Message target, String text) {
         int index = 0;
         while (index < text.length()) {
             String chunk = text.substring(
                     index,
                     Math.min(index + Message.MAX_CONTENT_LENGTH, text.length())
             );
-            ctx.reply().text(chunk);
+            target.reply(chunk).queue();
             index += Message.MAX_CONTENT_LENGTH;
         }
     }
@@ -89,13 +91,28 @@ public class UwuCmd extends AbstractCommand implements ExecutableCommand {
                 .replaceFirst("i", "i-i")
                 .replaceFirst("(?s)(.*)" + "i-i-i", "$1" + "i-i");
 
-        if (rand.nextInt(10) <= 2) {
-            result += " >-<";
-        }
+        result = stutter(result);
 
-        if (rand.nextInt(10) <= 1) {
-            result += " UwU";
+        // 50% chance of adding a random emoji
+        List<String> emoticons = List.of(" >-<", " >w<", " UwU", " OwO");
+        if (rand.nextBoolean()) {
+            result += emoticons.get(rand.nextInt(emoticons.size()));
         }
         return result;
+    }
+
+    // Each word has a 10% chance of being prefixed with its first letter and a dash, e.g. "hello" -> "h-hello"
+    private static String stutter(String text) {
+        String[] words = text.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.length() > 1 && Character.isLetter(word.charAt(0)) && rand.nextInt(10) == 0) {
+                word = word.charAt(0) + "-" + word;
+            }
+            sb.append(word);
+            if (i < words.length - 1) sb.append(" ");
+        }
+        return sb.toString();
     }
 }
