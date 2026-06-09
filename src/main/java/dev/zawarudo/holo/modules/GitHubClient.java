@@ -37,20 +37,20 @@ public class GitHubClient {
         String descriptionTemplate = "# %s\n## Information\n* **Date**: %s\n* **User**: %s (%d)\n* **Guild:** %s (%d)\n* **Channel:** %s (%d)\n## Description\n%s";
 
         String description = String.format(descriptionTemplate,
-                submission.type,
-                submission.date,
-                submission.author.getName(),
-                submission.author.getIdLong(),
-                submission.guild.getName(),
-                submission.guild.getIdLong(),
-                submission.channel.getName(),
-                submission.channel.getIdLong(),
-                submission.message
+            submission.type,
+            submission.date,
+            submission.author.getName(),
+            submission.author.getIdLong(),
+            submission.guild.getName(),
+            submission.guild.getIdLong(),
+            submission.channel.getName(),
+            submission.channel.getIdLong(),
+            submission.message
         );
 
         GHIssueBuilder issueBuilder = repository.createIssue(title)
-                .body(description)
-                .label(submission.type.toLowerCase(Locale.UK));
+            .body(description)
+            .label(submission.type.toLowerCase(Locale.UK));
         return issueBuilder.create().getHtmlUrl().toString();
     }
 }

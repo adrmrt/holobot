@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "roleinfo",
-        description = "Shows information about a role.",
-        usage = "<role name, id or mention>",
-        adminOnly = true,
-        category = CommandCategory.GENERAL)
+    description = "Shows information about a role.",
+    usage = "<role name, id or mention>",
+    adminOnly = true,
+    category = CommandCategory.GENERAL)
 public class RoleInfoCmd extends AbstractCommand implements ExecutableCommand {
 
     @Override
@@ -78,8 +78,8 @@ public class RoleInfoCmd extends AbstractCommand implements ExecutableCommand {
         if (wanted.isBlank()) return Optional.empty();
 
         return guild.getRoles().stream()
-                .filter(r -> r.getName().toLowerCase(Locale.ROOT).equals(wanted))
-                .findFirst();
+            .filter(r -> r.getName().toLowerCase(Locale.ROOT).equals(wanted))
+            .findFirst();
     }
 
     private EmbedBuilder buildRoleInfoEmbed(CommandContext ctx, Role role) {
@@ -94,28 +94,28 @@ public class RoleInfoCmd extends AbstractCommand implements ExecutableCommand {
 
         // Creation date
         LocalDateTime localDateTime = LocalDateTime.ofInstant(
-                role.getTimeCreated().toInstant(),
-                ZoneId.of("Europe/Zurich")
+            role.getTimeCreated().toInstant(),
+            ZoneId.of("Europe/Zurich")
         );
 
         String created = localDateTime.format(
-                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
         );
         b.addField("Creation Date", "`" + created + "`", false);
 
         // Member count
         long memberCount = ctx.guild().orElseThrow().getMembers().stream()
-                .filter(m -> m.getRoles().contains(role))
-                .count();
+            .filter(m -> m.getRoles().contains(role))
+            .count();
         b.addField("Members", "`" + memberCount + "`", false);
 
         // Other info
         String colorHex = role.getColors().getPrimary() == null
-                ? "None"
-                : String.format("#%02x%02x%02x",
-                role.getColors().getPrimary().getRed(),
-                role.getColors().getPrimary().getGreen(),
-                role.getColors().getPrimary().getBlue()
+            ? "None"
+            : String.format("#%02x%02x%02x",
+            role.getColors().getPrimary().getRed(),
+            role.getColors().getPrimary().getGreen(),
+            role.getColors().getPrimary().getBlue()
         );
         b.addField("Color", "`" + colorHex + "`", true);
         b.addField("Hoisted", String.valueOf(role.isHoisted()), true);
@@ -123,10 +123,10 @@ public class RoleInfoCmd extends AbstractCommand implements ExecutableCommand {
 
         // Permissions
         String perms = role.getPermissions().isEmpty()
-                ? "None"
-                : role.getPermissions().stream()
-                .map(Permission::getName)
-                .collect(Collectors.joining("\n"));
+            ? "None"
+            : role.getPermissions().stream()
+              .map(Permission::getName)
+              .collect(Collectors.joining("\n"));
 
         b.addField("Permissions", Formatter.asCodeBlock(perms), false);
 

@@ -15,38 +15,38 @@ import java.util.Map;
  */
 public class PlayerManager {
 
-	private static PlayerManager instance;
-	private final Map<Long, GuildMusicManager> musicManagers;
-	private final AudioPlayerManager audioPlayerManager;
+    private static PlayerManager instance;
+    private final Map<Long, GuildMusicManager> musicManagers;
+    private final AudioPlayerManager audioPlayerManager;
 
-	public PlayerManager() {
-		musicManagers = new HashMap<>();
-		audioPlayerManager = new DefaultAudioPlayerManager();
-		audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
-		AudioSourceManagers.registerRemoteSources(audioPlayerManager);
-		AudioSourceManagers.registerLocalSource(audioPlayerManager);
-	}
+    public PlayerManager() {
+        musicManagers = new HashMap<>();
+        audioPlayerManager = new DefaultAudioPlayerManager();
+        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+        AudioSourceManagers.registerLocalSource(audioPlayerManager);
+    }
 
-	public GuildMusicManager getMusicManager(Guild guild) {
-		return this.musicManagers.computeIfAbsent(guild.getIdLong(), guildId -> {
-			GuildMusicManager guildMusicManager = new GuildMusicManager(audioPlayerManager, guild);
-			guild.getAudioManager().setSendingHandler(guildMusicManager.getAudioPlayerHandler());
-			return guildMusicManager;
-		});
-	}
+    public GuildMusicManager getMusicManager(Guild guild) {
+        return this.musicManagers.computeIfAbsent(guild.getIdLong(), guildId -> {
+            GuildMusicManager guildMusicManager = new GuildMusicManager(audioPlayerManager, guild);
+            guild.getAudioManager().setSendingHandler(guildMusicManager.getAudioPlayerHandler());
+            return guildMusicManager;
+        });
+    }
 
-	public void loadAndPlay(Guild guild, String trackUrl, AudioLoadResultHandler audioLoadResultHandler) {
-		GuildMusicManager musicManager = getMusicManager(guild);
-		audioPlayerManager.loadItemOrdered(musicManager, trackUrl, audioLoadResultHandler);
-	}
+    public void loadAndPlay(Guild guild, String trackUrl, AudioLoadResultHandler audioLoadResultHandler) {
+        GuildMusicManager musicManager = getMusicManager(guild);
+        audioPlayerManager.loadItemOrdered(musicManager, trackUrl, audioLoadResultHandler);
+    }
 
-	/**
-	 * Returns the instance of this class.
-	 */
-	public static PlayerManager getInstance() {
-		if (PlayerManager.instance == null) {
-			PlayerManager.instance = new PlayerManager();
-		}
-		return PlayerManager.instance;
-	}
+    /**
+     * Returns the instance of this class.
+     */
+    public static PlayerManager getInstance() {
+        if (PlayerManager.instance == null) {
+            PlayerManager.instance = new PlayerManager();
+        }
+        return PlayerManager.instance;
+    }
 }

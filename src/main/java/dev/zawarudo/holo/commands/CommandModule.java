@@ -5,6 +5,7 @@ import java.util.Optional;
 public interface CommandModule {
 
     ModuleId id();
+
     String description();
 
     void register(CommandManager registry);

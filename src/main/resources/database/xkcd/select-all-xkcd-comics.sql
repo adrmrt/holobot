@@ -1,1 +1,2 @@
-SELECT * FROM XkcdComics;
+SELECT *
+FROM XkcdComics;

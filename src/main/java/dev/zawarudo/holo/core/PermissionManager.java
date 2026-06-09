@@ -43,15 +43,15 @@ public class PermissionManager {
     private Decision checkUserPermission(MessageReceivedEvent event, AbstractCommand command) {
         if (command.isOwnerOnly()) {
             return command.isBotOwner(event.getAuthor())
-                    ? Decision.allow()
-                    : Decision.deny(Decision.DenyReason.OWNER_ONLY, null);
+                ? Decision.allow()
+                : Decision.deny(Decision.DenyReason.OWNER_ONLY, null);
         }
 
         if (command.isAdminOnly()) {
             // Bot owner can bypass admin requirement
             return command.isGuildAdmin(event) || command.isBotOwner(event.getAuthor())
-                    ? Decision.allow()
-                    : Decision.deny(Decision.DenyReason.ADMIN_ONLY, null);
+                ? Decision.allow()
+                : Decision.deny(Decision.DenyReason.ADMIN_ONLY, null);
         }
 
         return Decision.allow();
@@ -71,15 +71,15 @@ public class PermissionManager {
 
         if (!config.isNSFWEnabled()) {
             return Decision.deny(
-                    Decision.DenyReason.NSFW_DISABLED,
-                    "NSFW commands are disabled in this server."
+                Decision.DenyReason.NSFW_DISABLED,
+                "NSFW commands are disabled in this server."
             );
         }
 
         if (!isChannelNSFW(event.getChannel())) {
             return Decision.deny(
-                    Decision.DenyReason.NSFW_CHANNEL_REQUIRED,
-                    "You can't use NSFW commands outside NSFW channels.\nPlease move to a NSFW channel to use this command."
+                Decision.DenyReason.NSFW_CHANNEL_REQUIRED,
+                "You can't use NSFW commands outside NSFW channels.\nPlease move to a NSFW channel to use this command."
             );
         }
 
@@ -105,13 +105,13 @@ public class PermissionManager {
         }
 
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("Error")
-                .setDescription(decision.message())
-                .setColor(Color.RED);
+            .setTitle("Error")
+            .setDescription(decision.message())
+            .setColor(Color.RED);
 
         event.getChannel()
-                .sendMessageEmbeds(builder.build())
-                .queue(msg -> msg.delete().queueAfter(30, TimeUnit.SECONDS));
+            .sendMessageEmbeds(builder.build())
+            .queue(msg -> msg.delete().queueAfter(30, TimeUnit.SECONDS));
     }
 
     public record Decision(boolean allowed, DenyReason reason, String message) {

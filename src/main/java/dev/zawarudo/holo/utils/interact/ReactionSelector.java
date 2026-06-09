@@ -45,12 +45,12 @@ public final class ReactionSelector<T> {
     }
 
     public ReactionSelector(
-            @NotNull EventWaiter waiter,
-            @NotNull ListRenderer<T> listRenderer,
-            long timeout,
-            @NotNull TimeUnit timeoutUnit,
-            boolean deleteOnSelect,
-            boolean deleteOnTimeout
+        @NotNull EventWaiter waiter,
+        @NotNull ListRenderer<T> listRenderer,
+        long timeout,
+        @NotNull TimeUnit timeoutUnit,
+        boolean deleteOnSelect,
+        boolean deleteOnTimeout
     ) {
         this.waiter = waiter;
         this.listRenderer = listRenderer;
@@ -61,20 +61,20 @@ public final class ReactionSelector<T> {
     }
 
     public void start(
-            @NotNull Message commandMessage,
-            @NotNull User caller,
-            @NotNull List<T> items,
-            @NotNull SelectionHandler<T> onSelect
+        @NotNull Message commandMessage,
+        @NotNull User caller,
+        @NotNull List<T> items,
+        @NotNull SelectionHandler<T> onSelect
     ) {
         start(commandMessage, caller, items, onSelect, null);
     }
 
     public void start(
-            @NotNull Message commandMessage,
-            @NotNull User caller,
-            @NotNull List<T> items,
-            @NotNull SelectionHandler<T> onSelect,
-            @Nullable TimeoutHandler onTimeout
+        @NotNull Message commandMessage,
+        @NotNull User caller,
+        @NotNull List<T> items,
+        @NotNull SelectionHandler<T> onSelect,
+        @Nullable TimeoutHandler onTimeout
     ) {
         Objects.requireNonNull(commandMessage, "commandMessage");
         Objects.requireNonNull(caller, "caller");
@@ -101,29 +101,29 @@ public final class ReactionSelector<T> {
     }
 
     private void await(
-            @NotNull Message msg,
-            @NotNull User caller,
-            @NotNull List<T> items,
-            @NotNull List<Emote> numbers,
-            @NotNull SelectionHandler<T> onSelect,
-            @Nullable TimeoutHandler onTimeout
+        @NotNull Message msg,
+        @NotNull User caller,
+        @NotNull List<T> items,
+        @NotNull List<Emote> numbers,
+        @NotNull SelectionHandler<T> onSelect,
+        @Nullable TimeoutHandler onTimeout
     ) {
         waiter.waitForEvent(
-                MessageReactionAddEvent.class,
-                evt -> isValid(evt, msg, caller, items, numbers),
-                evt -> handle(evt, msg, items, numbers, onSelect),
-                timeout,
-                timeoutUnit,
-                () -> handleTimeout(msg, onTimeout)
+            MessageReactionAddEvent.class,
+            evt -> isValid(evt, msg, caller, items, numbers),
+            evt -> handle(evt, msg, items, numbers, onSelect),
+            timeout,
+            timeoutUnit,
+            () -> handleTimeout(msg, onTimeout)
         );
     }
 
     private boolean isValid(
-            @NotNull MessageReactionAddEvent evt,
-            @NotNull Message msg,
-            @NotNull User caller,
-            @NotNull List<T> items,
-            @NotNull List<Emote> numbers
+        @NotNull MessageReactionAddEvent evt,
+        @NotNull Message msg,
+        @NotNull User caller,
+        @NotNull List<T> items,
+        @NotNull List<Emote> numbers
     ) {
         if (evt.getMessageIdLong() != msg.getIdLong()) return false;
 
@@ -143,11 +143,11 @@ public final class ReactionSelector<T> {
     }
 
     private void handle(
-            @NotNull MessageReactionAddEvent evt,
-            @NotNull Message msg,
-            @NotNull List<T> items,
-            @NotNull List<Emote> numbers,
-            @NotNull SelectionHandler<T> onSelect
+        @NotNull MessageReactionAddEvent evt,
+        @NotNull Message msg,
+        @NotNull List<T> items,
+        @NotNull List<Emote> numbers,
+        @NotNull SelectionHandler<T> onSelect
     ) {
         int index = indexFromReaction(evt, items.size(), numbers);
         if (index < 0) {
@@ -160,7 +160,8 @@ public final class ReactionSelector<T> {
         }
 
         if (deleteOnSelect) {
-            msg.delete().queue(null, ignored -> {});
+            msg.delete().queue(null, ignored -> {
+            });
         }
 
         onSelect.onSelect(evt, items.get(index), index);
@@ -172,14 +173,15 @@ public final class ReactionSelector<T> {
             return;
         }
         if (deleteOnTimeout) {
-            msg.delete().queue(null, ignored -> {});
+            msg.delete().queue(null, ignored -> {
+            });
         }
     }
 
     private int indexFromReaction(
-            @NotNull MessageReactionAddEvent evt,
-            int size,
-            @NotNull List<Emote> numbers
+        @NotNull MessageReactionAddEvent evt,
+        int size,
+        @NotNull List<Emote> numbers
     ) {
         for (int i = 0; i < size; i++) {
             if (evt.getReaction().getEmoji().equals(numbers.get(i).getAsEmoji())) {
@@ -190,22 +192,22 @@ public final class ReactionSelector<T> {
     }
 
     public static <T> MessageEmbed defaultNumberedListEmbed(
-            @NotNull String title,
-            @NotNull List<T> items,
-            @NotNull Function<T, String> lineFormatter,
-            Color color
+        @NotNull String title,
+        @NotNull List<T> items,
+        @NotNull Function<T, String> lineFormatter,
+        Color color
     ) {
         return defaultNumberedListEmbed(title, items, lineFormatter, color, null, null, null);
     }
 
     public static <T> MessageEmbed defaultNumberedListEmbed(
-            @NotNull String title,
-            @NotNull List<T> items,
-            @NotNull Function<T, String> lineFormatter,
-            Color color,
-            @Nullable String authorName,
-            @Nullable String authorUrl,
-            @Nullable String authorIconUrl
+        @NotNull String title,
+        @NotNull List<T> items,
+        @NotNull Function<T, String> lineFormatter,
+        Color color,
+        @Nullable String authorName,
+        @Nullable String authorUrl,
+        @Nullable String authorIconUrl
     ) {
         List<Emote> numbers = HoloUtils.getNumbers();
         int max = Math.min(items.size(), numbers.size());
@@ -213,9 +215,9 @@ public final class ReactionSelector<T> {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < max; i++) {
             sb.append(numbers.get(i).getAsEmoji().getFormatted())
-                    .append(" ")
-                    .append(lineFormatter.apply(items.get(i)))
-                    .append("\n");
+                .append(" ")
+                .append(lineFormatter.apply(items.get(i)))
+                .append("\n");
         }
 
         EmbedBuilder b = new EmbedBuilder();

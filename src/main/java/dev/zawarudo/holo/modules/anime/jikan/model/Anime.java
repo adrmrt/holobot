@@ -102,8 +102,8 @@ public final class Anime extends AbstractMedium<Anime> {
 
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(released.from);
         LocalDateTime newLocalDateTime = LocalDateTime.of(
-                zonedDateTime.toLocalDate(), // Keep the original date
-                LocalDateTime.parse("1970-01-01T" + time + ":00").toLocalTime()
+            zonedDateTime.toLocalDate(), // Keep the original date
+            LocalDateTime.parse("1970-01-01T" + time + ":00").toLocalTime()
         );
         ZonedDateTime newZonedDateTime = newLocalDateTime.atZone(ZoneId.of(timeZone));
         return newZonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);

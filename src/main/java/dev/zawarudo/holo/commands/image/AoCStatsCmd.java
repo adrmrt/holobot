@@ -3,6 +3,8 @@ package dev.zawarudo.holo.commands.image;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.aoc.graph.AdventOfCodeGraph;
 import dev.zawarudo.holo.modules.aoc.graph.ChartType;
 import dev.zawarudo.holo.utils.DateTimeUtils;
@@ -10,7 +12,6 @@ import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,28 +22,27 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @CommandInfo(name = "aoc",
-        description = "Displays the graph of Advent of Code",
-        category = CommandCategory.IMAGE)
-public class AoCStatsCmd extends AbstractCommand {
+    description = "Displays the graph of Advent of Code",
+    category = CommandCategory.IMAGE)
+public class AoCStatsCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final int LEADERBOARD_ID = 1501119;
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
-        sendTyping(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
+        ctx.reply().typing();
 
-        int year = getYear();
+        int year = getYear(ctx);
 
         String token = Bootstrap.holo.getConfig().getAocToken();
         AdventOfCodeGraph graph = AdventOfCodeGraph.createGraph(ChartType.STACKED_BAR_CHART, year, LEADERBOARD_ID, token);
 
         BufferedImage image;
-
         try {
             image = graph.generateImage();
         } catch (APIException ex) {
-            sendErrorEmbed(event, "Something went wrong while fetching the AOC data. Please try again later.");
+            ctx.reply().errorEmbed("Something went wrong while fetching the AOC data. Please try again later.");
             return;
         }
 
@@ -51,24 +51,24 @@ public class AoCStatsCmd extends AbstractCommand {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(String.format("Advent of Code %d Stats", year));
         builder.setImage("attachment://" + name);
-        builder.setFooter("Invoked by " + event.getMember().getEffectiveName(), event.getAuthor().getEffectiveAvatarUrl());
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
 
         try (InputStream input = ImageOperations.toInputStream(image)) {
             FileUpload upload = FileUpload.fromData(input, name);
-            event.getChannel().sendFiles(upload).setEmbeds(builder.build()).queue();
+            ctx.channel().sendFiles(upload).setEmbeds(builder.build()).queue();
         } catch (IOException ex) {
-            sendErrorEmbed(event, "An error occurred while sending the image. Please try again later.");
-            ex.printStackTrace();
+            ctx.reply().errorEmbed("An error occurred while sending the image. Please try again later.");
+            logger.error("An error occurred while sending the AoC image.", ex);
         }
     }
 
-    private int getYear() {
+    private int getYear(CommandContext ctx) {
         ZonedDateTime current = ZonedDateTime.now(ZoneId.of("Europe/Zurich"));
         int currentYear = current.getYear();
 
-        if (args.length > 0) {
+        if (ctx.hasArgs()) {
             try {
-                int parsedYear = Integer.parseInt(args[0]);
+                int parsedYear = Integer.parseInt(ctx.args().getFirst());
                 return (parsedYear >= 2015 && parsedYear <= currentYear) ? parsedYear : currentYear;
             } catch (NumberFormatException ignored) {
                 // Fall through to default year logic
@@ -76,7 +76,7 @@ public class AoCStatsCmd extends AbstractCommand {
         }
 
         return current.getMonthValue() == 12
-                ? current.getYear()
-                : current.getYear() - 1;
+            ? current.getYear()
+            : current.getYear() - 1;
     }
 }

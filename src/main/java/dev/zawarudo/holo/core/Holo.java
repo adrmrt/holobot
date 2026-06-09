@@ -25,6 +25,7 @@ import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.UserResolver;
 import moe.kyokobot.libdave.NativeDaveFactory;
 import moe.kyokobot.libdave.jda.LDJDADaveSessionFactory;
 import net.dv8tion.jda.api.JDA;
@@ -70,6 +71,7 @@ public class Holo extends ListenerAdapter {
     private MerriamWebsterClient merriamWebsterClient;
     private EmoteManager emoteManager;
     private ImageResolver imageResolver;
+    private UserResolver userResolver;
 
     private ModuleRegistry moduleRegistry;
 
@@ -88,7 +90,7 @@ public class Holo extends ListenerAdapter {
         // Create a new JDA instance
         JDABuilder builder = JDABuilder.createDefault(getConfig().getBotToken());
         builder.setAudioModuleConfig(new AudioModuleConfig()
-                .withDaveSessionFactory(new LDJDADaveSessionFactory(new NativeDaveFactory())));
+            .withDaveSessionFactory(new LDJDADaveSessionFactory(new NativeDaveFactory())));
         builder.enableIntents(EnumSet.allOf(GatewayIntent.class));
         builder.setChunkingFilter(ChunkingFilter.ALL);
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -122,8 +124,8 @@ public class Holo extends ListenerAdapter {
         AniListApiClient aniListClient = new AniListApiClient();
 
         List<MediaSearchProvider> providers = List.of(
-                new AniListProvider(aniListClient),
-                new JikanProvider()
+            new AniListProvider(aniListClient),
+            new JikanProvider()
         );
         List<MediaPlatform> order = List.of(MediaPlatform.MAL_JIKAN, MediaPlatform.ANILIST);
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
@@ -138,6 +140,7 @@ public class Holo extends ListenerAdapter {
         permissionManager = new PermissionManager(blacklistService, guildConfigManager);
 
         imageResolver = new ImageResolver();
+        userResolver = new UserResolver();
 
         ctxFactory = new CommandContextFactory();
 
@@ -148,27 +151,28 @@ public class Holo extends ListenerAdapter {
 
         // Warning: Commands only get initialized here
         commandManager = new CommandManager(
-                waiter,
-                moduleRegistry,
-                gitHubClient,
-                merriamWebsterClient,
-                guildConfigManager,
-                emoteManager,
-                akinatorSessionManager,
-                xkcdDao,
-                xkcdSyncService,
-                blacklistService,
-                mediaSearchService,
-                countdownDao,
-                imageResolver
+            waiter,
+            moduleRegistry,
+            gitHubClient,
+            merriamWebsterClient,
+            guildConfigManager,
+            emoteManager,
+            akinatorSessionManager,
+            xkcdDao,
+            xkcdSyncService,
+            blacklistService,
+            mediaSearchService,
+            countdownDao,
+            imageResolver,
+            userResolver
         );
     }
 
     public void registerListeners() {
         jda.addEventListener(
-                new CommandListener(commandManager, permissionManager, executors.io(), ctxFactory),
-                new MiscListener(emoteManager),
-                new GuildListener(guildConfigManager, emoteManager)
+            new CommandListener(commandManager, permissionManager, executors.io(), ctxFactory),
+            new MiscListener(emoteManager),
+            new GuildListener(guildConfigManager, emoteManager)
         );
     }
 

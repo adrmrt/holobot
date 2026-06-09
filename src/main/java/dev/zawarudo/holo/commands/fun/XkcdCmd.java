@@ -21,11 +21,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @CommandInfo(name = "xkcd",
-        description = "Use this command to access the comics of xkcd.",
-        usage = "[new | search <query> | <issue nr> | <title>]",
-        thumbnail = "https://xkcd.com/s/0b7742.png",
-        embedColor = EmbedColor.WHITE,
-        category = CommandCategory.MISC)
+    description = "Use this command to access the comics of xkcd.",
+    usage = "[new | search <query> | <issue nr> | <title>]",
+    thumbnail = "https://xkcd.com/s/0b7742.png",
+    embedColor = EmbedColor.WHITE,
+    category = CommandCategory.MISC)
 public class XkcdCmd extends AbstractCommand {
 
     private static final Random RANDOM = new Random();
@@ -138,11 +138,11 @@ public class XkcdCmd extends AbstractCommand {
 
             if (results.isEmpty()) {
                 event.getMessage().replyEmbeds(
-                        new EmbedBuilder()
-                                .setTitle("xkcd Search Results")
-                                .setDescription("No results found for:\n`" + raw + "`")
-                                .setColor(getEmbedColor())
-                                .build()
+                    new EmbedBuilder()
+                        .setTitle("xkcd Search Results")
+                        .setDescription("No results found for:\n`" + raw + "`")
+                        .setColor(getEmbedColor())
+                        .build()
                 ).queue();
                 return;
             }
@@ -150,18 +150,18 @@ public class XkcdCmd extends AbstractCommand {
             StringBuilder body = new StringBuilder();
             for (XkcdComic comic : results) {
                 body.append(comic.getIssueNr()).append('\n')
-                        .append(comic.getTitle()).append('\n')
-                        .append(comic.getAlt()).append("\n\n");
+                    .append(comic.getTitle()).append('\n')
+                    .append(comic.getAlt()).append("\n\n");
             }
 
             event.getMessage().replyEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("xkcd Search Results")
-                            .setDescription(Formatter.asCodeBlock(body.toString()))
-                            .setFooter("Showing top " + results.size()
-                                    + " results • Open with " + getPrefix(event) + "xkcd <issue nr>")
-                            .setColor(getEmbedColor())
-                            .build()
+                new EmbedBuilder()
+                    .setTitle("xkcd Search Results")
+                    .setDescription(Formatter.asCodeBlock(body.toString()))
+                    .setFooter("Showing top " + results.size()
+                        + " results • Open with " + getPrefix(event) + "xkcd <issue nr>")
+                    .setColor(getEmbedColor())
+                    .build()
             ).queue();
 
         } catch (SQLException ex) {
@@ -183,7 +183,7 @@ public class XkcdCmd extends AbstractCommand {
             case "status" -> syncStatus(event);
             case "stop" -> syncStop(event);
             default -> sendErrorEmbed(event,
-                    "Usage: `" + getPrefix(event) + "xkcd sync <start|status|stop>`");
+                "Usage: `" + getPrefix(event) + "xkcd sync <start|status|stop>`");
         }
     }
 
@@ -266,17 +266,17 @@ public class XkcdCmd extends AbstractCommand {
     private void sendXkcd(MessageReceivedEvent event, XkcdComic comic) {
         String alt = comic.getAlt();
         alt = alt.length() > MessageEmbed.TEXT_MAX_LENGTH
-                ? alt.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 3) + "..."
-                : alt;
+            ? alt.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 3) + "..."
+            : alt;
 
         event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd " + comic.getIssueNr() + ": " + comic.getTitle())
-                        .setDescription("[Explanation](" + comic.getExplainedUrl() + ")")
-                        .setImage(comic.getImg())
-                        .setFooter(alt)
-                        .setColor(getEmbedColor())
-                        .build()
+            new EmbedBuilder()
+                .setTitle("xkcd " + comic.getIssueNr() + ": " + comic.getTitle())
+                .setDescription("[Explanation](" + comic.getExplainedUrl() + ")")
+                .setImage(comic.getImg())
+                .setFooter(alt)
+                .setColor(getEmbedColor())
+                .build()
         ).queue();
     }
 
@@ -302,9 +302,9 @@ public class XkcdCmd extends AbstractCommand {
 
     private static String toPhraseQuery(String raw) {
         String normalized = raw.toLowerCase()
-                .trim()
-                .replaceAll("\\s+", " ") // Replace extra spaces
-                .replace("\"", "");
+            .trim()
+            .replaceAll("\\s+", " ") // Replace extra spaces
+            .replace("\"", "");
 
         if (normalized.isBlank()) return "";
 
@@ -337,13 +337,13 @@ public class XkcdCmd extends AbstractCommand {
 
         if (dbCount >= expectedCount) {
             event.getMessage().replyEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("xkcd sync")
-                            .setDescription("Already up to date.\n"
-                                    + "Comics in DB: **" + dbCount + "** / **" + expectedCount + "**\n"
-                                    + "Latest: **#" + latest + "**")
-                            .setColor(getEmbedColor())
-                            .build()
+                new EmbedBuilder()
+                    .setTitle("xkcd sync")
+                    .setDescription("Already up to date.\n"
+                        + "Comics in DB: **" + dbCount + "** / **" + expectedCount + "**\n"
+                        + "Latest: **#" + latest + "**")
+                    .setColor(getEmbedColor())
+                    .build()
             ).queue();
             return;
         }
@@ -370,13 +370,13 @@ public class XkcdCmd extends AbstractCommand {
         }
 
         event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync started")
-                        .setDescription("Syncing comics (safe re-sync) from **#" + from + "** to **#" + to + "**.\n"
-                                + "Progress: **" + dbCount + "** / **" + expectedCount + "** stored.\n"
-                                + "Check progress with `" + getPrefix(event) + "xkcd sync status`.")
-                        .setColor(getEmbedColor())
-                        .build()
+            new EmbedBuilder()
+                .setTitle("xkcd sync started")
+                .setDescription("Syncing comics (safe re-sync) from **#" + from + "** to **#" + to + "**.\n"
+                    + "Progress: **" + dbCount + "** / **" + expectedCount + "** stored.\n"
+                    + "Check progress with `" + getPrefix(event) + "xkcd sync status`.")
+                .setColor(getEmbedColor())
+                .build()
         ).queue();
     }
 
@@ -422,11 +422,11 @@ public class XkcdCmd extends AbstractCommand {
         }
 
         event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync status")
-                        .setDescription(desc.toString())
-                        .setColor(getEmbedColor())
-                        .build()
+            new EmbedBuilder()
+                .setTitle("xkcd sync status")
+                .setDescription(desc.toString())
+                .setColor(getEmbedColor())
+                .build()
         ).queue();
     }
 
@@ -439,11 +439,11 @@ public class XkcdCmd extends AbstractCommand {
         xkcdSyncService.stop();
 
         event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync stopping")
-                        .setDescription("Stopping sync... (it should stop shortly)")
-                        .setColor(getEmbedColor())
-                        .build()
+            new EmbedBuilder()
+                .setTitle("xkcd sync stopping")
+                .setDescription("Stopping sync... (it should stop shortly)")
+                .setColor(getEmbedColor())
+                .build()
         ).queue();
     }
 }

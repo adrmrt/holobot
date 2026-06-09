@@ -3,6 +3,8 @@ package dev.zawarudo.holo.commands.fun;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.entities.Icon;
@@ -25,11 +27,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "emote",
-        description = "Sends a specified emote in the channel as if you had nitro. It uses a fake profile (also called a webhook message) to show who sent the emote.\n\n You may also just use the emote name with the bot prefix.",
-        usage = "<emote_name>",
-        example = "kekw",
-        category = CommandCategory.IMAGE)
-public class EmoteCmd extends AbstractCommand {
+    description = "Sends a specified emote in the channel as if you had nitro. It uses a fake profile (also called a webhook message) to show who sent the emote.\n\n You may also just use the emote name with the bot prefix.",
+    usage = "<emote_name>",
+    example = "kekw",
+    category = CommandCategory.IMAGE)
+public class EmoteCmd extends AbstractCommand implements ExecutableCommand {
 
     private final EmoteManager emoteManager;
 
@@ -38,48 +40,51 @@ public class EmoteCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        if (args.length == 1) {
-            sendEmote(event);
-        } else if (args.length == 2 && args[0].equals("search")) {
-            searchEmote(event);
-        } else if (args.length == 3 && args[0].equals("rename")) {
-            renameEmote(event);
+    public void execute(@NotNull CommandContext ctx) {
+        if (ctx.argCount() == 1) {
+            sendEmote(ctx);
+        } else if (ctx.argCount() == 2 && ctx.args().getFirst().equals("search")) {
+            searchEmote(ctx);
+        } else if (ctx.argCount() == 3 && ctx.args().getFirst().equals("rename")) {
+            renameEmote(ctx);
         }
     }
 
-    private void sendEmote(MessageReceivedEvent event) {
-        Member caller = event.getMember();
-        if (caller == null) return;
+    private void sendEmote(CommandContext ctx) {
+        if (ctx.member().isEmpty()) return;
 
-        String emoteName = args[0];
+        String emoteName = ctx.args().getFirst();
 
         try {
             Optional<CustomEmoji> emojiOptional = emoteManager.getEmoteByName(emoteName);
 
             if (emojiOptional.isEmpty()) {
-                event.getMessage().reply(String.format("Emote not found: %s", args[0])).queue();
+                ctx.message().ifPresent(m -> m.reply(String.format("Emote not found: %s", emoteName)).queue());
                 return;
             }
 
-            sendEmoteMessage(event, emojiOptional.get());
+            ctx.invocation().deleteInvokeIfPossible();
+            try {
+                Webhook webhook = getWebhook(ctx.channel() instanceof TextChannel tc ? tc : null, ctx.member().orElseThrow());
+                webhook.sendMessage(emojiOptional.get().getImageUrl()).queue(m -> webhook.delete().queue());
+            } catch (IOException e) {
+                ctx.channel().sendMessage(e.getMessage()).queue();
+            }
         } catch (SQLException e) {
-            event.getChannel().sendMessage(e.getMessage()).queue();
+            ctx.channel().sendMessage(e.getMessage()).queue();
         }
     }
 
-    private void searchEmote(MessageReceivedEvent event) {
-        if (!isBotOwner(event.getAuthor())) {
-            return;
-        }
+    private void searchEmote(CommandContext ctx) {
+        if (!ctx.isBotOwner()) return;
 
-        String keyword = args[1];
+        String keyword = ctx.args().get(1);
 
         try {
             List<CustomEmoji> emotes = emoteManager.searchEmotesByName(keyword);
 
             if (emotes.isEmpty()) {
-                event.getMessage().reply(String.format("No emotes found for searched name: %s", keyword)).queue();
+                ctx.message().ifPresent(m -> m.reply(String.format("No emotes found for searched name: %s", keyword)).queue());
                 return;
             }
 
@@ -88,26 +93,24 @@ public class EmoteCmd extends AbstractCommand {
             List<String> chunks = splitMessage(resultsMessage);
 
             for (String chunk : chunks) {
-                event.getMessage().reply(chunk).queue(m -> m.delete().queueAfter(5, TimeUnit.MINUTES));
+                ctx.message().ifPresent(m -> m.reply(chunk).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES)));
             }
         } catch (SQLException e) {
-            event.getChannel().sendMessage(e.getMessage()).queue();
+            ctx.channel().sendMessage(e.getMessage()).queue();
         }
     }
 
-    private void renameEmote(MessageReceivedEvent event) {
-        if (!isBotOwner(event.getAuthor())) {
-            return;
-        }
+    private void renameEmote(CommandContext ctx) {
+        if (!ctx.isBotOwner()) return;
 
-        String emote = args[1];
-        String newName = args[2];
+        String emote = ctx.args().get(1);
+        String newName = ctx.args().get(2);
 
         try {
             emoteManager.renameEmote(emote, newName);
-            event.getMessage().reply(String.format("The emote `%s` has been successfully renamed to `%s`", emote, newName)).queue();
+            ctx.message().ifPresent(m -> m.reply(String.format("The emote `%s` has been successfully renamed to `%s`", emote, newName)).queue());
         } catch (SQLException e) {
-            event.getChannel().sendMessage(e.getMessage()).queue();
+            ctx.channel().sendMessage(e.getMessage()).queue();
         }
     }
 

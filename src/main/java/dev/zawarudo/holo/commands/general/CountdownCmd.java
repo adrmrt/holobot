@@ -2,6 +2,8 @@ package dev.zawarudo.holo.commands.general;
 
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.database.dao.CountdownDao;
 import dev.zawarudo.holo.modules.countdown.Countdown;
 import dev.zawarudo.holo.utils.DateTimeUtils;
@@ -9,7 +11,6 @@ import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -19,12 +20,12 @@ import java.util.Optional;
 
 @Deactivated
 @CommandInfo(name = "countdown",
-        description = "Create, view and remove countdowns.",
-        usage = "WIP",
-        alias = {"cd"},
-        category = CommandCategory.MISC
+    description = "Create, view and remove countdowns.",
+    usage = "WIP",
+    alias = {"cd"},
+    category = CommandCategory.MISC
 )
-public class CountdownCmd extends AbstractCommand {
+public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
 
     private final CountdownDao countdownDao;
 
@@ -33,52 +34,44 @@ public class CountdownCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        if (args.length == 0 || "list".equals(args[0])) {
-            showList(event);
+    public void execute(@NotNull CommandContext ctx) {
+        if (!ctx.hasArgs() || "list".equals(ctx.args().getFirst())) {
+            showList(ctx);
             return;
         }
 
-        String sub = args[0].toLowerCase(Locale.ROOT);
+        String sub = ctx.args().getFirst().toLowerCase(Locale.ROOT);
 
         if ("add".equals(sub)) {
-            // Expected: add <name> <date time...>
-            if (args.length < 3) {
-                String formatted = String.format("Usage: `%scountdown add <name> <date time>`", getPrefix(event));
-                event.getMessage().reply(formatted).queue();
+            if (ctx.argCount() < 3) {
+                ctx.message().ifPresent(m -> m.reply(String.format("Usage: `%scountdown add <name> <date time>`", ctx.prefix().orElse(""))).queue());
                 return;
             }
-
-            String name = args[1];
-            String dateTime = joinFrom(args, 2);
-            createCountdown(event, name, dateTime);
+            createCountdown(ctx, ctx.args().get(1), joinFrom(ctx, 2));
             return;
         }
 
         if ("remove".equals(sub) || "r".equals(sub)) {
-            // Expected: remove <id>
-            if (args.length < 2) {
-                String formatted = String.format("Usage: `%scountdown remove <id>`", getPrefix(event));
-                event.getMessage().reply(formatted).queue();
+            if (ctx.argCount() < 2) {
+                ctx.message().ifPresent(m -> m.reply(String.format("Usage: `%scountdown remove <id>`", ctx.prefix().orElse(""))).queue());
                 return;
             }
-
-            removeCountdown(event, args[1]);
+            removeCountdown(ctx, ctx.args().get(1));
             return;
         }
 
-        showCountdown(event);
+        showCountdown(ctx);
     }
 
-    private void showCountdown(MessageReceivedEvent event) {
+    private void showCountdown(CommandContext ctx) {
         try {
-            long userId = event.getAuthor().getIdLong();
-            long selectedId = Long.parseLong(args[0]);
+            long userId = ctx.user().getIdLong();
+            long selectedId = Long.parseLong(ctx.args().getFirst());
 
             Optional<Countdown> selectedCountdown = countdownDao.findAllById(userId)
-                    .stream()
-                    .filter(cd -> cd.id() == selectedId)
-                    .findFirst();
+                .stream()
+                .filter(cd -> cd.id() == selectedId)
+                .findFirst();
 
             if (selectedCountdown.isPresent()) {
                 Countdown cd = selectedCountdown.get();
@@ -91,48 +84,46 @@ public class CountdownCmd extends AbstractCommand {
                 embedBuilder.addField("Remaining Time", Formatter.getRelativeTime(cd.dateTime()), false);
                 embedBuilder.addField("Time Created", DateTimeUtils.formatDateTime(cd.timeCreated()), false);
 
-                event.getMessage().replyEmbeds(embedBuilder.build()).queue();
+                ctx.message().ifPresent(m -> m.replyEmbeds(embedBuilder.build()).queue());
             } else {
-                event.getMessage().reply("You don't have a countdown with the given ID! Please check your list and try again.").queue();
+                ctx.message().ifPresent(m -> m.reply("You don't have a countdown with the given ID! Please check your list and try again.").queue());
             }
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
-            event.getMessage().reply("Something went wrong while working with the database.").queue();
+            ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
         } catch (NumberFormatException e) {
-            event.getMessage().reply("Please enter a valid countdown ID!").queue();
+            ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());
         }
     }
 
-    private void showList(MessageReceivedEvent event) {
+    private void showList(CommandContext ctx) {
         try {
-            List<Countdown> countdowns = countdownDao.findAllById(event.getAuthor().getIdLong());
+            List<Countdown> countdowns = countdownDao.findAllById(ctx.user().getIdLong());
             StringBuilder sb = new StringBuilder();
             for (Countdown cd : countdowns) {
                 sb.append("* ").append(String.format("**%s** ", cd.name())).append(String.format("`[ID: %d]`", cd.id())).append("\n")
-                        .append(DateTimeUtils.formatDateTime(cd.dateTime())).append("\n")
-                        .append(Formatter.getRelativeTime(cd.dateTime())).append("\n");
+                    .append(DateTimeUtils.formatDateTime(cd.dateTime())).append("\n")
+                    .append(Formatter.getRelativeTime(cd.dateTime())).append("\n");
             }
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle("Your Countdowns");
-            String desc = sb.isEmpty() ? "Your list is empty." : sb.toString();
-            embedBuilder.setDescription(desc);
+            embedBuilder.setDescription(sb.isEmpty() ? "Your list is empty." : sb.toString());
 
-            event.getMessage().replyEmbeds(embedBuilder.build()).queue();
+            ctx.message().ifPresent(m -> m.replyEmbeds(embedBuilder.build()).queue());
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
-            event.getMessage().reply("Something went wrong while fetching your countdowns.").queue();
+            ctx.message().ifPresent(m -> m.reply("Something went wrong while fetching your countdowns.").queue());
         }
     }
 
-    private void createCountdown(MessageReceivedEvent event, String name, String input) {
+    private void createCountdown(CommandContext ctx, String name, String input) {
         try {
             long created = System.currentTimeMillis();
-
             long millis = DateTimeUtils.parseDateTime(input);
             String dateTime = DateTimeUtils.formatDateTime(millis);
 
-            Countdown countdown = new Countdown(-1, name, created, millis, event.getAuthor().getIdLong(), event.getGuild().getIdLong());
+            Countdown countdown = new Countdown(-1, name, created, millis, ctx.user().getIdLong(), ctx.guild().orElseThrow().getIdLong());
             countdownDao.insertIgnore(countdown);
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -141,46 +132,41 @@ public class CountdownCmd extends AbstractCommand {
             embedBuilder.addField("Date", dateTime, false);
             embedBuilder.addField("Remaining time", Formatter.getRelativeTime(millis), false);
 
-            event.getMessage().replyEmbeds(embedBuilder.build()).queue();
+            ctx.message().ifPresent(m -> m.replyEmbeds(embedBuilder.build()).queue());
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
-            event.getMessage().reply("Something went wrong while storing your countdown.").queue();
+            ctx.message().ifPresent(m -> m.reply("Something went wrong while storing your countdown.").queue());
         } catch (IllegalArgumentException e) {
-            event.getMessage().reply("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.").queue();
+            ctx.message().ifPresent(m -> m.reply("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.").queue());
         }
     }
 
-    private void removeCountdown(MessageReceivedEvent event, String rawId) {
+    private void removeCountdown(CommandContext ctx, String rawId) {
         try {
-            long userId = event.getAuthor().getIdLong();
+            long userId = ctx.user().getIdLong();
             long selectedId = Long.parseLong(rawId);
 
             Optional<Countdown> selectedCountdown = countdownDao.findAllById(userId)
-                    .stream()
-                    .filter(cd -> cd.id() == selectedId)
-                    .findFirst();
+                .stream()
+                .filter(cd -> cd.id() == selectedId)
+                .findFirst();
 
             if (selectedCountdown.isPresent()) {
                 countdownDao.deleteIgnore(selectedCountdown.get().id());
-                event.getMessage().reply("Successfully removed your countdown.").queue();
+                ctx.message().ifPresent(m -> m.reply("Successfully removed your countdown.").queue());
             } else {
-                event.getMessage().reply("You don't have a countdown with the given ID! Please check your list and try again.").queue();
+                ctx.message().ifPresent(m -> m.reply("You don't have a countdown with the given ID! Please check your list and try again.").queue());
             }
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
-            event.getMessage().reply("Something went wrong while working with the database.").queue();
+            ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
         } catch (NumberFormatException e) {
-            event.getMessage().reply("Please enter a valid countdown ID!").queue();
+            ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());
         }
     }
 
-    private static String joinFrom(String[] args, int startIdx) {
-        if (startIdx >= args.length) return "";
-        StringBuilder sb = new StringBuilder();
-        for (int i = startIdx; i < args.length; i++) {
-            if (i > startIdx) sb.append(" ");
-            sb.append(args[i]);
-        }
-        return sb.toString().trim();
+    private static String joinFrom(CommandContext ctx, int startIdx) {
+        if (startIdx >= ctx.argCount()) return "";
+        return String.join(" ", ctx.args().subList(startIdx, ctx.args().size())).trim();
     }
 }

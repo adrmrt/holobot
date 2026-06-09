@@ -1,13 +1,15 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.UserResolver;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -22,40 +24,51 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "whois",
-        description = "Returns information about a user or bot.",
-        usage = "[user]",
-        example = "@Holo",
-        alias = {"stalk"},
-        category = CommandCategory.GENERAL)
-public class WhoisCmd extends AbstractCommand {
+    description = "Returns information about a user or bot.",
+    usage = "[user]",
+    example = "@Holo",
+    alias = {"stalk"},
+    category = CommandCategory.GENERAL)
+public class WhoisCmd extends AbstractCommand implements ExecutableCommand {
+
+    private final UserResolver userResolver;
+
+    public WhoisCmd(UserResolver userResolver) {
+        this.userResolver = userResolver;
+    }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        if (args.length > 1) {
-            sendErrorEmbed(event, "Incorrect usage. Please provide at most one argument.");
+        if (ctx.argCount() > 1) {
+            ctx.reply().errorEmbed("Incorrect usage. Please provide at most one argument.");
             return;
         }
 
-        Optional<User> userOptional = fetchMentionedUser(event);
+        Optional<User> userOptional = userResolver.resolveUser(ctx);
         if (userOptional.isEmpty()) {
-            sendErrorEmbed(event, "I couldn't find the given user! Please make sure you provided the correct user id or mentioned them!");
+            ctx.reply().errorEmbed("I couldn't find the given user! Please make sure you provided the correct user id or mentioned them!");
             return;
         }
         User user = userOptional.get();
 
-        Optional<Member> memberOptional = getAsGuildMember(user, event.getGuild());
+        Optional<Member> memberOptional = userResolver.resolveGuildMember(user, ctx);
+
         EmbedBuilder builder = setEmbedWithUserDetails(user, memberOptional.isPresent());
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getAvatarUrl()));
 
         if (memberOptional.isEmpty()) {
-            sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+            ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES, null, ignored -> {
+            }));
             return;
         }
 
         Member member = memberOptional.get();
         setEmbedWithMemberDetails(builder, member);
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES, member.getColors().getPrimary());
+        builder.setColor(member.getColors().getPrimary());
+        ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES, null, ignored -> {
+        }));
     }
 
     private EmbedBuilder setEmbedWithUserDetails(User user, boolean hasMember) {
@@ -63,7 +76,6 @@ public class WhoisCmd extends AbstractCommand {
         builder.setTitle("@" + user.getName() + " (" + user.getIdLong() + ")");
         builder.setThumbnail(user.getEffectiveAvatarUrl() + "?size=1024");
 
-        // Account information
         String accountType = user.isBot() ? "Bot" : "User";
         String creationDate = formatDateTime(user.getTimeCreated().toInstant());
 
@@ -78,10 +90,10 @@ public class WhoisCmd extends AbstractCommand {
     private void addNonApplicableFields(EmbedBuilder builder) {
         String naField = "`N/A`";
         builder.addField("Nickname", naField, false)
-                .addField("Join Date", naField, false)
-                .addField("Highest Role", naField, true)
-                .addField("Hoisted Role", naField, true)
-                .addField("Roles", naField, false);
+            .addField("Join Date", naField, false)
+            .addField("Highest Role", naField, true)
+            .addField("Hoisted Role", naField, true)
+            .addField("Roles", naField, false);
     }
 
     private void setEmbedWithMemberDetails(EmbedBuilder builder, Member member) {
@@ -91,8 +103,8 @@ public class WhoisCmd extends AbstractCommand {
         List<Role> roles = member.getRoles();
         if (roles.isEmpty()) {
             builder.addField("Highest Role", "@everyone", true)
-                    .addField("Hoisted Role", "`Unhoisted`", true)
-                    .addField("Roles", "@everyone", false);
+                .addField("Hoisted Role", "`Unhoisted`", true)
+                .addField("Roles", "@everyone", false);
         } else {
             addRoleFields(builder, roles);
         }
@@ -103,11 +115,10 @@ public class WhoisCmd extends AbstractCommand {
         Role hoisted = roles.stream().filter(Role::isHoisted).max(Comparator.comparingInt(Role::getPosition)).orElse(null);
 
         builder.addField("Highest Role", highest.getAsMention(), true)
-                .addField("Hoisted Role", hoisted != null ? hoisted.getAsMention() : "`Unhoisted`", true)
-                .addBlankField(true);
+            .addField("Hoisted Role", hoisted != null ? hoisted.getAsMention() : "`Unhoisted`", true)
+            .addBlankField(true);
 
-        StringBuilder rolesString = buildRolesString(roles);
-        builder.addField("Roles", rolesString.toString(), false);
+        builder.addField("Roles", buildRolesString(roles).toString(), false);
     }
 
     private StringBuilder buildRolesString(List<Role> roles) {

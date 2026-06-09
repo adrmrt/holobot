@@ -1,1 +1,2 @@
-SELECT * FROM DiscordGuildConfigs;
+SELECT *
+FROM DiscordGuildConfigs;

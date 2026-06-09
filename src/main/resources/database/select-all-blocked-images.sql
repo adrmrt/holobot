@@ -1,1 +1,2 @@
-SELECT * FROM BlockedImages;
+SELECT *
+FROM BlockedImages;

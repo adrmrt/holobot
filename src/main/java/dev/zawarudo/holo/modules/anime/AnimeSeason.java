@@ -24,20 +24,20 @@ public class AnimeSeason {
         seasonalAnime.sort(Comparator.comparingInt(AbstractMedium::getPopularity));
 
         Map<String, List<Anime>> map = seasonalAnime.stream()
-                .filter(anime -> {
-                    Broadcast b = anime.getBroadcast();
-                    return b.getString().isPresent() &&
-                            b.getDay().isPresent() &&
-                            b.getTime().isPresent() &&
-                            b.getTimeZone().isPresent();
-                })
-                .collect(Collectors.groupingBy(
-                        anime -> getFormattedDateString(
-                                DateTimeUtils.convertDate(anime.getStartDate(), TARGET_TIME_ZONE)
-                        ),
-                        TreeMap::new,
-                        Collectors.toList()
-                ));
+            .filter(anime -> {
+                Broadcast b = anime.getBroadcast();
+                return b.getString().isPresent() &&
+                    b.getDay().isPresent() &&
+                    b.getTime().isPresent() &&
+                    b.getTimeZone().isPresent();
+            })
+            .collect(Collectors.groupingBy(
+                anime -> getFormattedDateString(
+                    DateTimeUtils.convertDate(anime.getStartDate(), TARGET_TIME_ZONE)
+                ),
+                TreeMap::new,
+                Collectors.toList()
+            ));
 
         System.out.println("Anime Releases Fall 2024");
         System.out.println(map.size() + " days");
@@ -45,8 +45,8 @@ public class AnimeSeason {
         for (String key : map.keySet()) {
             System.out.println(key);
             map.get(key).stream()
-                    .peek(anime -> anime.changeBroadcastTimeZone(TARGET_TIME_ZONE))
-                    .forEach(System.out::println);
+                .peek(anime -> anime.changeBroadcastTimeZone(TARGET_TIME_ZONE))
+                .forEach(System.out::println);
             System.out.println();
         }
     }

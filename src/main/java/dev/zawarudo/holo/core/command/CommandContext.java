@@ -2,6 +2,7 @@ package dev.zawarudo.holo.core.command;
 
 import dev.zawarudo.holo.core.GuildConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +32,15 @@ public final class CommandContext {
     private final @Nullable GuildConfig guildConfig;
 
     public CommandContext(
-            @NotNull String commandName,
-            @NotNull String invokedAs,
-            @NotNull List<String> args,
-            @NotNull Invocation invocation,
-            @NotNull Reply reply,
-            boolean botOwner,
-            boolean guildAdmin,
-            @Nullable String prefix,
-            @Nullable GuildConfig guildConfig
+        @NotNull String commandName,
+        @NotNull String invokedAs,
+        @NotNull List<String> args,
+        @NotNull Invocation invocation,
+        @NotNull Reply reply,
+        boolean botOwner,
+        boolean guildAdmin,
+        @Nullable String prefix,
+        @Nullable GuildConfig guildConfig
     ) {
         this.commandName = requireNonBlank(commandName, "commandName");
         this.invokedAs = requireNonBlank(invokedAs, "invokedAs");
@@ -115,6 +116,10 @@ public final class CommandContext {
 
     public @NotNull MessageChannelUnion channel() {
         return invocation.channel();
+    }
+
+    public @NotNull JDA jda() {
+        return invocation.channel().getJDA();
     }
 
     public @NotNull Optional<Message> message() {

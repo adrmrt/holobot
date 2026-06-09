@@ -43,7 +43,7 @@ public class MediaSearchService {
     }
 
     public List<AnimeResult> searchAnime(String query, int limit, List<MediaPlatform> order)
-            throws APIException, InvalidRequestException {
+        throws APIException, InvalidRequestException {
 
         Objects.requireNonNull(query, "query");
         if (order == null || order.isEmpty()) return List.of();
@@ -75,7 +75,7 @@ public class MediaSearchService {
     }
 
     public List<MangaResult> searchManga(String query, int limit, List<MediaPlatform> order)
-            throws APIException, InvalidRequestException {
+        throws APIException, InvalidRequestException {
 
         Objects.requireNonNull(query, "query");
         if (order == null || order.isEmpty()) return List.of();

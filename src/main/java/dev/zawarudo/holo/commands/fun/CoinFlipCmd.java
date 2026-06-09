@@ -11,9 +11,9 @@ import java.text.DecimalFormat;
 import java.util.Random;
 
 @CommandInfo(name = "coinflip",
-        description = "Flips a coin. You can provide an additional argument as the number of times I should flip a coin with the limit being 1'000'000 coin flips at once.",
-        usage = "[<times>]",
-        category = CommandCategory.MISC)
+    description = "Flips a coin. You can provide an additional argument as the number of times I should flip a coin with the limit being 1'000'000 coin flips at once.",
+    usage = "[<times>]",
+    category = CommandCategory.MISC)
 public class CoinFlipCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final int MAX_COIN_FLIPS = 1_000_000;

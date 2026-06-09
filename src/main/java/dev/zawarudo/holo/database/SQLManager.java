@@ -84,21 +84,21 @@ public class SQLManager {
         // Recursively walk the database/ folder
         try (Stream<Path> paths = Files.walk(directory.toPath())) {
             paths.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".sql"))
-                    .forEach(p -> {
-                        try {
-                            String content = Files.readString(p, StandardCharsets.UTF_8);
+                .filter(p -> p.getFileName().toString().endsWith(".sql"))
+                .forEach(p -> {
+                    try {
+                        String content = Files.readString(p, StandardCharsets.UTF_8);
 
-                            // Build key relative to database/
-                            Path rel = directory.toPath().relativize(p);
-                            String key = keyFromRelativePath(rel.toString());
+                        // Build key relative to database/
+                        Path rel = directory.toPath().relativize(p);
+                        String key = keyFromRelativePath(rel.toString());
 
-                            statements.put(key, content);
-                            LOGGER.debug("Loaded SQL file: {} -> key={}", rel, key);
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-                    });
+                        statements.put(key, content);
+                        LOGGER.debug("Loaded SQL file: {} -> key={}", rel, key);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
         } catch (UncheckedIOException e) {
             throw e.getCause();
         }
@@ -115,25 +115,25 @@ public class SQLManager {
         String prefix = SQL_DIRECTORY_PATH + "/";
 
         jarFile.stream()
-                .filter(entry -> !entry.isDirectory())
-                .filter(entry -> entry.getName().startsWith(prefix))
-                .filter(entry -> entry.getName().endsWith(".sql"))
-                .forEach(entry -> {
-                    try (InputStream is = getClass().getClassLoader().getResourceAsStream(entry.getName())) {
-                        if (is == null) return;
+            .filter(entry -> !entry.isDirectory())
+            .filter(entry -> entry.getName().startsWith(prefix))
+            .filter(entry -> entry.getName().endsWith(".sql"))
+            .forEach(entry -> {
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream(entry.getName())) {
+                    if (is == null) return;
 
-                        String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
-                        // Key relative to "database/"
-                        String rel = entry.getName().substring(prefix.length());
-                        String key = keyFromRelativePath(rel);
+                    // Key relative to "database/"
+                    String rel = entry.getName().substring(prefix.length());
+                    String key = keyFromRelativePath(rel);
 
-                        statements.put(key, content);
-                        LOGGER.debug("Loaded SQL file: {} -> key={}", rel, key);
-                    } catch (IOException e) {
-                        LOGGER.error("Failed to load SQL file: {}", entry.getName(), e);
-                    }
-                });
+                    statements.put(key, content);
+                    LOGGER.debug("Loaded SQL file: {} -> key={}", rel, key);
+                } catch (IOException e) {
+                    LOGGER.error("Failed to load SQL file: {}", entry.getName(), e);
+                }
+            });
 
         return statements;
     }

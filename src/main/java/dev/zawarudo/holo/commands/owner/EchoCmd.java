@@ -10,11 +10,11 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 @CommandInfo(name = "echo",
-        description = "Repeats a given message by a given amount.",
-        usage = "<amount> <message>",
-        alias = {"say", "repeat"},
-        ownerOnly = true,
-        category = CommandCategory.OWNER)
+    description = "Repeats a given message by a given amount.",
+    usage = "<amount> <message>",
+    alias = {"say", "repeat"},
+    ownerOnly = true,
+    category = CommandCategory.OWNER)
 public class EchoCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final int MIN_TIMES = 1;

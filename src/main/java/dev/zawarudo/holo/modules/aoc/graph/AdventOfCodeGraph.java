@@ -263,9 +263,9 @@ public abstract class AdventOfCodeGraph {
 
     private int getParticipantCount(List<AdventDay> days) {
         return days.stream()
-                .mapToInt(day -> day.goldCount() + day.silverCount() + day.grayCount())
-                .max()
-                .orElse(0);
+            .mapToInt(day -> day.goldCount() + day.silverCount() + day.grayCount())
+            .max()
+            .orElse(0);
     }
 
     private int roundUp(int number) {

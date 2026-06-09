@@ -2,16 +2,17 @@ package dev.zawarudo.holo.commands.image;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.modules.DogCeoClient;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
-import dev.zawarudo.holo.utils.exceptions.APIException;
-import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.modules.DogCeoClient;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.Reader;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
+import dev.zawarudo.holo.utils.exceptions.APIException;
+import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -21,10 +22,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "dog",
-        description = "Fetches an image of a dog.",
-        usage = "[breeds | <breed> | random]",
-        category = CommandCategory.IMAGE)
-public class DogCmd extends AbstractCommand {
+    description = "Fetches an image of a dog.",
+    usage = "[breeds | <breed> | random]",
+    category = CommandCategory.IMAGE)
+public class DogCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final String RESOURCE_PATH = "data/dog-breeds.json";
     private final String[] breeds;
@@ -48,29 +49,26 @@ public class DogCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        if (args.length == 0 || args[0].equalsIgnoreCase("random")) {
-            sendRandomDogEmbed(event);
-        } else if (args[0].equalsIgnoreCase("breeds") || args[0].equalsIgnoreCase("list")) {
-            sendBreedListEmbed(event);
-        } else if (Arrays.stream(breeds).anyMatch(b -> b.equalsIgnoreCase(args[0]))) {
-            sendDogImageEmbed(event, args[0]);
+        if (!ctx.hasArgs() || ctx.args().getFirst().equalsIgnoreCase("random")) {
+            sendRandomDogEmbed(ctx);
+        } else if (ctx.args().getFirst().equalsIgnoreCase("breeds") || ctx.args().getFirst().equalsIgnoreCase("list")) {
+            sendBreedListEmbed(ctx);
+        } else if (Arrays.stream(breeds).anyMatch(b -> b.equalsIgnoreCase(ctx.args().getFirst()))) {
+            sendDogImageEmbed(ctx, ctx.args().getFirst());
         } else {
-            sendErrorEmbed(event, "The breed you specified is unknown. Use `" + getPrefix(event) + "dog breeds` to see a list of available breeds.");
+            ctx.reply().errorEmbed("The breed you specified is unknown. Use `" + ctx.prefix().orElse("") + "dog breeds` to see a list of available breeds.");
         }
     }
 
-    /**
-     * Sends an embed with a random dog image.
-     */
-    private void sendRandomDogEmbed(MessageReceivedEvent event) {
+    private void sendRandomDogEmbed(CommandContext ctx) {
         String url;
         try {
             url = DogCeoClient.getRandomImage();
         } catch (APIException ex) {
-            sendErrorEmbed(event, "An error occurred while fetching the image from the API. Try again later!");
+            ctx.reply().errorEmbed("An error occurred while fetching the image from the API. Try again later!");
             if (logger.isErrorEnabled()) {
                 logger.error("An error occurred while fetching the image from the API.", ex);
             }
@@ -82,29 +80,27 @@ public class DogCmd extends AbstractCommand {
         builder.setTitle("Here is your random dog!");
         builder.setDescription("It's a **" + getFormattedName(breed) + "**!");
         builder.setImage(url);
-        sendEmbed(event, builder, true,2, TimeUnit.MINUTES, getEmbedColor());
+        builder.setColor(getEmbedColor());
+        ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(2, TimeUnit.MINUTES, null, ignored -> {
+        }));
     }
 
-    /**
-     * Sends an embed with a list of available breeds.
-     */
-    private void sendBreedListEmbed(MessageReceivedEvent event) {
+    private void sendBreedListEmbed(CommandContext ctx) {
         String s = Formatter.asCodeBlock(String.join(", ", breeds));
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Available dog breeds");
         builder.setDescription(s);
-        sendEmbed(event, builder, true, 2, TimeUnit.MINUTES, getEmbedColor());
+        builder.setColor(getEmbedColor());
+        ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(2, TimeUnit.MINUTES, null, ignored -> {
+        }));
     }
 
-    /**
-     * Sends an embed with a dog image of the specified breed.
-     */
-    private void sendDogImageEmbed(MessageReceivedEvent event, String breed) {
+    private void sendDogImageEmbed(CommandContext ctx, String breed) {
         String url;
         try {
             url = DogCeoClient.getRandomBreedImage(breed);
         } catch (APIException | InvalidRequestException ex) {
-            sendErrorEmbed(event, "An error occurred while fetching the image from the API. Try again later!");
+            ctx.reply().errorEmbed("An error occurred while fetching the image from the API. Try again later!");
             if (logger.isErrorEnabled()) {
                 logger.error("An error occurred while fetching the image from the API.", ex);
             }
@@ -114,7 +110,9 @@ public class DogCmd extends AbstractCommand {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Here is your " + getFormattedName(breed) + "!");
         builder.setImage(url);
-        sendEmbed(event, builder, true, 2, TimeUnit.MINUTES, getEmbedColor());
+        builder.setColor(getEmbedColor());
+        ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(2, TimeUnit.MINUTES, null, ignored -> {
+        }));
     }
 
     /**

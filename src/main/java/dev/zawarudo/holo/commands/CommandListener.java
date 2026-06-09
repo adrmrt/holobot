@@ -96,8 +96,8 @@ public class CommandListener extends ListenerAdapter {
             }
 
             String[] directedArgs = (split.size() > 1)
-                    ? split.subList(1, split.size()).toArray(new String[0])
-                    : new String[0];
+                ? split.subList(1, split.size()).toArray(new String[0])
+                : new String[0];
 
             actionCmd.displayAction(event, actionCmd.getAction(invoke), directedArgs);
             return;
@@ -121,9 +121,9 @@ public class CommandListener extends ListenerAdapter {
 
                 if (!cfg.isModuleEnabled(moduleId)) {
                     executorService.submit(withMdc(mdc, () ->
-                            event.getChannel()
-                                    .sendMessage("This command module is disabled on this server: `" + moduleId.id() + "`")
-                                    .queue()
+                        event.getChannel()
+                            .sendMessage("This command module is disabled on this server: `" + moduleId.id() + "`")
+                            .queue()
                     ));
                     return;
                 }
@@ -148,11 +148,11 @@ public class CommandListener extends ListenerAdapter {
         List<String> argList = (split.size() > 1) ? split.subList(1, split.size()) : List.of();
 
         CommandContext ctx = ctxFactory.createForMessage(
-                event,
-                cmd.getName(),
-                invoke,
-                argList,
-                prefix
+            event,
+            cmd.getName(),
+            invoke,
+            argList,
+            prefix
         );
 
         executorService.submit(withMdc(mdc, () -> {
@@ -179,8 +179,8 @@ public class CommandListener extends ListenerAdapter {
     private String getPrefix(MessageReceivedEvent e) {
         if (e.isFromGuild()) {
             return Bootstrap.holo.getGuildConfigManager()
-                    .getOrCreate(e.getGuild())
-                    .getPrefix();
+                .getOrCreate(e.getGuild())
+                .getPrefix();
         }
 
         return Bootstrap.holo.getConfig().getDefaultPrefix();
@@ -211,13 +211,13 @@ public class CommandListener extends ListenerAdapter {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Missing Permission");
         builder.setDescription("Cannot perform action due to a lack of permission. Please update my permissions " +
-                "so I can run the called command.");
+            "so I can run the called command.");
         builder.addField("Permission", Formatter.asCodeBlock(permissionName), false);
 
         boolean hasWritePermission = PermissionUtil.checkPermission(
-                event.getGuildChannel().getPermissionContainer(),
-                event.getGuild().getSelfMember(),
-                Permission.MESSAGE_SEND
+            event.getGuildChannel().getPermissionContainer(),
+            event.getGuild().getSelfMember(),
+            Permission.MESSAGE_SEND
         );
 
         if (hasWritePermission) {
@@ -235,9 +235,9 @@ public class CommandListener extends ListenerAdapter {
         builder.addField("Message", messageLink, false);
 
         event.getAuthor().openPrivateChannel().queue(dm -> dm.sendMessageEmbeds(builder.build()).queue(s -> {
-                },
-                err -> LOGGER.warn("Can't send a private message because I have been blocked by {} (ID: {}).",
-                        event.getAuthor().getName(), event.getAuthor().getId())));
+            },
+            err -> LOGGER.warn("Can't send a private message because I have been blocked by {} (ID: {}).",
+                event.getAuthor().getName(), event.getAuthor().getId())));
     }
 
     private void checkEmoteInvoke(MessageReceivedEvent event, String invoke) {
@@ -249,9 +249,9 @@ public class CommandListener extends ListenerAdapter {
 
             // Check MANAGE_WEBHOOKS permission
             if (!PermissionUtil.checkPermission(
-                    event.getGuildChannel().getPermissionContainer(),
-                    event.getGuild().getSelfMember(),
-                    Permission.MANAGE_WEBHOOKS)) {
+                event.getGuildChannel().getPermissionContainer(),
+                event.getGuild().getSelfMember(),
+                Permission.MANAGE_WEBHOOKS)) {
                 return;
             }
 

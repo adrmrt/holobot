@@ -11,29 +11,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "stop",
-		description = "Stops the current song and clears the queue.",
-		ownerOnly = true,
-		category = CommandCategory.MUSIC)
+    description = "Stops the current song and clears the queue.",
+    ownerOnly = true,
+    category = CommandCategory.MUSIC)
 public class StopCmd extends AbstractMusicCommand {
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent event) {
-		deleteInvoke(event);
-		
-		EmbedBuilder builder = new EmbedBuilder();
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+    @Override
+    public void onCommand(@NotNull MessageReceivedEvent event) {
+        deleteInvoke(event);
 
-		if (musicManager.scheduler.audioPlayer.getPlayingTrack() == null && musicManager.scheduler.queue.isEmpty()) {
-			builder.setTitle("Error");
-			builder.setDescription("I'm currently idle!");
-			sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
-			return;
-		}
+        EmbedBuilder builder = new EmbedBuilder();
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
 
-		musicManager.clear();
-		
-		builder.setTitle("Success");
-		builder.setDescription("Stopped current track and cleared queue!");
-		sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
-	}
+        if (musicManager.scheduler.audioPlayer.getPlayingTrack() == null && musicManager.scheduler.queue.isEmpty()) {
+            builder.setTitle("Error");
+            builder.setDescription("I'm currently idle!");
+            sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
+            return;
+        }
+
+        musicManager.clear();
+
+        builder.setTitle("Success");
+        builder.setDescription("Stopped current track and cleared queue!");
+        sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
+    }
 }

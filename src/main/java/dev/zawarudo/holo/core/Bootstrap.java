@@ -41,9 +41,9 @@ public final class Bootstrap {
         startupTime = System.currentTimeMillis();
 
         dotenv = Dotenv.configure()
-                .ignoreIfMissing()
-                .ignoreIfMalformed()
-                .load();
+            .ignoreIfMissing()
+            .ignoreIfMalformed()
+            .load();
 
         LOGGER.info(".env loaded ({} entries)", dotenv.entries().size());
 
@@ -74,16 +74,16 @@ public final class Bootstrap {
      */
     private static BotConfig buildConfig(Dotenv env) {
         return BotConfig.builder()
-                .botToken(require(env, "BOT_TOKEN"))
-                .ownerId(requireLong(env, "OWNER_ID"))
-                .defaultPrefix(env.get("DEFAULT_PREFIX", "<"))
-                .deepAIKey(env.get("DEEP_AI_TOKEN", ""))
-                .aocToken(env.get("AOC_TOKEN", ""))
-                .saucenaoToken(env.get("SAUCE_NAO_TOKEN", ""))
-                .githubToken(env.get("GITHUB_TOKEN", ""))
-                .dictionaryKey(env.get("KEY_DICTIONARY", ""))
-                .thesaurusKey(env.get("KEY_THESAURUS", ""))
-                .build();
+            .botToken(require(env, "BOT_TOKEN"))
+            .ownerId(requireLong(env, "OWNER_ID"))
+            .defaultPrefix(env.get("DEFAULT_PREFIX", "<"))
+            .deepAIKey(env.get("DEEP_AI_TOKEN", ""))
+            .aocToken(env.get("AOC_TOKEN", ""))
+            .saucenaoToken(env.get("SAUCE_NAO_TOKEN", ""))
+            .githubToken(env.get("GITHUB_TOKEN", ""))
+            .dictionaryKey(env.get("KEY_DICTIONARY", ""))
+            .thesaurusKey(env.get("KEY_THESAURUS", ""))
+            .build();
     }
 
     private static void checkDatabase() {

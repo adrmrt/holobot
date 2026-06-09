@@ -22,13 +22,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 @CommandInfo(name = "animesearch",
-        description = "Use this command to search for an anime. Optionally specify a platform (mal or anilist) to search on.",
-        usage = "[mal|anilist] <title>",
-        example = "mal one piece",
-        alias = {"as", "anime"},
-        thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
-        embedColor = EmbedColor.MAL,
-        category = CommandCategory.ANIME)
+    description = "Use this command to search for an anime. Optionally specify a platform (mal or anilist) to search on.",
+    usage = "[mal|anilist] <title>",
+    example = "mal one piece",
+    alias = {"as", "anime"},
+    thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
+    embedColor = EmbedColor.MAL,
+    category = CommandCategory.ANIME)
 public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand {
 
     private final MediaSearchService searchService;
@@ -38,19 +38,19 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
         this.searchService = searchService;
 
         this.selector = new ReactionSelector<>(
-                waiter,
-                items -> {
-                    MediaPlatform platform = items.getFirst().platform();
-                    return ReactionSelector.defaultNumberedListEmbed(
-                            "Anime Search Results",
-                            items,
-                            a -> String.format("%s [%s]", a.title(), a.type()),
-                            getEmbedColor(),
-                            platform.getName(),
-                            platform.getUrl(),
-                            platform.getIconUrl()
-                    );
-                }
+            waiter,
+            items -> {
+                MediaPlatform platform = items.getFirst().platform();
+                return ReactionSelector.defaultNumberedListEmbed(
+                    "Anime Search Results",
+                    items,
+                    a -> String.format("%s [%s]", a.title(), a.type()),
+                    getEmbedColor(),
+                    platform.getName(),
+                    platform.getUrl(),
+                    platform.getIconUrl()
+                );
+            }
         );
     }
 
@@ -65,8 +65,8 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
 
         MediaPlatform platform = parsePlatformFlag(ctx.args().getFirst());
         final String search = platform != null
-                ? String.join(" ", ctx.args().subList(1, ctx.args().size())).trim()
-                : ctx.argString();
+            ? String.join(" ", ctx.args().subList(1, ctx.args().size())).trim()
+            : ctx.argString();
 
         if (search.isBlank()) {
             ctx.reply().errorEmbed("Please provide a title to search for.");
@@ -77,8 +77,8 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
         try {
             List<MediaPlatform> order = platform != null ? List.of(platform) : null;
             results = order != null
-                    ? searchService.searchAnime(search, 10, order)
-                    : searchService.searchAnime(search, 10);
+                ? searchService.searchAnime(search, 10, order)
+                : searchService.searchAnime(search, 10);
         } catch (APIException | InvalidRequestException ex) {
             ctx.reply().errorEmbed("An error occurred while trying to search for the anime! Please try again later.");
             logger.error("Anime search failed: {}", search, ex);
@@ -121,7 +121,7 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
 
         // Titles
         if (anime.titleEnglish() != null && !anime.titleEnglish().isBlank()
-                && !anime.titleEnglish().equalsIgnoreCase(anime.title())) {
+            && !anime.titleEnglish().equalsIgnoreCase(anime.title())) {
             b.addField("English Title", anime.titleEnglish(), true);
         }
         if (anime.titleJapanese() != null && !anime.titleJapanese().isBlank()) {
@@ -177,8 +177,8 @@ public class AnimeSearchCmd extends AbstractCommand implements ExecutableCommand
 
         // Link
         String linkName = (anime.platform() == MediaPlatform.ANILIST)
-                ? "AniList"
-                : "MyAnimeList";
+            ? "AniList"
+            : "MyAnimeList";
         if (!anime.url().isBlank()) {
             b.addField("Link", "[" + linkName + "](" + anime.url() + ")", false);
         }

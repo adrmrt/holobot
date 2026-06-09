@@ -73,7 +73,7 @@ public abstract class AbstractMusicCommand extends AbstractCommand {
             return false;
         }
 
-		// Check voice states
+        // Check voice states
         AudioChannel botChannel = getConnectedChannel(e.getGuild());
         if (botChannel == null) {
             return false;
