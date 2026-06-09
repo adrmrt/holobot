@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.commands;
 
 import dev.zawarudo.holo.core.Bootstrap;
+import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,6 +29,7 @@ public abstract class AbstractCommand {
     /**
      * Abstract method that defines the function of the command.
      *
+     * @deprecated Use {@link ExecutableCommand#execute(CommandContext)} instead.
      * @param event The {@link MessageReceivedEvent} to trigger the command with.
      */
     @Deprecated(forRemoval = true)
@@ -194,7 +196,7 @@ public abstract class AbstractCommand {
         try {
             Integer.parseInt(s);
             return true;
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return false;
         }
     }
@@ -210,7 +212,7 @@ public abstract class AbstractCommand {
         try {
             int n = Integer.parseInt(raw);
             return (n >= 1) ? n : -1;
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
             return -1;
         }
     }
