@@ -79,6 +79,7 @@ public class CommandManager extends ListenerAdapter {
         addCommand(new AoCStatsCmd());
         addCommand(new AvatarCmd());
         addCommand(new BannerCmd());
+        addCommand(new CatCmd());
         addCommand(new CheckNSFWCmd(imageResolver));
         addCommand(new DogCmd());
         addCommand(new EmoteCmd(emoteManager));
