@@ -1,9 +1,9 @@
 package dev.zawarudo.holo.core.misc;
 
+import dev.zawarudo.holo.core.command.CommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * Represents a submission from a user to the bot owner. This can either
@@ -18,12 +18,12 @@ public class Submission {
     public final User author;
     public final String message;
 
-    public Submission(String type, MessageReceivedEvent event, String message) {
+    public Submission(String type, CommandContext ctx, String message) {
         this.type = type;
-        this.date = event.getMessage().getTimeCreated().toString();
-        this.guild = event.getGuild();
-        this.channel = event.getChannel();
-        this.author = event.getAuthor();
+        this.date = ctx.message().map(m -> m.getTimeCreated().toString()).orElse("");
+        this.guild = ctx.guild().orElse(null);
+        this.channel = ctx.channel();
+        this.author = ctx.user();
         this.message = message;
     }
 }

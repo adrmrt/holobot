@@ -1,13 +1,14 @@
 package dev.zawarudo.holo.commands.image;
 
+import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.ImageResolver;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
-import dev.zawarudo.holo.commands.AbstractCommand;
-import dev.zawarudo.holo.commands.CommandCategory;
-import dev.zawarudo.holo.utils.ImageOperations;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,11 +21,11 @@ import java.util.Optional;
 
 @Deactivated
 @CommandInfo(name = "pixelate",
-        description = "Pixelates a given image",
-        usage = "[<intensity>]",
-        alias = {"pixel"},
-        category = CommandCategory.IMAGE)
-public class PixelateCmd extends AbstractCommand {
+    description = "Pixelates a given image",
+    usage = "[<intensity>]",
+    alias = {"pixel"},
+    category = CommandCategory.IMAGE)
+public class PixelateCmd extends AbstractCommand implements ExecutableCommand {
 
     private final ImageResolver imageResolver;
 
@@ -33,24 +34,24 @@ public class PixelateCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        Message referenced = event.getMessage().getReferencedMessage();
+    public void execute(@NotNull CommandContext ctx) {
+        Message msg = ctx.message().orElseThrow();
+        Message referenced = msg.getReferencedMessage();
         Optional<String> url = referenced != null
-                ? imageResolver.resolveImageUrl(referenced)
-                : imageResolver.resolveImageUrl(event.getMessage());
+            ? imageResolver.resolveImageUrl(referenced)
+            : imageResolver.resolveImageUrl(msg);
 
-        // User didn't provide an image
         if (url.isEmpty()) {
-            sendErrorEmbed(event, "You need to provide an image to pixelate!");
+            ctx.reply().errorEmbed("You need to provide an image to pixelate!");
             return;
         }
 
         int intensity = 1;
 
-        if (args.length > 0 && isInteger(args[0])) {
-            intensity = Integer.parseInt(args[0]);
+        if (ctx.hasArgs() && isInteger(ctx.args().getFirst())) {
+            intensity = Integer.parseInt(ctx.args().getFirst());
             if (intensity < 1 || intensity > 250) {
-                sendErrorEmbed(event, "Intensity should be an integer between 1 and 250!");
+                ctx.reply().errorEmbed("Intensity should be an integer between 1 and 250!");
                 return;
             }
         }
@@ -58,20 +59,16 @@ public class PixelateCmd extends AbstractCommand {
         try {
             BufferedImage img = ImageIO.read(URI.create(url.get()).toURL());
             if (img == null) {
-                sendErrorEmbed(event, "I couldn't read the image. Please check your image format or try a different image.");
-                if (logger.isErrorEnabled()) {
-                    logger.error("Image is null: {}", url);
-                }
+                ctx.reply().errorEmbed("I couldn't read the image. Please check your image format or try a different image.");
+                logger.error("Image is null: {}", url);
                 return;
             }
             BufferedImage result = pixelate(img, intensity);
             InputStream input = ImageOperations.toInputStream(result);
-            event.getMessage().replyFiles(FileUpload.fromData(input, "result.png")).queue();
+            msg.replyFiles(FileUpload.fromData(input, "result.png")).queue();
         } catch (IOException ex) {
-            sendErrorEmbed(event, "Something went wrong while pixelating your image. Please try again later.");
-            if (logger.isErrorEnabled()) {
-                logger.error("Something went wrong during the pixelation of the image: {}", url, ex);
-            }
+            ctx.reply().errorEmbed("Something went wrong while pixelating your image. Please try again later.");
+            logger.error("Something went wrong during the pixelation of the image: {}", url, ex);
         }
     }
 

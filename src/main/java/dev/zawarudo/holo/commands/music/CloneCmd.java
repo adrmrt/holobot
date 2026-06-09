@@ -12,40 +12,40 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "clone",
-		description = "Duplicates the currently playing track and adds it on top of the queue.",
-		category = CommandCategory.MUSIC)
+    description = "Duplicates the currently playing track and adds it on top of the queue.",
+    category = CommandCategory.MUSIC)
 public class CloneCmd extends AbstractMusicCommand {
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent event) {
-		deleteInvoke(event);
+    @Override
+    public void onCommand(@NotNull MessageReceivedEvent event) {
+        deleteInvoke(event);
 
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
 
-		AudioTrack current = musicManager.audioPlayer.getPlayingTrack();
+        AudioTrack current = musicManager.audioPlayer.getPlayingTrack();
 
-		// Check if there are any tracks playing
-		if (current == null) {
-			sendErrorEmbed(event, "I'm not playing any tracks at the moment!");
-			return;
-		}
+        // Check if there are any tracks playing
+        if (current == null) {
+            sendErrorEmbed(event, "I'm not playing any tracks at the moment!");
+            return;
+        }
 
-		// Check vc conditions (user and bot in same vc, etc.)
-		if (!isUserInSameAudioChannel(event)) {
-			sendErrorEmbed(event, "You need to be in the same voice channel as me to use this command!");
-			return;
-		}
+        // Check vc conditions (user and bot in same vc, etc.)
+        if (!isUserInSameAudioChannel(event)) {
+            sendErrorEmbed(event, "You need to be in the same voice channel as me to use this command!");
+            return;
+        }
 
-		musicManager.scheduler.enqueueFirst(current.makeClone());
+        musicManager.scheduler.enqueueFirst(current.makeClone());
 
-		EmbedBuilder builder = new EmbedBuilder();
-		builder.setTitle("Cloned track");
-		String artworkUrl = getThumbnailUrl(current);
-		if (artworkUrl != null) builder.setThumbnail(artworkUrl);
-		builder.addField("Title", current.getInfo().title, false);
-		builder.addField("Uploader", current.getInfo().author, false);
-		builder.addField("Link", "[Open](" + current.getInfo().uri + ")", false);
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Cloned track");
+        String artworkUrl = getThumbnailUrl(current);
+        if (artworkUrl != null) builder.setThumbnail(artworkUrl);
+        builder.addField("Title", current.getInfo().title, false);
+        builder.addField("Uploader", current.getInfo().author, false);
+        builder.addField("Link", "[Open](" + current.getInfo().uri + ")", false);
 
-		sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
-	}
+        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+    }
 }

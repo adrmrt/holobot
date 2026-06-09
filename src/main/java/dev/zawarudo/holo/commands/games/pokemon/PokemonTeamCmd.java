@@ -1,13 +1,14 @@
 package dev.zawarudo.holo.commands.games.pokemon;
 
-import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
-import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
+import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.utils.ImageOperations;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,61 +22,53 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "pokemonteam",
-		description = "Generates a Pokémon team",
-		usage = "random",
-		alias = {"poketeam"},
-		guildOnly = false,
-		category = CommandCategory.GAMES)
-public class PokemonTeamCmd extends AbstractCommand {
+    description = "Generates a Pokémon team",
+    usage = "random",
+    alias = {"poketeam"},
+    guildOnly = false,
+    category = CommandCategory.GAMES)
+public class PokemonTeamCmd extends AbstractCommand implements ExecutableCommand {
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent event) {
-		deleteInvoke(event);
+    @Override
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-		EmbedBuilder builder = new EmbedBuilder();
-		
-		// Display help page
-		if (args.length == 0) {
-			event.getChannel().sendMessage("This feature is in development and thus not available yet. " +
-					"You probably meant `" + getPrefix(event) + "pokemonteam random`").queue();
-		}
-		
-		else if ("random".equals(args[0])) {
-			sendTyping(event);
-			
-			InputStream input;
-			
-			try {
-				// Generate 6 random Pokémon ids
-				List<Integer> ids = new ArrayList<>();
-				for (int i = 0; i < 6; i++) {
-					ids.add(new Random().nextInt(PokeApiClient.POKEMON_COUNT) + 1);
-				}
+        EmbedBuilder builder = new EmbedBuilder();
 
+        // Display help page
+        if (!ctx.hasArgs()) {
+            ctx.channel().sendMessage("This feature is in development and thus not available yet. " +
+                "You probably meant `" + ctx.prefix().orElse("") + "pokemonteam random`").queue();
+        } else if ("random".equals(ctx.args().getFirst())) {
+            ctx.reply().typing();
+
+            InputStream input;
+            try {
+                // Generate 6 random Pokémon ids
+                List<Integer> ids = new ArrayList<>();
+                for (int i = 0; i < 6; i++) {
+                    ids.add(new Random().nextInt(PokeApiClient.POKEMON_COUNT) + 1);
+                }
                 List<Pokemon> pokemon = PokeApiClient.getPokemon(ids.stream().mapToInt(k -> k).toArray());
                 PokemonTeam team = new PokemonTeam(pokemon.toArray(new Pokemon[0]));
+                BufferedImage img = team.generateTeamImage();
+                input = ImageOperations.toInputStream(img);
+            } catch (IOException | InterruptedException | ExecutionException ex) {
+                builder.setTitle("Error");
+                builder.setDescription("Something went wrong while creating a Pokémon team. Please try again in a few minutes!");
+                ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(15, TimeUnit.SECONDS, null, ignored -> {
+                }));
+                return;
+            }
 
-				BufferedImage img = team.generateTeamImage();
-				input = ImageOperations.toInputStream(img);
-			} catch (IOException | InterruptedException | ExecutionException ex) {
-				builder.setTitle("Error");
-				builder.setDescription("Something went wrong while creating a Pokémon team. Please try again in a few minutes!");
-				sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
-				return;
-			}
-
-			builder.setTitle("Random Pokémon Team");
-			builder.setImage("attachment://pokemonteam.png");		
-			if (event.isFromGuild()) {
-				builder.setFooter("Invoked by " + event.getMember().getEffectiveName(), event.getAuthor().getEffectiveAvatarUrl());
-			}
-			FileUpload upload = FileUpload.fromData(input, "pokemonteam.png");
-			event.getChannel().sendFiles(upload).setEmbeds(builder.build()).queue();
-		}
-		
-		// Add more stuff in the future, like the ability to create a custom team for users
-		else {
-			event.getChannel().sendMessage("This feature is in development and thus not available yet. You probably meant `" + getPrefix(event) + "pokemonteam random`").queue();
-		}
-	}
+            builder.setTitle("Random Pokémon Team");
+            builder.setImage("attachment://pokemonteam.png");
+            ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
+            FileUpload upload = FileUpload.fromData(input, "pokemonteam.png");
+            ctx.channel().sendFiles(upload).setEmbeds(builder.build()).queue();
+        } else {
+            // Add more stuff in the future, like the ability to create a custom team for users
+            ctx.channel().sendMessage("This feature is in development and thus not available yet. You probably meant `" + ctx.prefix().orElse("") + "pokemonteam random`").queue();
+        }
+    }
 }

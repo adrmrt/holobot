@@ -43,29 +43,29 @@ public final class JikanProvider implements MediaSearchProvider {
         String score = anime.getScore() == 0.0 ? "N/A" : String.valueOf(anime.getScore());
 
         return new AnimeResult(
-                MediaPlatform.MAL_JIKAN,
-                anime.getId(),
-                safeText(anime.getTitle(), "Unknown"),
-                safeText(anime.getType(), "?"),
-                safeText(anime.getUrl(), ""),
+            MediaPlatform.MAL_JIKAN,
+            anime.getId(),
+            safeText(anime.getTitle(), "Unknown"),
+            safeText(anime.getType(), "?"),
+            safeText(anime.getUrl(), ""),
 
-                pickImageUrl(anime.getImages()),
-                anime.getSynopsis().orElse(null),
+            pickImageUrl(anime.getImages()),
+            anime.getSynopsis().orElse(null),
 
-                anime.getTitleEnglish().orElse(null),
-                anime.getTitleJapanese().orElse(null),
+            anime.getTitleEnglish().orElse(null),
+            anime.getTitleJapanese().orElse(null),
 
-                score,
-                anime.getRank(),
-                anime.getEpisodes(),
+            score,
+            anime.getRank(),
+            anime.getEpisodes(),
 
-                emptyToNull(anime.getStatus()),
-                anime.getSeason(),
+            emptyToNull(anime.getStatus()),
+            anime.getSeason(),
 
-                namesOrEmpty(anime.getStudios()),
-                namesOrEmpty(anime.getGenres()),
-                namesOrEmpty(anime.getThemes()),
-                namesOrEmpty(anime.getDemographics())
+            namesOrEmpty(anime.getStudios()),
+            namesOrEmpty(anime.getGenres()),
+            namesOrEmpty(anime.getThemes()),
+            namesOrEmpty(anime.getDemographics())
         );
     }
 
@@ -73,30 +73,30 @@ public final class JikanProvider implements MediaSearchProvider {
         String score = manga.getScore() == 0.0 ? "N/A" : String.valueOf(manga.getScore());
 
         return new MangaResult(
-                MediaPlatform.MAL_JIKAN,
-                manga.getId(),
+            MediaPlatform.MAL_JIKAN,
+            manga.getId(),
 
-                safeText(manga.getTitle(), "Unknown"),
-                safeText(manga.getType(), "?"),
-                safeText(manga.getUrl(), ""),
+            safeText(manga.getTitle(), "Unknown"),
+            safeText(manga.getType(), "?"),
+            safeText(manga.getUrl(), ""),
 
-                pickImageUrl(manga.getImages()),
-                manga.getSynopsis().orElse(null),
+            pickImageUrl(manga.getImages()),
+            manga.getSynopsis().orElse(null),
 
-                manga.getTitleEnglish().orElse(null),
-                manga.getTitleJapanese().orElse(null),
+            manga.getTitleEnglish().orElse(null),
+            manga.getTitleJapanese().orElse(null),
 
-                score,
-                manga.getRank(),
-                manga.getChapters(),
-                manga.getVolumes(),
+            score,
+            manga.getRank(),
+            manga.getChapters(),
+            manga.getVolumes(),
 
-                emptyToNull(manga.getStatus()),
-                formatAuthors(manga.getAuthors()),
+            emptyToNull(manga.getStatus()),
+            formatAuthors(manga.getAuthors()),
 
-                namesOrEmpty(manga.getGenres()),
-                namesOrEmpty(manga.getThemes()),
-                namesOrEmpty(manga.getDemographics())
+            namesOrEmpty(manga.getGenres()),
+            namesOrEmpty(manga.getThemes()),
+            namesOrEmpty(manga.getDemographics())
         );
     }
 
@@ -115,9 +115,9 @@ public final class JikanProvider implements MediaSearchProvider {
     private static @NotNull List<String> formatAuthors(@Nullable List<Nameable> list) {
         if (list == null || list.isEmpty()) return List.of();
         return list.stream()
-                .map(Nameable::getName)
-                .map(Formatter::reverseJapaneseName)
-                .toList();
+            .map(Nameable::getName)
+            .map(Formatter::reverseJapaneseName)
+            .toList();
     }
 
     private static @NotNull String safeText(@Nullable String s, @NotNull String fallback) {

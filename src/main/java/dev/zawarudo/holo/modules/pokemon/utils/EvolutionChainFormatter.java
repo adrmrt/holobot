@@ -22,14 +22,14 @@ public final class EvolutionChainFormatter {
         else if (evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().isEmpty()) {
             String stage1 = Formatter.formatPokemonName(evolution.getChain().getSpecies().getName());
             sb.append(stage1)
-                    .append(" → ")
-                    .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getSpecies().getName()));
+                .append(" → ")
+                .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getSpecies().getName()));
 
             for (int i = 1; i < evolution.getChain().getEvolvesTo().size(); i++) {
                 sb.append("\n")
-                        .append(stage1)
-                        .append(" → ")
-                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getSpecies().getName()));
+                    .append(stage1)
+                    .append(" → ")
+                    .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getSpecies().getName()));
             }
         }
 
@@ -40,18 +40,18 @@ public final class EvolutionChainFormatter {
             // Multiple stage 2 evolution
             if (evolution.getChain().getEvolvesTo().size() > 1) {
                 sb.append(stage1)
-                        .append(" → ")
-                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getSpecies().getName()))
-                        .append(" → ")
-                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().getFirst().getSpecies().getName()));
+                    .append(" → ")
+                    .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getSpecies().getName()))
+                    .append(" → ")
+                    .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().getFirst().getSpecies().getName()));
 
                 for (int i = 1; i < evolution.getChain().getEvolvesTo().size(); i++) {
                     sb.append("\n")
-                            .append(stage1)
-                            .append(" → ")
-                            .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getSpecies().getName()))
-                            .append(" → ")
-                            .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getEvolvesTo().getFirst().getSpecies().getName()));
+                        .append(stage1)
+                        .append(" → ")
+                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getSpecies().getName()))
+                        .append(" → ")
+                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().get(i).getEvolvesTo().getFirst().getSpecies().getName()));
                 }
             }
 
@@ -59,18 +59,18 @@ public final class EvolutionChainFormatter {
             else {
                 String stage2 = Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getSpecies().getName());
                 sb.append(stage1)
-                        .append(" → ")
-                        .append(stage2)
-                        .append(" → ")
-                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().getFirst().getSpecies().getName()));
+                    .append(" → ")
+                    .append(stage2)
+                    .append(" → ")
+                    .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().getFirst().getSpecies().getName()));
 
                 for (int i = 1; i < evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().size(); i++) {
                     sb.append("\n")
-                            .append(stage1)
-                            .append(" → ")
-                            .append(stage2)
-                            .append(" → ")
-                            .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().get(i).getSpecies().getName()));
+                        .append(stage1)
+                        .append(" → ")
+                        .append(stage2)
+                        .append(" → ")
+                        .append(Formatter.formatPokemonName(evolution.getChain().getEvolvesTo().getFirst().getEvolvesTo().get(i).getSpecies().getName()));
                 }
             }
         }

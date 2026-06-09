@@ -57,11 +57,11 @@ public final class ImageOperations {
         }
 
         int totalWidth = direction == Direction.HORIZONTAL ?
-                Arrays.stream(images).mapToInt(BufferedImage::getWidth).sum() :
-                Arrays.stream(images).mapToInt(BufferedImage::getWidth).max().orElse(0);
+            Arrays.stream(images).mapToInt(BufferedImage::getWidth).sum() :
+            Arrays.stream(images).mapToInt(BufferedImage::getWidth).max().orElse(0);
         int totalHeight = direction == Direction.VERTICAL ?
-                Arrays.stream(images).mapToInt(BufferedImage::getHeight).sum() :
-                Arrays.stream(images).mapToInt(BufferedImage::getHeight).max().orElse(0);
+            Arrays.stream(images).mapToInt(BufferedImage::getHeight).sum() :
+            Arrays.stream(images).mapToInt(BufferedImage::getHeight).max().orElse(0);
 
         BufferedImage combined = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = combined.createGraphics();

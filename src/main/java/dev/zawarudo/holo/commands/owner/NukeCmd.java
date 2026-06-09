@@ -1,32 +1,36 @@
 package dev.zawarudo.holo.commands.owner;
 
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @CommandInfo(name = "nuke",
-        description = "Deletes a given amount of messages indiscriminately within the channel.",
-        usage = "<amount>",
-        ownerOnly = true,
-        category = CommandCategory.OWNER)
-public class NukeCmd extends AbstractCommand {
+    description = "Deletes a given amount of messages indiscriminately within the channel.",
+    usage = "<amount>",
+    ownerOnly = true,
+    category = CommandCategory.OWNER)
+public class NukeCmd extends AbstractCommand implements ExecutableCommand {
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent e) {
-        if (e.getChannel().getType() != ChannelType.TEXT) {
+    public void execute(@NotNull CommandContext ctx) {
+        if (!(ctx.channel() instanceof TextChannel tc)) {
+            return;
+        }
+
+        if (!ctx.hasArgs()) {
             return;
         }
 
         int amount;
         try {
-            amount = Integer.parseInt(args[0]);
+            amount = Integer.parseInt(ctx.args().getFirst());
             if (amount < 2) {
                 throw new NumberFormatException();
             }
@@ -35,15 +39,10 @@ public class NukeCmd extends AbstractCommand {
         }
 
         int remaining = amount;
-
         while (remaining > 0) {
-            if (remaining > 100) {
-                deleteMessagesFromChannel(e.getChannel().asTextChannel(), 100);
-                remaining -= 100;
-            } else {
-                deleteMessagesFromChannel(e.getChannel().asTextChannel(), remaining);
-                remaining = 0;
-            }
+            int batch = Math.min(remaining, 100);
+            deleteMessagesFromChannel(tc, batch);
+            remaining -= batch;
         }
     }
 

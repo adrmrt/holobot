@@ -83,9 +83,9 @@ public class PokemonType {
             throw new IllegalArgumentException("The given language is invalid: " + language);
         }
         return names.stream()
-                .filter(n -> n.getLanguage().getName().equals(language))
-                .toList()
-                .get(0).getName();
+            .filter(n -> n.getLanguage().getName().equals(language))
+            .toList()
+            .get(0).getName();
     }
 
     public List<String> getMoves() {
@@ -107,37 +107,37 @@ public class PokemonType {
 
     public List<String> getNoDamageTo() {
         return damageRelations.noDamageTo.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 
     public List<String> getHalfDamageTo() {
         return damageRelations.halfDamageTo.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 
     public List<String> getDoubleDamageTo() {
         return damageRelations.doubleDamageTo.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 
     public List<String> getNoDamageFrom() {
         return damageRelations.noDamageFrom.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 
     public List<String> getHalfDamageFrom() {
         return damageRelations.halfDamageFrom.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 
     public List<String> getDoubleDamageFrom() {
         return damageRelations.doubleDamageFrom.stream()
-                .map(Nameable::getName)
-                .toList();
+            .map(Nameable::getName)
+            .toList();
     }
 }

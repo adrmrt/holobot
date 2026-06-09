@@ -28,9 +28,9 @@ public final class UrbanDictionaryScraper {
         Document doc;
         try {
             doc = Jsoup.connect(url)
-                    .userAgent(HoloHttp.DEFAULT_USER_AGENT)
-                    .timeout(10_000)
-                    .get();
+                .userAgent(HoloHttp.DEFAULT_USER_AGENT)
+                .timeout(10_000)
+                .get();
         } catch (HttpStatusException e) {
             if (e.getStatusCode() == 404) {
                 return List.of();

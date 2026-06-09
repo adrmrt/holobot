@@ -19,6 +19,7 @@ import dev.zawarudo.holo.modules.anime.MediaSearchService;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.UserResolver;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -40,19 +41,20 @@ public class CommandManager extends ListenerAdapter {
     private final Map<AbstractCommand, CommandModule.ModuleId> ownerModule = new IdentityHashMap<>();
 
     public CommandManager(
-            EventWaiter waiter,
-            ModuleRegistry moduleRegistry,
-            GitHubClient gitHubClient,
-            MerriamWebsterClient merriamWebsterClient,
-            GuildConfigManager guildConfigManager,
-            EmoteManager emoteManager,
-            AkinatorSessionManager akinatorSessionManager,
-            XkcdDao xkcdDao,
-            XkcdSyncService xkcdSyncService,
-            BlacklistService blacklistService,
-            MediaSearchService mediaSearchService,
-            CountdownDao countdownDao,
-            ImageResolver imageResolver
+        EventWaiter waiter,
+        ModuleRegistry moduleRegistry,
+        GitHubClient gitHubClient,
+        MerriamWebsterClient merriamWebsterClient,
+        GuildConfigManager guildConfigManager,
+        EmoteManager emoteManager,
+        AkinatorSessionManager akinatorSessionManager,
+        XkcdDao xkcdDao,
+        XkcdSyncService xkcdSyncService,
+        BlacklistService blacklistService,
+        MediaSearchService mediaSearchService,
+        CountdownDao countdownDao,
+        ImageResolver imageResolver,
+        UserResolver userResolver
     ) {
         // General Cmds
         addCommand(new BugCmd(gitHubClient));
@@ -65,7 +67,7 @@ public class CommandManager extends ListenerAdapter {
         addCommand(new ServerInfoCmd());
         addCommand(new ServerRolesCmd());
         addCommand(new SuggestionCmd(gitHubClient));
-        addCommand(new WhoisCmd());
+        addCommand(new WhoisCmd(userResolver));
 
         // Anime Cmds
         addCommand(new AnimeSearchCmd(waiter, mediaSearchService));
@@ -77,7 +79,7 @@ public class CommandManager extends ListenerAdapter {
         // Image Cmds
         addCommand(new ActionCmd());
         addCommand(new AoCStatsCmd());
-        addCommand(new AvatarCmd());
+        addCommand(new AvatarCmd(userResolver));
         addCommand(new BannerCmd());
         addCommand(new CatCmd());
         addCommand(new CheckNSFWCmd(imageResolver));
@@ -118,7 +120,7 @@ public class CommandManager extends ListenerAdapter {
             if (m.getClass().isAnnotationPresent(Deactivated.class)) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Module {} ({}) is deactivated.",
-                            m.id(), m.getClass().getSimpleName());
+                        m.id(), m.getClass().getSimpleName());
                 }
                 continue;
             }
@@ -173,7 +175,7 @@ public class CommandManager extends ListenerAdapter {
         AbstractCommand existing = commands.putIfAbsent(key, cmd);
         if (existing != null && existing != cmd) {
             LOGGER.warn("Command key '{}' already registered by {}. Ignoring {}",
-                    key, existing.getClass().getSimpleName(), cmd.getClass().getSimpleName());
+                key, existing.getClass().getSimpleName(), cmd.getClass().getSimpleName());
         }
     }
 

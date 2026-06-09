@@ -9,22 +9,22 @@ import com.google.gson.annotations.SerializedName;
  */
 public final class Related {
 
-	@SerializedName("relation")
-	private String relation;
-	@SerializedName("entry")
-	private List<Nameable> entries;
+    @SerializedName("relation")
+    private String relation;
+    @SerializedName("entry")
+    private List<Nameable> entries;
 
-	/**
-	 * Returns the type of relation between this object and the entries
-	 */
-	public String getRelation() {
-		return relation;
-	}
+    /**
+     * Returns the type of relation between this object and the entries
+     */
+    public String getRelation() {
+        return relation;
+    }
 
-	/**
-	 * Returns all the entries of this type of relation
-	 */
-	public List<Nameable> getEntries() {
-		return entries;
-	}
+    /**
+     * Returns all the entries of this type of relation
+     */
+    public List<Nameable> getEntries() {
+        return entries;
+    }
 }

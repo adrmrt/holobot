@@ -2,14 +2,15 @@ package dev.zawarudo.holo.commands.image;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.Bootstrap;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.ImageResolver;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
-import dev.zawarudo.holo.core.Bootstrap;
-import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -20,13 +21,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "upscale",
-        description = "This command lets you Upscale a given image with Waifu2x. Please provide an image " +
-                "as an attachment or as a link to process it. Alternatively, you can reply to a message " +
-                "with an image.",
-        category = CommandCategory.IMAGE)
-public class UpscaleCmd extends AbstractCommand {
+    description = "This command lets you Upscale a given image with Waifu2x. Please provide an image " +
+        "as an attachment or as a link to process it. Alternatively, you can reply to a message " +
+        "with an image.",
+    category = CommandCategory.IMAGE)
+public class UpscaleCmd extends AbstractCommand implements ExecutableCommand {
 
-    /** The URL of the Waifu2x API. */
+    /**
+     * The URL of the Waifu2x API.
+     */
     public static final String API_URL = "https://api.deepai.org/api/waifu2x";
 
     private final ImageResolver imageResolver;
@@ -36,34 +39,35 @@ public class UpscaleCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        Message referenced = event.getMessage().getReferencedMessage();
+        Message referenced = ctx.message().map(Message::getReferencedMessage).orElse(null);
         Optional<String> url = referenced != null
-                ? imageResolver.resolveImageUrl(referenced)
-                : imageResolver.resolveImageUrl(event.getMessage());
+            ? imageResolver.resolveImageUrl(referenced)
+            : imageResolver.resolveImageUrl(ctx.message().orElseThrow());
 
-        // User didn't provide an image
         if (url.isEmpty()) {
-            sendErrorEmbed(event, "You need to provide an image to upscale!");
+            ctx.reply().errorEmbed("You need to provide an image to upscale!");
             return;
         }
 
-        sendTyping(event);
+        ctx.reply().typing();
 
         String imageUrl;
         try {
             imageUrl = process(url.get());
         } catch (IOException ex) {
-            sendErrorEmbed(event, "Something went wrong while processing your image! Please make sure it's an image and try again.");
+            ctx.reply().errorEmbed("Something went wrong while processing your image! Please make sure it's an image and try again.");
             return;
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Upscaled Image");
         embedBuilder.setImage(imageUrl);
-        sendEmbed(event, embedBuilder, true, 5, TimeUnit.MINUTES, getEmbedColor());
+        embedBuilder.setColor(getEmbedColor());
+        ctx.channel().sendMessageEmbeds(embedBuilder.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES, null, ignored -> {
+        }));
     }
 
     /**
@@ -75,12 +79,12 @@ public class UpscaleCmd extends AbstractCommand {
     public static String process(String url) throws IOException {
         String token = Bootstrap.holo.getConfig().getDeepAIKey();
         ProcessBuilder processBuilder = new ProcessBuilder(
-                "curl",
-                "-F",
-                "image=" + url,
-                "-H",
-                "api-key:" + token,
-                API_URL
+            "curl",
+            "-F",
+            "image=" + url,
+            "-H",
+            "api-key:" + token,
+            API_URL
         );
         Process process = processBuilder.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

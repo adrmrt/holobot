@@ -70,17 +70,17 @@ public class MiscListener extends ListenerAdapter {
 
     private void addReaction(@NotNull Message msg, @NotNull Emote emote) {
         msg.addReaction(emote.getAsEmoji()).queue(
-                s -> LOGGER.info("REACTION: Reacted with {}.", emote.getAsText()),
-                err -> LOGGER.warn("REACTION: Can't react with {} because I have been blocked by {} (ID: {}).",
-                        emote.getAsText(),
-                        msg.getAuthor().getName(),
-                        msg.getAuthor().getId()));
+            s -> LOGGER.info("REACTION: Reacted with {}.", emote.getAsText()),
+            err -> LOGGER.warn("REACTION: Can't react with {} because I have been blocked by {} (ID: {}).",
+                emote.getAsText(),
+                msg.getAuthor().getName(),
+                msg.getAuthor().getId()));
     }
 
     private void storeNewEmotesInDatabase(CustomEmoji... emotes) {
         List<CustomEmoji> newEmotes = Arrays.stream(emotes)
-                .filter(e -> !existingEmotes.contains(e.getIdLong()))
-                .toList();
+            .filter(e -> !existingEmotes.contains(e.getIdLong()))
+            .toList();
 
         if (newEmotes.isEmpty()) return;
 
@@ -90,9 +90,9 @@ public class MiscListener extends ListenerAdapter {
 
             if (LOGGER.isInfoEnabled()) {
                 String emoteInfo = newEmotes.stream()
-                        .map(e -> "%s (%d)".formatted(e.getName(), e.getIdLong()))
-                        .toList()
-                        .toString();
+                    .map(e -> "%s (%d)".formatted(e.getName(), e.getIdLong()))
+                    .toList()
+                    .toString();
 
                 LOGGER.info("Successfully stored {} new emotes: {}", newEmotes.size(), emoteInfo);
             }

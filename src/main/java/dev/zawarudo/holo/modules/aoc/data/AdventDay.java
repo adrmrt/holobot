@@ -13,7 +13,7 @@ public record AdventDay(int day, int goldCount, int silverCount, int grayCount) 
     @Override
     public String toString() {
         return String.format("AdventDay{day=%d, goldCount=%d, silverCount=%d, grayCount=%d}",
-                day, goldCount, silverCount, grayCount);
+            day, goldCount, silverCount, grayCount);
     }
 
     @Override

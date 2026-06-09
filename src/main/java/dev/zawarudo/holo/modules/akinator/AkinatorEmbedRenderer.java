@@ -52,7 +52,7 @@ public final class AkinatorEmbedRenderer {
 
         } else if (currentQuery instanceof Guess guess) {
             eb.setDescription("**I think of ** " + guess.getName() + "?\n"
-                    + (!guess.getDescription().isBlank() ? "\n" + guess.getDescription() : ""));
+                + (!guess.getDescription().isBlank() ? "\n" + guess.getDescription() : ""));
 
             var img = guess.getImage();
             if (img != null) {

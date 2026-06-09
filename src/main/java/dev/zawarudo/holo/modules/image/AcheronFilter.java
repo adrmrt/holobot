@@ -41,9 +41,9 @@ public class AcheronFilter implements ImageFilter {
 
             if (isStrongRed(r, g, b, hue, sat, val)) {
                 int rgb = ImageOperations.hsvToRgb(
-                        hue,
-                        ImageOperations.clamp01(sat * RED_SAT_BOOST),
-                        ImageOperations.clamp01(val * RED_VAL_BOOST)
+                    hue,
+                    ImageOperations.clamp01(sat * RED_SAT_BOOST),
+                    ImageOperations.clamp01(val * RED_VAL_BOOST)
                 );
                 px[i] = (a << 24) | rgb;
             } else {

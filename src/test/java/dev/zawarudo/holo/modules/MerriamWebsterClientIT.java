@@ -18,19 +18,19 @@ class MerriamWebsterClientIT {
     @BeforeAll
     static void setup() {
         Dotenv dotenv = Dotenv.configure()
-                .ignoreIfMissing()
-                .load();
+            .ignoreIfMissing()
+            .load();
 
         String dictionaryKey = dotenv.get("KEY_DICTIONARY");
         String thesaurusKey = dotenv.get("KEY_THESAURUS");
 
         Assumptions.assumeTrue(
-                dictionaryKey != null && !dictionaryKey.isBlank(),
-                "KEY_DICTIONARY not set – skipping Merriam-Webster tests"
+            dictionaryKey != null && !dictionaryKey.isBlank(),
+            "KEY_DICTIONARY not set – skipping Merriam-Webster tests"
         );
         Assumptions.assumeTrue(
-                thesaurusKey != null && !thesaurusKey.isBlank(),
-                "KEY_THESAURUS not set – skipping Merriam-Webster tests"
+            thesaurusKey != null && !thesaurusKey.isBlank(),
+            "KEY_THESAURUS not set – skipping Merriam-Webster tests"
         );
 
         client = new MerriamWebsterClient(dictionaryKey, thesaurusKey);
@@ -52,7 +52,7 @@ class MerriamWebsterClientIT {
         assertNotNull(first);
 
         assertTrue(first.shortDefs() != null && !first.shortDefs().isEmpty(),
-                "Expected at least one short definition");
+            "Expected at least one short definition");
 
         assertNotNull(first.shortDefs());
         assertNotNull(first.synonyms());
@@ -60,7 +60,7 @@ class MerriamWebsterClientIT {
         assertNotNull(first.examples());
 
         assertTrue(first.shortDefs().stream().anyMatch(d -> d != null && !d.isBlank()),
-                "Expected non-blank definition text");
+            "Expected non-blank definition text");
     }
 
     @Test
@@ -71,12 +71,12 @@ class MerriamWebsterClientIT {
         assertNotNull(result);
 
         assertTrue(result.hasSuggestions() || result.hasEntries(),
-                "Expected suggestions (or entries if MW treats it as valid)");
+            "Expected suggestions (or entries if MW treats it as valid)");
 
         if (result.hasSuggestions() && !result.hasEntries()) {
             assertFalse(result.suggestions().isEmpty());
             assertTrue(result.suggestions().stream().allMatch(s -> s != null && !s.isBlank()),
-                    "Suggestions should be non-blank strings");
+                "Suggestions should be non-blank strings");
         }
     }
 
@@ -104,17 +104,17 @@ class MerriamWebsterClientIT {
         }
 
         List<String> allExamples = result.entries().stream()
-                .flatMap(e -> e.examples().stream())
-                .toList();
+            .flatMap(e -> e.examples().stream())
+            .toList();
 
         if (allExamples.isEmpty()) {
             Assumptions.assumeTrue(false, "No examples returned for 'run'; skipping examples assertion.");
         }
 
         assertTrue(allExamples.stream().allMatch(ex -> ex != null && !ex.isBlank()),
-                "Examples should be non-blank");
+            "Examples should be non-blank");
         assertTrue(allExamples.stream().noneMatch(ex -> ex.contains("{") || ex.contains("}")),
-                "Examples should not contain MW formatting tokens after cleanup");
+            "Examples should not contain MW formatting tokens after cleanup");
     }
 
     @Test
@@ -135,8 +135,8 @@ class MerriamWebsterClientIT {
         assertNotNull(first.examples());
 
         assertTrue(
-                !first.synonyms().isEmpty() || !first.antonyms().isEmpty(),
-                "Expected at least synonyms or antonyms for thesaurus entries"
+            !first.synonyms().isEmpty() || !first.antonyms().isEmpty(),
+            "Expected at least synonyms or antonyms for thesaurus entries"
         );
     }
 
@@ -147,11 +147,11 @@ class MerriamWebsterClientIT {
 
         assertNotNull(result);
         assertTrue(result.hasSuggestions() || result.hasEntries(),
-                "Expected suggestions (or entries if MW treats it as valid)");
+            "Expected suggestions (or entries if MW treats it as valid)");
 
         if (result.hasSuggestions() && !result.hasEntries()) {
             assertTrue(result.suggestions().stream().allMatch(s -> s != null && !s.isBlank()),
-                    "Suggestions should be non-blank strings");
+                "Suggestions should be non-blank strings");
         }
     }
 
@@ -161,15 +161,15 @@ class MerriamWebsterClientIT {
         MerriamWebsterClient bad = new MerriamWebsterClient("invalid", "invalid");
 
         assertThrows(
-                InvalidRequestException.class,
-                () -> bad.lookupDictionary("test"),
-                "Expected InvalidRequestException for invalid dictionary key"
+            InvalidRequestException.class,
+            () -> bad.lookupDictionary("test"),
+            "Expected InvalidRequestException for invalid dictionary key"
         );
 
         assertThrows(
-                InvalidRequestException.class,
-                () -> bad.lookupThesaurus("test"),
-                "Expected InvalidRequestException for invalid thesaurus key"
+            InvalidRequestException.class,
+            () -> bad.lookupThesaurus("test"),
+            "Expected InvalidRequestException for invalid thesaurus key"
         );
     }
 }

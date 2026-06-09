@@ -36,7 +36,9 @@ public class BarChart extends AdventOfCodeGraph {
         return chart;
     }
 
-    /** Draws the bars for each AdventDay. */
+    /**
+     * Draws the bars for each AdventDay.
+     */
     private void renderGraphBars(Graphics2D g2d, List<AdventDay> days, int graphWidth, int graphHeight) {
         int colWidth = graphWidth / 25;
         int thickness = colWidth / 5;
@@ -49,7 +51,9 @@ public class BarChart extends AdventOfCodeGraph {
         }
     }
 
-    /** Draws bars for two stars, one star and no star of the given day. */
+    /**
+     * Draws bars for two stars, one star and no star of the given day.
+     */
     protected void renderStarCountBars(Graphics2D g2d, AdventDay day, int startX, int graphHeight, int thickness) {
         int xPos = startX + thickness + thickness / 4;
         renderSingleBar(g2d, theme.getTwoStarsColor(), day.goldCount(), xPos, graphHeight, thickness);
@@ -59,7 +63,9 @@ public class BarChart extends AdventOfCodeGraph {
         renderSingleBar(g2d, theme.getNoStarsColor(), day.grayCount(), xPos, graphHeight, thickness);
     }
 
-    /** Draws a single bar on the graph of the given color and given properties. */
+    /**
+     * Draws a single bar on the graph of the given color and given properties.
+     */
     protected void renderSingleBar(Graphics2D g2d, Paint color, int count, int x, int graphHeight, int thickness) {
         g2d.setPaint(color);
         int heightBar = graphHeight * count / maxCount;

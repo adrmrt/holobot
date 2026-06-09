@@ -3,15 +3,16 @@ package dev.zawarudo.holo.commands.image;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.Bootstrap;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.ImageResolver;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
-import dev.zawarudo.holo.core.Bootstrap;
-import dev.zawarudo.holo.commands.CommandCategory;
-import dev.zawarudo.holo.utils.ImageOperations;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,16 +29,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "check",
-        description = "Checks an image for NSFW elements and returns the likelihood of " +
-                "such elements being present. The image can be provided as a URL or as " +
-                "an attachment. Replying to a message with an image also works. To get " +
-                "more information on the evaluation, use `advanced` (or `adv` for short) " +
-                "as an additional argument.",
-        usage = "[advanced | adv] [<image url>]",
-        category = CommandCategory.IMAGE)
-public class CheckNSFWCmd extends AbstractCommand {
+    description = "Checks an image for NSFW elements and returns the likelihood of " +
+        "such elements being present. The image can be provided as a URL or as " +
+        "an attachment. Replying to a message with an image also works. To get " +
+        "more information on the evaluation, use `advanced` (or `adv` for short) " +
+        "as an additional argument.",
+    usage = "[advanced | adv] [<image url>]",
+    category = CommandCategory.IMAGE)
+public class CheckNSFWCmd extends AbstractCommand implements ExecutableCommand {
 
-    /** The url of the NSFW Detector API. */
+    /**
+     * The url of the NSFW Detector API.
+     */
     public static final String API_URL = "https://api.deepai.org/api/nsfw-detector";
 
     private final ImageResolver imageResolver;
@@ -47,31 +50,31 @@ public class CheckNSFWCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        Message reply = event.getMessage().getReferencedMessage();
+        Message reply = ctx.message().map(Message::getReferencedMessage).orElse(null);
         Optional<String> imageUrl = reply != null
-                ? imageResolver.resolveImageUrl(reply)
-                : imageResolver.resolveImageUrl(event.getMessage());
+            ? imageResolver.resolveImageUrl(reply)
+            : imageResolver.resolveImageUrl(ctx.message().orElseThrow());
 
         if (imageUrl.isEmpty()) {
-            sendErrorEmbed(event, "Use `" + getPrefix(event) + "help check` to see the correct usage of this command.");
+            ctx.reply().errorEmbed("Use `" + ctx.prefix().orElse("") + "help check` to see the correct usage of this command.");
             return;
         }
 
-        sendTyping(event);
+        ctx.reply().typing();
         JsonObject obj;
 
         try {
             obj = getEvaluation(imageUrl.get());
         } catch (IOException ex) {
-            sendErrorEmbed(event, "Something went wrong while communicating with the API");
+            ctx.reply().errorEmbed("Something went wrong while communicating with the API");
             return;
         }
 
         // Advanced Check
-        if (args.length >= 1 && (args[0].equals("advanced") || args[0].equals("adv"))) {
+        if (ctx.hasArgs() && (ctx.args().getFirst().equals("advanced") || ctx.args().getFirst().equals("adv"))) {
             try {
                 double score = obj.getAsJsonObject("output").get("nsfw_score").getAsDouble();
                 String scoreString = String.format("%.2f", score * 100.0);
@@ -117,11 +120,11 @@ public class CheckNSFWCmd extends AbstractCommand {
                 if (reply != null) {
                     reply.replyFiles(FileUpload.fromData(input, "check.png")).setEmbeds(builder.build()).queue();
                 } else {
-                    event.getChannel().sendFiles(FileUpload.fromData(input, "check.png")).setEmbeds(builder.build()).queue();
+                    ctx.channel().sendFiles(FileUpload.fromData(input, "check.png")).setEmbeds(builder.build()).queue();
                 }
                 input.close();
             } catch (IOException ex) {
-                sendErrorEmbed(event, "Something went wrong while processing and evaluating your image. Please try again in a few minutes!");
+                ctx.reply().errorEmbed("Something went wrong while processing and evaluating your image. Please try again in a few minutes!");
             }
         }
 
@@ -137,7 +140,8 @@ public class CheckNSFWCmd extends AbstractCommand {
             if (reply != null) {
                 reply.replyEmbeds(builder.build()).queue();
             } else {
-                sendEmbed(event, builder, true, 2, TimeUnit.MINUTES);
+                ctx.channel().sendMessageEmbeds(builder.build()).queue(msg -> msg.delete().queueAfter(2, TimeUnit.MINUTES, null, ignored -> {
+                }));
             }
         }
     }

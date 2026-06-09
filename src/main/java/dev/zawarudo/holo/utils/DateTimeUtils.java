@@ -64,42 +64,42 @@ public final class DateTimeUtils {
         }
 
         DateTimeFormatter[] dateTimeFormatters = new DateTimeFormatter[]{
-                // European date time formats
-                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
-                DateTimeFormatter.ofPattern("dd/MM/yy HH:mm"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"),
-                DateTimeFormatter.ofPattern("dd.MM.yy HH:mm"),
-                DateTimeFormatter.ofPattern("dd. MMMM yyyy HH:mm", Locale.ENGLISH),
+            // European date time formats
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
+            DateTimeFormatter.ofPattern("dd/MM/yy HH:mm"),
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"),
+            DateTimeFormatter.ofPattern("dd.MM.yy HH:mm"),
+            DateTimeFormatter.ofPattern("dd. MMMM yyyy HH:mm", Locale.ENGLISH),
 
-                // ISO 8601
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
+            // ISO 8601
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
 
-                // American
-                DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm", Locale.ENGLISH),
+            // American
+            DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm", Locale.ENGLISH),
 
-                // With timezone
-                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm Z"),
-                DateTimeFormatter.ofPattern("dd/MM/yy HH:mm Z"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm Z"),
-                DateTimeFormatter.ofPattern("dd.MM.yy HH:mm Z"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm Z"),
-                DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm Z", Locale.ENGLISH),
+            // With timezone
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm Z"),
+            DateTimeFormatter.ofPattern("dd/MM/yy HH:mm Z"),
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm Z"),
+            DateTimeFormatter.ofPattern("dd.MM.yy HH:mm Z"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm Z"),
+            DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm Z", Locale.ENGLISH),
         };
 
         DateTimeFormatter[] dateFormatters = new DateTimeFormatter[]{
-                // TODO: Add support for entering just a year or month
+            // TODO: Add support for entering just a year or month
 
-                // European date time formats
-                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-                DateTimeFormatter.ofPattern("dd/MM/yy"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy"),
-                DateTimeFormatter.ofPattern("dd.MM.yy"),
+            // European date time formats
+            DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+            DateTimeFormatter.ofPattern("dd/MM/yy"),
+            DateTimeFormatter.ofPattern("dd.MM.yyyy"),
+            DateTimeFormatter.ofPattern("dd.MM.yy"),
 
-                // ISO 8601
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+            // ISO 8601
+            DateTimeFormatter.ofPattern("yyyy-MM-dd"),
 
-                // American
-                DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH),
+            // American
+            DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH),
         };
 
         for (DateTimeFormatter formatter : dateTimeFormatters) {

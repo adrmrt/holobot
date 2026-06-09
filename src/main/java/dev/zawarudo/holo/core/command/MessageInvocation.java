@@ -60,8 +60,8 @@ public class MessageInvocation implements CommandContext.Invocation {
         }
 
         List<Role> roles = event.getMessage()
-                .getMentions()
-                .getRoles();
+            .getMentions()
+            .getRoles();
 
         return roles.isEmpty() ? List.of() : List.copyOf(roles);
     }
@@ -73,8 +73,8 @@ public class MessageInvocation implements CommandContext.Invocation {
         }
 
         List<Member> members = event.getMessage()
-                .getMentions()
-                .getMembers();
+            .getMentions()
+            .getMembers();
 
         return members.isEmpty() ? List.of() : List.copyOf(members);
     }
@@ -87,20 +87,20 @@ public class MessageInvocation implements CommandContext.Invocation {
         }
 
         boolean canDelete = PermissionUtil.checkPermission(
-                event.getGuildChannel().getPermissionContainer(),
-                event.getGuild().getSelfMember(),
-                Permission.MESSAGE_MANAGE
+            event.getGuildChannel().getPermissionContainer(),
+            event.getGuild().getSelfMember(),
+            Permission.MESSAGE_MANAGE
         );
 
         if (!canDelete) return;
 
         event.getMessage()
-                .delete()
-                .queue(
-                        success -> {
-                        },
-                        failure -> {
-                        }
-                );
+            .delete()
+            .queue(
+                success -> {
+                },
+                failure -> {
+                }
+            );
     }
 }

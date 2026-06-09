@@ -79,11 +79,11 @@ public class EmoteManager {
             String uniqueName = generateUniqueName(emote.getName(), reservedLower);
 
             toInsert.add(new EmoteDao.EmoteRow(
-                    emote.getIdLong(),
-                    uniqueName,
-                    emote.isAnimated(),
-                    emote.getTimeCreated().toString(),
-                    emote.getImageUrl()
+                emote.getIdLong(),
+                uniqueName,
+                emote.isAnimated(),
+                emote.getTimeCreated().toString(),
+                emote.getImageUrl()
             ));
         }
 

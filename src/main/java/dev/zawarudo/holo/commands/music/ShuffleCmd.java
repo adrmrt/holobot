@@ -11,28 +11,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "shuffle",
-		description = "Shuffles the current queue.",
-		category = CommandCategory.MUSIC)
+    description = "Shuffles the current queue.",
+    category = CommandCategory.MUSIC)
 public class ShuffleCmd extends AbstractMusicCommand {
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent e) {
-		deleteInvoke(e);
+    @Override
+    public void onCommand(@NotNull MessageReceivedEvent e) {
+        deleteInvoke(e);
 
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(e.getGuild());
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(e.getGuild());
 
-		if (musicManager.scheduler.queue.isEmpty()) {
-			sendErrorEmbed(e, "I can't shuffle an empty queue!");
-			return;
-		}
+        if (musicManager.scheduler.queue.isEmpty()) {
+            sendErrorEmbed(e, "I can't shuffle an empty queue!");
+            return;
+        }
 
-		musicManager.scheduler.shuffle();
+        musicManager.scheduler.shuffle();
 
-		String userName = e.getMember() != null ? e.getMember().getEffectiveName() : e.getAuthor().getName();
+        String userName = e.getMember() != null ? e.getMember().getEffectiveName() : e.getAuthor().getName();
 
-		EmbedBuilder builder = new EmbedBuilder();
-		builder.setTitle("Shuffled Queue");
-		builder.setDescription(userName + " shuffled the queue!");
-		sendEmbed(e, builder, false, 1, TimeUnit.MINUTES);
-	}
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Shuffled Queue");
+        builder.setDescription(userName + " shuffled the queue!");
+        sendEmbed(e, builder, false, 1, TimeUnit.MINUTES);
+    }
 }

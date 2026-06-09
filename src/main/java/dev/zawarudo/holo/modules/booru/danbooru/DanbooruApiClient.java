@@ -84,7 +84,8 @@ public class DanbooruApiClient extends BooruApiClient<DanbooruPost> {
             url = String.format("%s&page=%d", prepareUrlPagination(), page);
         }
         String json = fetchJsonOrThrow(url);
-        Type type = new TypeToken<List<DanbooruPost>>() {}.getType();
+        Type type = new TypeToken<List<DanbooruPost>>() {
+        }.getType();
         return new Gson().fromJson(json, type);
     }
 

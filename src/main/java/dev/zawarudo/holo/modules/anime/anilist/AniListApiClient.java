@@ -19,55 +19,55 @@ public final class AniListApiClient {
     private static final String BASE_URL = "https://graphql.anilist.co";
 
     private static final String Q_SEARCH_ANIME = """
-            query ($search: String, $perPage: Int) {
-              Page(perPage: $perPage) {
-                media(search: $search, type: ANIME) {
-                  id
-                  siteUrl
-                  title { romaji english native }
-                  description
-                  format
-                  status
-                  episodes
-                  averageScore
-                  coverImage { extraLarge large medium }
-                  genres
-                  season
-                  seasonYear
-                  rankings {
-                    rank
-                    type
-                    allTime
-                  }
-                }
+        query ($search: String, $perPage: Int) {
+          Page(perPage: $perPage) {
+            media(search: $search, type: ANIME) {
+              id
+              siteUrl
+              title { romaji english native }
+              description
+              format
+              status
+              episodes
+              averageScore
+              coverImage { extraLarge large medium }
+              genres
+              season
+              seasonYear
+              rankings {
+                rank
+                type
+                allTime
               }
             }
-            """;
+          }
+        }
+        """;
 
     private static final String Q_SEARCH_MANGA = """
-            query ($search: String, $perPage: Int) {
-              Page(perPage: $perPage) {
-                media(search: $search, type: MANGA) {
-                  id
-                  siteUrl
-                  title { romaji english native }
-                  description
-                  format
-                  status
-                  chapters
-                  volumes
-                  averageScore
-                  coverImage { extraLarge large medium}
-                  genres
-                  rankings {
-                    rank
-                    type
-                    allTime
-                  }
-                }
+        query ($search: String, $perPage: Int) {
+          Page(perPage: $perPage) {
+            media(search: $search, type: MANGA) {
+              id
+              siteUrl
+              title { romaji english native }
+              description
+              format
+              status
+              chapters
+              volumes
+              averageScore
+              coverImage { extraLarge large medium}
+              genres
+              rankings {
+                rank
+                type
+                allTime
               }
             }
-            """;
+          }
+        }
+        """;
 
     public JsonObject searchAnimeRaw(String query, int limit) throws APIException {
         return request(Q_SEARCH_ANIME, variablesSearch(query, limit));

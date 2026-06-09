@@ -2,12 +2,13 @@ package dev.zawarudo.holo.commands.owner;
 
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -16,46 +17,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CommandInfo(
-        name = "purge",
-        description = "Deletes messages from the last N messages in this channel (self purge).",
-        usage = "<amount>",
-        ownerOnly = true,
-        category = CommandCategory.OWNER
+    name = "purge",
+    description = "Deletes messages from the last N messages in this channel (self purge).",
+    usage = "<amount>",
+    ownerOnly = true,
+    category = CommandCategory.OWNER
 )
-public class PurgeCmd extends AbstractCommand {
+public class PurgeCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final int PAGE_SIZE = 100;
     private static final Duration BULK_MAX_AGE = Duration.ofDays(14);
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        if (args.length < 1) return;
+        if (!ctx.hasArgs()) return;
 
         boolean botMode = false;
         int amount;
 
-        if ("bot".equalsIgnoreCase(args[0])) {
+        if ("bot".equalsIgnoreCase(ctx.args().getFirst())) {
             botMode = true;
-            if (args.length < 2) return;
+            if (ctx.argCount() < 2) return;
 
-            // Owner-only gate for bot purge
-            if (!isBotOwner(event.getAuthor())) {
+            if (!ctx.isBotOwner()) {
                 return;
             }
 
-            amount = parseInt(args[1]);
+            amount = parseInt(ctx.args().get(1));
         } else {
-            amount = parseInt(args[0]);
+            amount = parseInt(ctx.args().getFirst());
         }
 
         if (amount <= 0) return;
 
-        MessageChannel channel = event.getChannel();
+        MessageChannel channel = ctx.channel();
         long targetAuthorId = botMode
-                ? event.getJDA().getSelfUser().getIdLong()
-                : event.getAuthor().getIdLong();
+            ? ctx.jda().getSelfUser().getIdLong()
+            : ctx.user().getIdLong();
 
         // Scan last <amount> messages, delete those authored by target
         List<Message> toDelete = collectMessagesToDelete(channel, amount, targetAuthorId);
@@ -77,8 +77,8 @@ public class PurgeCmd extends AbstractCommand {
             int fetch = Math.min(PAGE_SIZE, remainingToScan);
 
             List<Message> page = (beforeId == null)
-                    ? channel.getHistory().retrievePast(fetch).complete()
-                    : channel.getHistoryBefore(beforeId, fetch).complete().getRetrievedHistory();
+                ? channel.getHistory().retrievePast(fetch).complete()
+                : channel.getHistoryBefore(beforeId, fetch).complete().getRetrievedHistory();
 
             if (page.isEmpty()) break;
 

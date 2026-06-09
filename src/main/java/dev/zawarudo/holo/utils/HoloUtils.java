@@ -19,8 +19,8 @@ public final class HoloUtils {
      */
     public static @NotNull List<Emote> getNumbers() {
         return new ArrayList<>(List.of(
-                Emote.ONE, Emote.TWO, Emote.THREE, Emote.FOUR, Emote.FIVE,
-                Emote.SIX, Emote.SEVEN, Emote.EIGHT, Emote.NINE, Emote.TEN
+            Emote.ONE, Emote.TWO, Emote.THREE, Emote.FOUR, Emote.FIVE,
+            Emote.SIX, Emote.SEVEN, Emote.EIGHT, Emote.NINE, Emote.TEN
         ));
     }
 
@@ -35,7 +35,9 @@ public final class HoloUtils {
 
     public static void addReactions(Message msg, int count) {
         for (Emote emote : HoloUtils.getNumbers(count)) {
-            msg.addReaction(emote.getAsEmoji()).queue(s -> {}, e -> {});
+            msg.addReaction(emote.getAsEmoji()).queue(s -> {
+            }, e -> {
+            });
         }
     }
 }

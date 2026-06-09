@@ -23,16 +23,16 @@ public final class BotConfig {
     private final String dbPath;
 
     private BotConfig(
-            String botToken,
-            long ownerId,
-            String deepAIKey,
-            String aocToken,
-            String saucenaoToken,
-            String githubToken,
-            String dictionaryKey,
-            String thesaurusKey,
-            String defaultPrefix,
-            String dbPath
+        String botToken,
+        long ownerId,
+        String deepAIKey,
+        String aocToken,
+        String saucenaoToken,
+        String githubToken,
+        String dictionaryKey,
+        String thesaurusKey,
+        String defaultPrefix,
+        String dbPath
     ) {
         this.botToken = requireNonBlank(botToken, "botToken");
         this.ownerId = ownerId;
@@ -46,47 +46,65 @@ public final class BotConfig {
         this.dbPath = dbPath;
     }
 
-    /** Discord bot token. */
+    /**
+     * Discord bot token.
+     */
     public String getBotToken() {
         return botToken;
     }
 
-    /** Discord user ID of the bot owner. */
+    /**
+     * Discord user ID of the bot owner.
+     */
     public long getOwnerId() {
         return ownerId;
     }
 
-    /** DeepAI API key. */
+    /**
+     * DeepAI API key.
+     */
     public String getDeepAIKey() {
         return deepAIKey;
     }
 
-    /** Advent of Code session token. */
+    /**
+     * Advent of Code session token.
+     */
     public String getAocToken() {
         return aocToken;
     }
 
-    /** SauceNAO token. */
+    /**
+     * SauceNAO token.
+     */
     public String getSaucenaoToken() {
         return saucenaoToken;
     }
 
-    /** GitHub token. */
+    /**
+     * GitHub token.
+     */
     public String getGitHubToken() {
         return githubToken;
     }
 
-    /** Dictionary key. */
+    /**
+     * Dictionary key.
+     */
     public String getDictionaryKey() {
         return dictionaryKey;
     }
 
-    /** Thesaurus key. */
+    /**
+     * Thesaurus key.
+     */
     public String getThesaurusKey() {
         return thesaurusKey;
     }
 
-    /** Default command prefix (defaults to {@code "<"}). */
+    /**
+     * Default command prefix (defaults to {@code "<"}).
+     */
     public String getDefaultPrefix() {
         return defaultPrefix;
     }
@@ -168,16 +186,16 @@ public final class BotConfig {
                 throw new IllegalStateException("ownerId is required");
             }
             return new BotConfig(
-                    botToken,
-                    ownerId,
-                    deepAIKey,
-                    aocToken,
-                    saucenaoToken,
-                    githubToken,
-                    dictionaryKey,
-                    thesaurusKey,
-                    defaultPrefix,
-                    dbPath
+                botToken,
+                ownerId,
+                deepAIKey,
+                aocToken,
+                saucenaoToken,
+                githubToken,
+                dictionaryKey,
+                thesaurusKey,
+                defaultPrefix,
+                dbPath
             );
         }
     }
@@ -190,17 +208,17 @@ public final class BotConfig {
     public String toString() {
         // Mask secrets to avoid leaking them in logs
         return "BotConfig{" +
-                "botToken=" + mask(botToken) +
-                ", ownerId=" + ownerId +
-                ", deepAIKey=" + mask(deepAIKey) +
-                ", aocToken=" + mask(aocToken) +
-                ", saucenaoToken=" + mask(saucenaoToken) +
-                ", githubToken=" + mask(githubToken) +
-                ", dictionaryKey=" + mask(dictionaryKey) +
-                ", thesaurusKey=" + mask(thesaurusKey) +
-                ", defaultPrefix='" + defaultPrefix + '\'' +
-                ", dbPath='" + dbPath + '\'' +
-                '}';
+            "botToken=" + mask(botToken) +
+            ", ownerId=" + ownerId +
+            ", deepAIKey=" + mask(deepAIKey) +
+            ", aocToken=" + mask(aocToken) +
+            ", saucenaoToken=" + mask(saucenaoToken) +
+            ", githubToken=" + mask(githubToken) +
+            ", dictionaryKey=" + mask(dictionaryKey) +
+            ", thesaurusKey=" + mask(thesaurusKey) +
+            ", defaultPrefix='" + defaultPrefix + '\'' +
+            ", dbPath='" + dbPath + '\'' +
+            '}';
     }
 
     private static String requireNonBlank(String v, String name) {

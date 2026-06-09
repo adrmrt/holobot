@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class HoloHttp {
 
     public static final String DEFAULT_USER_AGENT =
-            "HoloBot/" + VersionInfo.getBotVersion() + " (+https://github.com/adrmrt/holobot) Java/" + VersionInfo.getJavaVersion();
+        "HoloBot/" + VersionInfo.getBotVersion() + " (+https://github.com/adrmrt/holobot) Java/" + VersionInfo.getJavaVersion();
     private static final Gson GSON = new Gson();
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .connectTimeout(Duration.ofSeconds(10))
+        .build();
 
     private static final Map<String, HoloRateLimiter> HOST_LIMITERS = new ConcurrentHashMap<>();
 
@@ -39,7 +39,7 @@ public final class HoloHttp {
     }
 
     public static @NotNull String getString(@NotNull String url, @Nullable Map<String, String> headers)
-            throws HttpStatusException, HttpTransportException {
+        throws HttpStatusException, HttpTransportException {
         HttpResponse<String> res = sendGetRequest(url, headers);
         ensure2xx(url, res);
         return res.body() == null ? "" : res.body();
@@ -59,7 +59,7 @@ public final class HoloHttp {
     }
 
     public static @NotNull JsonObject getJsonObject(@NotNull String url, @Nullable Map<String, String> headers)
-            throws HttpStatusException, HttpTransportException {
+        throws HttpStatusException, HttpTransportException {
         return JsonParser.parseString(getString(url, headers)).getAsJsonObject();
     }
 
@@ -100,11 +100,11 @@ public final class HoloHttp {
         }
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(Duration.ofSeconds(20))
-                .GET()
-                .header("User-Agent", DEFAULT_USER_AGENT)
-                .header("Accept", "application/json, text/plain;q=0.9, */*;q=0.8");
+            .uri(uri)
+            .timeout(Duration.ofSeconds(20))
+            .GET()
+            .header("User-Agent", DEFAULT_USER_AGENT)
+            .header("Accept", "application/json, text/plain;q=0.9, */*;q=0.8");
 
         if (headers != null) {
             headers.forEach(builder::header);
@@ -139,12 +139,12 @@ public final class HoloHttp {
         }
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(Duration.ofSeconds(20))
-                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
-                .header("User-Agent", DEFAULT_USER_AGENT)
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json; charset=utf-8");
+            .uri(uri)
+            .timeout(Duration.ofSeconds(20))
+            .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+            .header("User-Agent", DEFAULT_USER_AGENT)
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json; charset=utf-8");
 
         if (headers != null) {
             headers.forEach(builder::header);

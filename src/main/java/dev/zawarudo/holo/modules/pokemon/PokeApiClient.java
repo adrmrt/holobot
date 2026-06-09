@@ -231,13 +231,13 @@ public final class PokeApiClient {
      */
     private static String escape(String name) {
         return name.toLowerCase(Locale.UK).replace(" ", "-")
-                .replace(".", "")
-                .replace(":", "-")
-                .replace("'", "")
-                .replace("♀", "-f")
-                .replace("♂", "-m")
-                .replace(":female_sign:", "-f")
-                .replace(":male_sign:", "-m");
+            .replace(".", "")
+            .replace(":", "-")
+            .replace("'", "")
+            .replace("♀", "-f")
+            .replace("♂", "-m")
+            .replace(":female_sign:", "-f")
+            .replace(":male_sign:", "-m");
     }
 
     private static JsonObject fetchJsonOrThrow(String url) throws NotFoundException, APIException, InvalidRequestException {

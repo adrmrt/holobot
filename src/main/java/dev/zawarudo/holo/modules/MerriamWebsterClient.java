@@ -63,18 +63,18 @@ public final class MerriamWebsterClient {
     }
 
     public record Entry(
-            String id,
-            String headword,
-            String functionalLabel,
-            String pronunciation,
-            String plural,
-            List<String> shortDefs,
-            List<String> synonyms,
-            List<String> antonyms,
-            List<String> examples,
-            String etymology,
-            String usageNotes,
-            boolean offensive
+        String id,
+        String headword,
+        String functionalLabel,
+        String pronunciation,
+        String plural,
+        List<String> shortDefs,
+        List<String> synonyms,
+        List<String> antonyms,
+        List<String> examples,
+        String etymology,
+        String usageNotes,
+        boolean offensive
     ) {
         public Entry {
             headword = headword == null ? null : headword.replace("*", "·");
@@ -120,7 +120,7 @@ public final class MerriamWebsterClient {
     }
 
     private static void mapHttpStatus(Product product, HttpStatusException ex)
-            throws APIException, InvalidRequestException, NotFoundException {
+        throws APIException, InvalidRequestException, NotFoundException {
 
         int code = ex.getStatusCode();
         String name = product.name().toLowerCase();
@@ -167,40 +167,40 @@ public final class MerriamWebsterClient {
             String plural = extractPlural(obj);
 
             List<String> shortDefs = obj.has("shortdef") && obj.get("shortdef").isJsonArray()
-                    ? stringList(obj.getAsJsonArray("shortdef"))
-                    : List.of();
+                ? stringList(obj.getAsJsonArray("shortdef"))
+                : List.of();
 
             List<String> examples = extractExamples(obj);
 
             List<String> syns = (product == Product.THESAURUS && meta != null)
-                    ? flattenNestedStringLists(meta.get("syns"))
-                    : List.of();
+                ? flattenNestedStringLists(meta.get("syns"))
+                : List.of();
 
             List<String> ants = (product == Product.THESAURUS && meta != null)
-                    ? flattenNestedStringLists(meta.get("ants"))
-                    : List.of();
+                ? flattenNestedStringLists(meta.get("ants"))
+                : List.of();
 
             String etymology = extractEtymology(obj);
 
             String usageNotes = extractUsageNotes(obj);
 
             boolean offensive = meta != null
-                    && meta.has("offensive")
-                    && meta.get("offensive").getAsBoolean();
+                && meta.has("offensive")
+                && meta.get("offensive").getAsBoolean();
 
             out.add(new Entry(
-                    id,
-                    headword,
-                    fl,
-                    pronunciation,
-                    plural,
-                    shortDefs,
-                    syns,
-                    ants,
-                    examples,
-                    etymology,
-                    usageNotes,
-                    offensive
+                id,
+                headword,
+                fl,
+                pronunciation,
+                plural,
+                shortDefs,
+                syns,
+                ants,
+                examples,
+                etymology,
+                usageNotes,
+                offensive
             ));
         }
 

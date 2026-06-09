@@ -6,7 +6,8 @@ import java.util.Map;
 
 public final class LoggingUtils {
 
-    private LoggingUtils() {}
+    private LoggingUtils() {
+    }
 
     public static Runnable withMdc(Map<String, String> ctx, Runnable task) {
         return () -> {

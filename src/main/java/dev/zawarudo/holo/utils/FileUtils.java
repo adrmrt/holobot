@@ -29,8 +29,8 @@ public final class FileUtils {
     public static List<File> getAllFiles(String directoryPath) {
         try (Stream<Path> paths = Files.walk(Paths.get(directoryPath))) {
             return paths.filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .toList();
+                .map(Path::toFile)
+                .toList();
         } catch (IOException e) {
             throw new IllegalStateException("Failed to walk through directory.", e);
         }
@@ -83,11 +83,11 @@ public final class FileUtils {
 
         try (JarFile jar = conn.getJarFile()) {
             jar.stream()
-                    .filter(e -> !e.isDirectory())
-                    .map(e -> e.getName())
-                    .filter(name -> name.startsWith(classpathRoot + "/"))
-                    .filter(name -> hasAllowedExtension(name.toLowerCase(), extensions))
-                    .forEach(out::add);
+                .filter(e -> !e.isDirectory())
+                .map(e -> e.getName())
+                .filter(name -> name.startsWith(classpathRoot + "/"))
+                .filter(name -> hasAllowedExtension(name.toLowerCase(), extensions))
+                .forEach(out::add);
         }
 
         return out;

@@ -28,9 +28,9 @@ public final class BlacklistedDao {
             List<Blacklisted> result = new ArrayList<>();
             while (rs.next()) {
                 result.add(new Blacklisted(
-                        rs.getLong("user_id"),
-                        rs.getString("reason"),
-                        rs.getString("date")
+                    rs.getLong("user_id"),
+                    rs.getString("reason"),
+                    rs.getString("date")
                 ));
             }
             return result;

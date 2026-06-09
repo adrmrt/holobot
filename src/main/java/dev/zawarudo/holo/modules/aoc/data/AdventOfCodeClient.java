@@ -71,8 +71,8 @@ public final class AdventOfCodeClient {
         String url = String.format("%s/%d/leaderboard/private/view/%d.json", BASE_URL, year, leaderboardId);
 
         Map<String, String> headers = Map.of(
-                "Cookie", "session=" + sessionKey,
-                "Accept", "application/json"
+            "Cookie", "session=" + sessionKey,
+            "Accept", "application/json"
         );
 
         try {
@@ -80,6 +80,7 @@ public final class AdventOfCodeClient {
         } catch (HttpStatusException ex) {
             throw new APIException("AoC request failed (HTTP " + ex.getStatusCode() + "): " + ex.getMessage(), ex);
         } catch (HttpTransportException ex) {
-            throw new APIException("I/O error while contacting the AOC website.", ex);        }
+            throw new APIException("I/O error while contacting the AOC website.", ex);
+        }
     }
 }

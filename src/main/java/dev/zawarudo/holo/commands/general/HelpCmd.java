@@ -15,11 +15,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "help",
-        description = "Shows a list of commands or their respective usage",
-        usage = "[command]",
-        example = "ping",
-        guildOnly = false,
-        category = CommandCategory.GENERAL)
+    description = "Shows a list of commands or their respective usage",
+    usage = "[command]",
+    example = "ping",
+    guildOnly = false,
+    category = CommandCategory.GENERAL)
 public class HelpCmd extends AbstractCommand {
 
     private final CommandManager manager;
@@ -58,9 +58,9 @@ public class HelpCmd extends AbstractCommand {
 
     private void sendCommandNotFound(MessageReceivedEvent event, String query) {
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("Command not found")
-                .setDescription("Please check for typos and try again!")
-                .addField("Tried", Formatter.asCodeBlock(query), false);
+            .setTitle("Command not found")
+            .setDescription("Please check for typos and try again!")
+            .addField("Tried", Formatter.asCodeBlock(query), false);
 
         sendEmbed(event, builder, true, 15, TimeUnit.SECONDS);
     }
@@ -69,13 +69,13 @@ public class HelpCmd extends AbstractCommand {
         String prefix = getPrefix(event);
 
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("Help Page")
-                .setThumbnail(event.getJDA().getSelfUser().getEffectiveAvatarUrl().concat("?size=512"))
-                .setDescription(
-                        "I currently use `" + prefix + "` as prefix for all commands.\n" +
-                                "For more information on a certain command, use " +
-                                Formatter.asCodeBlock(prefix + "help <command>")
-                );
+            .setTitle("Help Page")
+            .setThumbnail(event.getJDA().getSelfUser().getEffectiveAvatarUrl().concat("?size=512"))
+            .setDescription(
+                "I currently use `" + prefix + "` as prefix for all commands.\n" +
+                    "For more information on a certain command, use " +
+                    Formatter.asCodeBlock(prefix + "help <command>")
+            );
 
         for (CommandCategory category : CommandCategory.values()) {
             List<AbstractCommand> visible = getVisibleCommands(category, event);
@@ -85,9 +85,9 @@ public class HelpCmd extends AbstractCommand {
             }
 
             String names = visible.stream()
-                    .map(AbstractCommand::getName)
-                    .sorted(String::compareToIgnoreCase)
-                    .collect(Collectors.joining(", "));
+                .map(AbstractCommand::getName)
+                .sorted(String::compareToIgnoreCase)
+                .collect(Collectors.joining(", "));
 
             builder.addField(category.getName(), Formatter.asCodeBlock(names), false);
         }
@@ -104,16 +104,16 @@ public class HelpCmd extends AbstractCommand {
         boolean isAdmin = isGuild && isGuildAdmin(event);
 
         return manager.getCommands(category).stream()
-                // Hide guild-only commands in DMs
-                .filter(cmd -> isGuild || !cmd.isGuildOnly())
+            // Hide guild-only commands in DMs
+            .filter(cmd -> isGuild || !cmd.isGuildOnly())
 
-                // Hide owner-only commands
-                .filter(cmd -> !cmd.isOwnerOnly() || isOwner)
+            // Hide owner-only commands
+            .filter(cmd -> !cmd.isOwnerOnly() || isOwner)
 
-                // Hide admin-only commands
-                .filter(cmd -> !cmd.isAdminOnly() || isAdmin || isOwner)
+            // Hide admin-only commands
+            .filter(cmd -> !cmd.isAdminOnly() || isAdmin || isOwner)
 
-                .toList();
+            .toList();
     }
 
     private boolean canSeeCategory(CommandCategory category, MessageReceivedEvent event) {
@@ -131,22 +131,22 @@ public class HelpCmd extends AbstractCommand {
         String prefix = getPrefix(event);
 
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("Command Help")
-                .addField("Name", Formatter.asCodeBlock(cmd.getName()), false)
-                .addField("Description", cmd.getDescription(), false);
+            .setTitle("Command Help")
+            .addField("Name", Formatter.asCodeBlock(cmd.getName()), false)
+            .addField("Description", cmd.getDescription(), false);
 
         if (cmd.hasUsage()) {
             builder.addField(
-                    "Usage",
-                    Formatter.asCodeBlock(prefix + cmd.getName() + " " + cmd.getUsage()),
-                    false);
+                "Usage",
+                Formatter.asCodeBlock(prefix + cmd.getName() + " " + cmd.getUsage()),
+                false);
         }
 
         if (cmd.hasExample()) {
             builder.addField(
-                    "Example",
-                    Formatter.asCodeBlock(prefix + cmd.getName() + " " + cmd.getExample()),
-                    false);
+                "Example",
+                Formatter.asCodeBlock(prefix + cmd.getName() + " " + cmd.getExample()),
+                false);
         }
 
         if (cmd.hasAlias()) {

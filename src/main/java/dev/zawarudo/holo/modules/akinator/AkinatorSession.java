@@ -57,11 +57,11 @@ public final class AkinatorSession {
     private long questionsAnswered = 0;
 
     public AkinatorSession(
-            long userId,
-            long channelId,
-            long guildId,
-            @NotNull EventWaiter waiter,
-            @NotNull AkinatorSessionManager manager
+        long userId,
+        long channelId,
+        long guildId,
+        @NotNull EventWaiter waiter,
+        @NotNull AkinatorSessionManager manager
     ) {
         this.userId = userId;
         this.channelId = channelId;
@@ -73,10 +73,10 @@ public final class AkinatorSession {
         this.id = UUID.randomUUID().toString().substring(0, 8);
 
         this.aki = new AkiwrapperBuilder()
-                .setLanguage(Akiwrapper.Language.ENGLISH)
-                .setTheme(Akiwrapper.Theme.CHARACTER)
-                .setFilterProfanity(true)
-                .build();
+            .setLanguage(Akiwrapper.Language.ENGLISH)
+            .setTheme(Akiwrapper.Theme.CHARACTER)
+            .setFilterProfanity(true)
+            .build();
     }
 
     public long userId() {
@@ -100,28 +100,28 @@ public final class AkinatorSession {
 
         var rendered = renderer.renderStart(); // new
         var rows = List.of(ActionRow.of(
-                Button.primary(prefixed(START), "Start"),
-                Button.danger(prefixed(STOP), "Cancel")
+            Button.primary(prefixed(START), "Start"),
+            Button.danger(prefixed(STOP), "Cancel")
         ));
 
         commandMsg.replyEmbeds(rendered.embed())
-                .addComponents(rows)
-                .addFiles(resource(rendered.attachmentName()))
-                .queue(msg -> {
-                    this.message = msg;
-                    awaitNext();
-                }, err -> finish(false, "Failed to start Akinator (send message failed)."));
+            .addComponents(rows)
+            .addFiles(resource(rendered.attachmentName()))
+            .queue(msg -> {
+                this.message = msg;
+                awaitNext();
+            }, err -> finish(false, "Failed to start Akinator (send message failed)."));
     }
 
     private void awaitNext() {
         if (finished || message == null) return;
 
         waiter.waitForEvent(
-                ButtonInteractionEvent.class,
-                this::isValid,
-                this::onButton,
-                2, TimeUnit.MINUTES,
-                this::onTimeout
+            ButtonInteractionEvent.class,
+            this::isValid,
+            this::onButton,
+            2, TimeUnit.MINUTES,
+            this::onTimeout
         );
     }
 
@@ -168,9 +168,9 @@ public final class AkinatorSession {
                     var rows = toRows(buttonsFor(currentQuery));
 
                     message.editMessageEmbeds(rendered.embed())
-                            .setComponents(rows)
-                            .setFiles(resource(rendered.attachmentName()))
-                            .queue(ok -> awaitNext(), err -> awaitNext());
+                        .setComponents(rows)
+                        .setFiles(resource(rendered.attachmentName()))
+                        .queue(ok -> awaitNext(), err -> awaitNext());
                     return;
                 }
 
@@ -219,9 +219,9 @@ public final class AkinatorSession {
             var rows = toRows(buttonsFor(currentQuery));
 
             message.editMessageEmbeds(rendered.embed())
-                    .setComponents(rows)
-                    .setFiles(resource(rendered.attachmentName()))
-                    .queue(ok -> awaitNext(), err -> awaitNext());
+                .setComponents(rows)
+                .setFiles(resource(rendered.attachmentName()))
+                .queue(ok -> awaitNext(), err -> awaitNext());
 
         } catch (Exception ex) {
             finish(false, "Akinator error: " + ex.getMessage());
@@ -248,12 +248,12 @@ public final class AkinatorSession {
         var rendered = renderer.renderFinal(screen, finalGuess, questionsAnswered);
 
         message.editMessageEmbeds(rendered.embed())
-                .setComponents(ActionRow.of(
-                        Button.secondary(prefixed("done"), "Done").asDisabled()
-                ))
-                .setFiles(resource(rendered.attachmentName()))
-                .queue(null, ignored -> {
-                });
+            .setComponents(ActionRow.of(
+                Button.secondary(prefixed("done"), "Done").asDisabled()
+            ))
+            .setFiles(resource(rendered.attachmentName()))
+            .queue(null, ignored -> {
+            });
     }
 
     private List<Button> buttonsFor(Query q) {
@@ -264,20 +264,20 @@ public final class AkinatorSession {
             if (!canUndo) undo = undo.asDisabled();
 
             return List.of(
-                    Button.primary(prefixed(YES), "Yes"),
-                    Button.primary(prefixed(NO), "No"),
-                    Button.primary(prefixed(DONT_KNOW), "Don't know"),
-                    Button.primary(prefixed(PROBABLY), "Probably"),
-                    Button.primary(prefixed(PROBABLY_NOT), "Probably not"),
-                    undo,
-                    Button.danger(prefixed(STOP), "Stop")
+                Button.primary(prefixed(YES), "Yes"),
+                Button.primary(prefixed(NO), "No"),
+                Button.primary(prefixed(DONT_KNOW), "Don't know"),
+                Button.primary(prefixed(PROBABLY), "Probably"),
+                Button.primary(prefixed(PROBABLY_NOT), "Probably not"),
+                undo,
+                Button.danger(prefixed(STOP), "Stop")
             );
         }
         if (q instanceof Guess) {
             return List.of(
-                    Button.primary(prefixed(CONFIRM), "Yes (Correct)"),
-                    Button.primary(prefixed(REJECT), "No (Continue)"),
-                    Button.danger(prefixed(STOP), "Stop")
+                Button.primary(prefixed(CONFIRM), "Yes (Correct)"),
+                Button.primary(prefixed(REJECT), "No (Continue)"),
+                Button.danger(prefixed(STOP), "Stop")
             );
         }
         return List.of(Button.danger(prefixed(STOP), "close"));

@@ -1,11 +1,12 @@
 package dev.zawarudo.holo.commands.fun;
 
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.FileUtils;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,12 +16,12 @@ import java.util.List;
 import java.util.Random;
 
 @CommandInfo(name = "8ball",
-        description = "Ask the Magic 8 Ball a question and get an answer.",
-        usage = "<question>",
-        thumbnail = "https://media.discordapp.net/attachments/778991087847079972/946790101109841990/magic8ball.png",
-        guildOnly = false,
-        category = CommandCategory.MISC)
-public class Magic8BallCmd extends AbstractCommand {
+    description = "Ask the Magic 8 Ball a question and get an answer.",
+    usage = "<question>",
+    thumbnail = "https://media.discordapp.net/attachments/778991087847079972/946790101109841990/magic8ball.png",
+    guildOnly = false,
+    category = CommandCategory.MISC)
+public class Magic8BallCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final Random RANDOM = new Random();
     private final List<String> responses;
@@ -37,17 +38,17 @@ public class Magic8BallCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        if (args.length == 0) {
-            sendErrorEmbed(event, "Incorrect usage of the command. Please ask a question.");
+    public void execute(@NotNull CommandContext ctx) {
+        if (!ctx.hasArgs()) {
+            ctx.reply().errorEmbed("Incorrect usage of the command. Please ask a question.");
             return;
         }
 
         String resourcePath = responses.get(RANDOM.nextInt(responses.size()));
-
         InputStream input = getClass().getClassLoader().getResourceAsStream(resourcePath);
+
         if (input == null) {
-            sendErrorEmbed(event, "An error occurred while fetching an answer. Please try again later.");
+            ctx.reply().errorEmbed("An error occurred while fetching an answer. Please try again later.");
             return;
         }
 
@@ -56,6 +57,6 @@ public class Magic8BallCmd extends AbstractCommand {
         builder.setImage("attachment://8ball.png");
 
         FileUpload upload = FileUpload.fromData(input, "8ball.png");
-        event.getMessage().replyFiles(upload).setEmbeds(builder.build()).queue();
+        ctx.message().ifPresent(m -> m.replyFiles(upload).setEmbeds(builder.build()).queue());
     }
 }

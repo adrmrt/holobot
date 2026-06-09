@@ -25,11 +25,11 @@ public final class CommandContextFactory {
     }
 
     public @NotNull CommandContext createForMessage(
-            @NotNull MessageReceivedEvent event,
-            @NotNull String commandName,
-            @NotNull String invokedAs,
-            @NotNull List<String> args,
-            @Nullable String prefix
+        @NotNull MessageReceivedEvent event,
+        @NotNull String commandName,
+        @NotNull String invokedAs,
+        @NotNull List<String> args,
+        @Nullable String prefix
     ) {
         Objects.requireNonNull(event, "event");
         Objects.requireNonNull(args, "args");
@@ -48,15 +48,15 @@ public final class CommandContextFactory {
         CommandContext.Reply reply = new MessageReply(event);
 
         return new CommandContext(
-                commandName,
-                invokedAs,
-                args,
-                invocation,
-                reply,
-                isOwner,
-                isAdmin,
-                prefix,
-                cfg
+            commandName,
+            invokedAs,
+            args,
+            invocation,
+            reply,
+            isOwner,
+            isAdmin,
+            prefix,
+            cfg
         );
     }
 

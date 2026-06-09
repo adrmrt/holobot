@@ -22,17 +22,17 @@ public final class FlywayMigrator {
         String url = "jdbc:sqlite:" + dbPath.trim();
 
         Flyway flyway = Flyway.configure()
-                .dataSource(url, null, null)
-                .locations("classpath:db/migration")
-                .cleanDisabled(true)
-                .baselineOnMigrate(true)
-                .baselineVersion("1")
-                .validateMigrationNaming(true)
-                .load();
+            .dataSource(url, null, null)
+            .locations("classpath:db/migration")
+            .cleanDisabled(true)
+            .baselineOnMigrate(true)
+            .baselineVersion("1")
+            .validateMigrationNaming(true)
+            .load();
 
         LOGGER.info("Running DB migrations...");
         var result = flyway.migrate();
         LOGGER.info("Migrations complete. Schema now at version {} ({} migrations applied).",
-                result.targetSchemaVersion, result.migrationsExecuted);
+            result.targetSchemaVersion, result.migrationsExecuted);
     }
 }

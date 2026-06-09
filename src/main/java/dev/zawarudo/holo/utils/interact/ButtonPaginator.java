@@ -44,11 +44,11 @@ public final class ButtonPaginator<T> {
     private final TimeUnit timeoutUnit;
 
     public ButtonPaginator(
-            @NotNull EventWaiter waiter,
-            @NotNull PageRenderer<T> renderer,
-            @NotNull String buttonPrefix,
-            long timeout,
-            @NotNull TimeUnit timeoutUnit
+        @NotNull EventWaiter waiter,
+        @NotNull PageRenderer<T> renderer,
+        @NotNull String buttonPrefix,
+        long timeout,
+        @NotNull TimeUnit timeoutUnit
     ) {
         this.waiter = Objects.requireNonNull(waiter);
         this.renderer = Objects.requireNonNull(renderer);
@@ -76,18 +76,18 @@ public final class ButtonPaginator<T> {
         List<Button> buttons = buildButtons(index, items.size());
 
         commandMessage.replyEmbeds(embed)
-                .addComponents(ActionRow.of(buttons))
-                .queue(msg -> await(msg, caller, index, items), err ->
-                        LOG.error("ButtonPaginator failed to send initial message", err));
+            .addComponents(ActionRow.of(buttons))
+            .queue(msg -> await(msg, caller, index, items), err ->
+                LOG.error("ButtonPaginator failed to send initial message", err));
     }
 
     private void await(@NotNull Message msg, @NotNull User caller, int index, @NotNull List<T> items) {
         waiter.waitForEvent(
-                ButtonInteractionEvent.class,
-                evt -> isValid(evt, msg, caller),
-                evt -> onButton(evt, msg, caller, index, items),
-                timeout, timeoutUnit,
-                () -> onTimeout(msg)
+            ButtonInteractionEvent.class,
+            evt -> isValid(evt, msg, caller),
+            evt -> onButton(evt, msg, caller, index, items),
+            timeout, timeoutUnit,
+            () -> onTimeout(msg)
         );
     }
 
@@ -114,8 +114,8 @@ public final class ButtonPaginator<T> {
         // Immediate delete
         if (ID_EXIT.equals(id)) {
             evt.deferEdit().queue(
-                    ignored -> msg.delete().queue(),
-                    ignored -> msg.delete().queue()
+                ignored -> msg.delete().queue(),
+                ignored -> msg.delete().queue()
             );
             return;
         }
@@ -140,25 +140,27 @@ public final class ButtonPaginator<T> {
 
         // Acknowledge and edit
         evt.deferEdit().queue(
-                hook -> hook.editOriginalEmbeds(embed)
-                        .setComponents(ActionRow.of(buttons))
-                        .queue(
-                                ok -> await(msg, caller, nextIndex, items),
-                                error -> await(msg, caller, nextIndex, items)
-                        ),
-                error -> await(msg, caller, nextIndex, items));
+            hook -> hook.editOriginalEmbeds(embed)
+                .setComponents(ActionRow.of(buttons))
+                .queue(
+                    ok -> await(msg, caller, nextIndex, items),
+                    error -> await(msg, caller, nextIndex, items)
+                ),
+            error -> await(msg, caller, nextIndex, items));
     }
 
     private void onTimeout(@NotNull Message msg) {
         List<MessageEmbed> embeds = msg.getEmbeds();
         if (embeds.isEmpty()) {
-            msg.editMessageComponents().queue(null, ignored -> {});
+            msg.editMessageComponents().queue(null, ignored -> {
+            });
             return;
         }
         // Remove footer with page info
         MessageEmbed stripped = new EmbedBuilder(embeds.getFirst()).setFooter(null).build();
         // Remove action row
-        msg.editMessageEmbeds(stripped).setComponents().queue(null, ignored -> {});
+        msg.editMessageEmbeds(stripped).setComponents().queue(null, ignored -> {
+        });
     }
 
     private List<Button> buildButtons(int index, int total) {

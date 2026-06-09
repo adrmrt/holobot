@@ -18,10 +18,10 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "play",
-        description = "Play a track or playlist from YouTube, SoundCloud, Bandcamp, Vimeo, Twitch, or a direct HTTP URL. Adds to the queue if something is already playing.",
-        usage = "<url>",
-        alias = {"p"},
-        category = CommandCategory.MUSIC)
+    description = "Play a track or playlist from YouTube, SoundCloud, Bandcamp, Vimeo, Twitch, or a direct HTTP URL. Adds to the queue if something is already playing.",
+    usage = "<url>",
+    alias = {"p"},
+    category = CommandCategory.MUSIC)
 public class PlayCmd extends AbstractMusicCommand {
 
     @Override

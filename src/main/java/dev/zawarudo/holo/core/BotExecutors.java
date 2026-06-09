@@ -13,20 +13,20 @@ public class BotExecutors implements AutoCloseable {
 
         // cpu = cores
         this.cpu = new ThreadPoolExecutor(
-                cores, cores,
-                0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(500),
-                new NamedThreadFactory("holo-cpu"),
-                new ThreadPoolExecutor.CallerRunsPolicy()
+            cores, cores,
+            0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(500),
+            new NamedThreadFactory("holo-cpu"),
+            new ThreadPoolExecutor.CallerRunsPolicy()
         );
 
         // io = cores * 4
         this.io = new ThreadPoolExecutor(
-                Math.max(4, cores * 4), Math.max(4, cores * 4),
-                60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(2000),
-                new NamedThreadFactory("holo-io"),
-                new ThreadPoolExecutor.CallerRunsPolicy()
+            Math.max(4, cores * 4), Math.max(4, cores * 4),
+            60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(2000),
+            new NamedThreadFactory("holo-io"),
+            new ThreadPoolExecutor.CallerRunsPolicy()
         );
 
         // scheduler = 1

@@ -88,7 +88,10 @@ public final class GuildConfigDao {
         s = s.trim();
         if (s.equalsIgnoreCase("true")) return true;
         if (s.equalsIgnoreCase("false")) return false;
-        try { return Integer.parseInt(s) != 0; } catch (NumberFormatException ignored) {}
+        try {
+            return Integer.parseInt(s) != 0;
+        } catch (NumberFormatException ignored) {
+        }
         return rs.getBoolean(col);
     }
 }

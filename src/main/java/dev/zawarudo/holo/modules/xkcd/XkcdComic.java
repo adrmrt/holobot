@@ -47,49 +47,67 @@ public class XkcdComic implements Comparable<XkcdComic> {
         return day + "/" + month + "/" + year;
     }
 
-    /** Sets the date of the comic */
+    /**
+     * Sets the date of the comic
+     */
     public void setDate(int day, int month, int year) {
         this.day = day;
         this.month = month;
         this.year = year;
     }
 
-    /** Returns the issue number of the comic */
+    /**
+     * Returns the issue number of the comic
+     */
     public int getIssueNr() {
         return num;
     }
 
-    /** Sets the issue number of the comic */
+    /**
+     * Sets the issue number of the comic
+     */
     public void setIssueNr(int num) {
         this.num = num;
     }
 
-    /** Returns the title of the comic */
+    /**
+     * Returns the title of the comic
+     */
     public String getTitle() {
         return title;
     }
 
-    /** Sets the title of the comic */
+    /**
+     * Sets the title of the comic
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
-    /** Returns the alt text of the comic */
+    /**
+     * Returns the alt text of the comic
+     */
     public String getAlt() {
         return alt;
     }
 
-    /** Sets the alt text of the comic */
+    /**
+     * Sets the alt text of the comic
+     */
     public void setAlt(String alt) {
         this.alt = alt;
     }
 
-    /** Returns the image Url of the comic */
+    /**
+     * Returns the image Url of the comic
+     */
     public String getImg() {
         return img;
     }
 
-    /** Sets the image Url of the comic */
+    /**
+     * Sets the image Url of the comic
+     */
     public void setImg(String url) {
         this.img = url;
     }

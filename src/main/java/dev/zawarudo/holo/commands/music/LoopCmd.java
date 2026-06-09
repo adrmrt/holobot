@@ -12,17 +12,17 @@ import org.jetbrains.annotations.NotNull;
 
 @Deactivated
 @CommandInfo(name = "loop",
-		description = "Loops the current song",
-		category = CommandCategory.MUSIC)
+    description = "Loops the current song",
+    category = CommandCategory.MUSIC)
 public class LoopCmd extends AbstractMusicCommand {
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent e) {
-		deleteInvoke(e);
-		
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(e.getGuild());
-		boolean repeating = !musicManager.scheduler.looping;
-		musicManager.scheduler.looping = repeating;
-		e.getChannel().sendMessageFormat("Loop %s", repeating ? "enabled" : "disabled").queue();
-	}
+    @Override
+    public void onCommand(@NotNull MessageReceivedEvent e) {
+        deleteInvoke(e);
+
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(e.getGuild());
+        boolean repeating = !musicManager.scheduler.looping;
+        musicManager.scheduler.looping = repeating;
+        e.getChannel().sendMessageFormat("Loop %s", repeating ? "enabled" : "disabled").queue();
+    }
 }

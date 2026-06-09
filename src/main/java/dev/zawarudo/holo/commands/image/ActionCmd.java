@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
  * reaction or action GIF.
  */
 @CommandInfo(name = "action",
-        description = "Sends an action GIF. For directed actions you can either mention an user or reply to a " +
-                "message to direct the action towards them.",
-        usage = "[<action> | list]",
-        example = "blush",
-        embedColor = EmbedColor.LIGHT_GRAY,
-        category = CommandCategory.IMAGE)
+    description = "Sends an action GIF. For directed actions you can either mention an user or reply to a " +
+        "message to direct the action towards them.",
+    usage = "[<action> | list]",
+    example = "blush",
+    embedColor = EmbedColor.LIGHT_GRAY,
+    category = CommandCategory.IMAGE)
 public class ActionCmd extends AbstractCommand {
 
     private static final String PERSISTED_PATH = "./data/actions.json";
@@ -94,8 +94,8 @@ public class ActionCmd extends AbstractCommand {
     private void showList(MessageReceivedEvent event) {
         deleteInvoke(event);
         EmbedBuilder builder = new EmbedBuilder()
-                .setTitle("List of Actions")
-                .setDescription(getActionsAsString());
+            .setTitle("List of Actions")
+            .setDescription(getActionsAsString());
         sendEmbed(event, builder, true, 1, TimeUnit.MINUTES, getEmbedColor());
     }
 
@@ -183,8 +183,8 @@ public class ActionCmd extends AbstractCommand {
 
         String mention = determineMention(event, directedArgs);
         String title = action.getSentence()
-                .replace("{s}", event.getMember().getEffectiveName())
-                .replace("{u}", mention);
+            .replace("{s}", event.getMember().getEffectiveName())
+            .replace("{u}", mention);
 
         sendActionEmbed(event, result.get(), title);
     }
@@ -215,8 +215,8 @@ public class ActionCmd extends AbstractCommand {
 
         if (directedArgs.length != 0) {
             return event.getMessage().getMentions().getMembers().isEmpty() ?
-                    String.join(" ", directedArgs) :
-                    event.getMessage().getMentions().getMembers().getFirst().getEffectiveName();
+                String.join(" ", directedArgs) :
+                event.getMessage().getMentions().getMembers().getFirst().getEffectiveName();
         }
 
         return "nothing";
@@ -279,8 +279,8 @@ public class ActionCmd extends AbstractCommand {
 
     private String getActionsAsString() {
         String actionsList = actions.keySet().stream()
-                .sorted()
-                .collect(Collectors.joining(", "));
+            .sorted()
+            .collect(Collectors.joining(", "));
 
         return Formatter.asCodeBlock(actionsList);
     }

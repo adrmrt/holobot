@@ -43,7 +43,9 @@ public final class MessageReply implements CommandContext.Reply {
     @Override
     public void embed(@NotNull MessageEmbed embed, int duration, TimeUnit unit) {
         replyTo.replyEmbeds(embed).queue(sent ->
-                sent.delete().queueAfter(duration, unit, __ -> {}, __ -> {})
+            sent.delete().queueAfter(duration, unit, __ -> {
+            }, __ -> {
+            })
         );
     }
 
@@ -51,7 +53,8 @@ public final class MessageReply implements CommandContext.Reply {
     public void embedAndDeleteInvoke(@NotNull CommandContext ctx, @NotNull MessageEmbed embed, int duration, TimeUnit unit) {
         embed(embed, duration, unit);
         ctx.message().ifPresent(msg ->
-                msg.delete().queueAfter(duration, unit, null, ignored -> {}));
+            msg.delete().queueAfter(duration, unit, null, ignored -> {
+            }));
     }
 
     @Override
@@ -66,9 +69,9 @@ public final class MessageReply implements CommandContext.Reply {
 
     private @NotNull MessageEmbed buildErrorEmbed(@NotNull String content) {
         return new EmbedBuilder()
-                .setTitle("Error")
-                .setDescription(content)
-                .setColor(EmbedColor.ERROR.getColor())
-                .build();
+            .setTitle("Error")
+            .setDescription(content)
+            .setColor(EmbedColor.ERROR.getColor())
+            .build();
     }
 }
