@@ -144,7 +144,7 @@ public abstract class AbstractCommand {
             .queue(msg -> msg.delete()
                 .queueAfter(delay, unit,
                     null,
-                    error -> {
+                    _ -> {
                         // Ignore if message is already deleted
                     }
                 )
@@ -159,20 +159,6 @@ public abstract class AbstractCommand {
         builder.setTitle("Error");
         builder.setDescription(message);
         sendEmbed(event, builder, false, 30, TimeUnit.SECONDS, Color.RED);
-    }
-
-    /**
-     * Sends an embed to the owner of the bot.
-     */
-    public void sendToOwner(EmbedBuilder builder) {
-        User owner = Bootstrap.holo.getJDA().getUserById(Bootstrap.holo.getConfig().getOwnerId());
-        if (owner == null) {
-            if (logger.isErrorEnabled()) {
-                logger.error("Owner is null which wasn't supposed to happen! Please check your config!");
-            }
-            return;
-        }
-        owner.openPrivateChannel().queue(channel -> channel.sendMessageEmbeds(builder.build()).queue());
     }
 
     /**
@@ -192,6 +178,7 @@ public abstract class AbstractCommand {
      * @param s The String to check.
      * @return True if the String is an integer, false otherwise.
      */
+    @Deprecated(forRemoval = true)
     protected boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
@@ -223,6 +210,7 @@ public abstract class AbstractCommand {
      * @param s The String to check.
      * @return True if the String is a boolean, false otherwise.
      */
+    @Deprecated(forRemoval = true)
     protected boolean isBoolean(String s) {
         return "true".equals(s.toLowerCase(Locale.UK)) || "false".equals(s.toLowerCase(Locale.UK));
     }
@@ -233,6 +221,7 @@ public abstract class AbstractCommand {
      * @param url The URL to check.
      * @return True if the URL is valid, false otherwise.
      */
+    @Deprecated(forRemoval = true)
     protected boolean isValidUrl(String url) {
         return new UrlValidator().isValid(url);
     }

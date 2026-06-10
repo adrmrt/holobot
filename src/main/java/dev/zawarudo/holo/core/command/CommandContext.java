@@ -1,5 +1,6 @@
 package dev.zawarudo.holo.core.command;
 
+import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.GuildConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -7,11 +8,14 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Immutable snapshot of everything a command needs to handle one invocation.
@@ -20,6 +24,8 @@ import java.util.concurrent.TimeUnit;
  * must not hold references to this object beyond the scope of that call.
  */
 public final class CommandContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandContext.class);
 
     private final @NotNull String commandName;
     private final @NotNull String invokedAs;
@@ -89,6 +95,27 @@ public final class CommandContext {
     /** Returns {@code true} if the invoking user is the bot owner. */
     public boolean isBotOwner() {
         return botOwner;
+    }
+
+    /** Sends a direct message with the given content to the bot owner. */
+    public void notifyOwner(@NotNull String message) {
+        withOwner(owner -> owner.openPrivateChannel().queue(channel -> channel.sendMessage(message).queue()));
+    }
+
+    /** Sends a direct message with the given embed to the bot owner. */
+    public void notifyOwner(@NotNull EmbedBuilder embed) {
+        withOwner(owner -> owner.openPrivateChannel().queue(channel -> channel.sendMessageEmbeds(embed.build()).queue()));
+    }
+
+    private void withOwner(@NotNull Consumer<User> action) {
+        long ownerId = Bootstrap.holo.getConfig().getOwnerId();
+
+        User owner = jda().getUserById(ownerId);
+        if (owner == null) {
+            LOGGER.error("Owner is null which wasn't supposed to happen! Please check your config!");
+            return;
+        }
+        action.accept(owner);
     }
 
     /** Returns {@code true} if the invoking user has administrator permissions in the guild. */

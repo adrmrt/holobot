@@ -5,17 +5,20 @@ import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.exceptions.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @CommandInfo(name = "spawn",
     description = "Spawns a Pokémon",
     usage = "[<Pokémon name or id> | random]",
     ownerOnly = true,
     category = CommandCategory.GAMES)
-public class SpawnCmd extends AbstractCommand {
+public class SpawnCmd extends AbstractCommand implements ExecutableCommand {
 
     private final PokemonSpawnManager pokemonSpawnManager;
 
@@ -24,19 +27,20 @@ public class SpawnCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        long channelId = event.getChannel().getIdLong();
+        long channelId = ctx.channel().getIdLong();
+        List<String> args = ctx.args();
 
         try {
-            if (args.length == 0 || args.length == 1 && "random".equalsIgnoreCase(args[0])) {
+            if (args.isEmpty() || args.size() == 1 && "random".equalsIgnoreCase(args.getFirst())) {
                 // Random spawn
                 Pokemon pokemon = PokeApiClient.getRandomPokemonSpecies().getPokemon();
                 pokemonSpawnManager.deleteMessage(channelId);
                 pokemonSpawnManager.spawnNewPokemon(channelId, pokemon);
                 return;
-            } else if ("add".equalsIgnoreCase(args[0])) {
+            } else if ("add".equalsIgnoreCase(args.getFirst())) {
                 // Make Pokémon spawn in a new text channel
                 pokemonSpawnManager.addChannel(channelId);
 
@@ -45,16 +49,17 @@ public class SpawnCmd extends AbstractCommand {
                 return;
             }
             // Spawn specific Pokémon
-            Pokemon pokemon = isNumeric(args[0])
-                ? PokeApiClient.getPokemon(Integer.parseInt(args[0]))
-                : PokeApiClient.getPokemon(args[0]);
+            String first = args.getFirst();
+            Pokemon pokemon = isNumeric(first)
+                ? PokeApiClient.getPokemon(Integer.parseInt(first))
+                : PokeApiClient.getPokemon(first);
 
             pokemonSpawnManager.deleteMessage(channelId);
             pokemonSpawnManager.spawnNewPokemon(channelId, pokemon);
         } catch (APIException ex) {
-            sendOwnerError("PokéAPI error right now. Try again later.");
+            sendOwnerError(ctx, "PokéAPI error right now. Try again later.");
         } catch (NotFoundException | InvalidIdException ex) {
-            sendOwnerError("Pokémon not found. Check typos / ID.");
+            sendOwnerError(ctx, "Pokémon not found. Check typos / ID.");
         }
     }
 
@@ -65,10 +70,10 @@ public class SpawnCmd extends AbstractCommand {
         return !s.isBlank();
     }
 
-    private void sendOwnerError(String msg) {
+    private void sendOwnerError(CommandContext ctx, String msg) {
         EmbedBuilder b = new EmbedBuilder();
         b.setTitle("Spawn error");
         b.setDescription(msg);
-        sendToOwner(b);
+        ctx.notifyOwner(b);
     }
 }
