@@ -4,6 +4,7 @@ import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -45,9 +46,9 @@ public class PurgeCmd extends AbstractCommand implements ExecutableCommand {
                 return;
             }
 
-            amount = parseInt(ctx.args().get(1));
+            amount = ParsingUtils.parsePositiveInt(ctx.args().get(1));
         } else {
-            amount = parseInt(ctx.args().getFirst());
+            amount = ParsingUtils.parsePositiveInt(ctx.args().getFirst());
         }
 
         if (amount <= 0) return;

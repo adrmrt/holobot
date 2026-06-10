@@ -13,6 +13,7 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.misc.EmbedColor;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.Reader;
 import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
 import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
@@ -107,8 +108,8 @@ public class ActionCmd extends AbstractCommand {
         }
 
         String name = restArgs[0];
-        boolean isApi = isBoolean(restArgs[1]) && Boolean.parseBoolean(restArgs[1]);
-        int start = isBoolean(restArgs[1]) ? 2 : 1;
+        boolean isApi = ParsingUtils.isBoolean(restArgs[1]) && Boolean.parseBoolean(restArgs[1]);
+        int start = ParsingUtils.isBoolean(restArgs[1]) ? 2 : 1;
         String sentence = String.join(" ", Arrays.copyOfRange(restArgs, start, restArgs.length));
 
         if (isAction(name)) {
@@ -148,7 +149,7 @@ public class ActionCmd extends AbstractCommand {
             return;
         }
 
-        if (!isValidUrl(url)) {
+        if (!ParsingUtils.isValidUrl(url)) {
             sendErrorEmbed(event, "Not a valid URL: " + args[1]);
             return;
         }

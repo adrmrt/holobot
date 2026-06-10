@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
@@ -55,7 +56,7 @@ public class PlayCmd extends AbstractMusicCommand {
 
         String link = args[0].replace("<", "").replace(">", "");
 
-        if (!isValidUrl(link)) {
+        if (!ParsingUtils.isValidUrl(link)) {
             builder.setTitle("Invalid Link");
             builder.setDescription("Please provide a valid link!");
             sendEmbed(e, builder, false, 15, TimeUnit.SECONDS);

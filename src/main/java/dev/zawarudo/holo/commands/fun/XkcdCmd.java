@@ -8,6 +8,7 @@ import dev.zawarudo.holo.modules.xkcd.XkcdAPI;
 import dev.zawarudo.holo.modules.xkcd.XkcdComic;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.Formatter;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
@@ -74,7 +75,7 @@ public class XkcdCmd extends AbstractCommand {
         }
 
         // Fetch comic by issue number
-        if (isInteger(args[0])) {
+        if (ParsingUtils.isInteger(args[0])) {
             sendComicByIssueNumber(event);
             return;
         }
