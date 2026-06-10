@@ -34,7 +34,7 @@ public class DeleteCmd extends AbstractCommand implements ExecutableCommand {
         if (ctx.argCount() != 1) {
             builder.setTitle("Incorrect Usage");
             builder.setDescription("Please only provide the id of the message you want to delete!");
-            sendToOwner(builder);
+            ctx.notifyOwner(builder);
             return;
         }
 
@@ -44,12 +44,12 @@ public class DeleteCmd extends AbstractCommand implements ExecutableCommand {
         } catch (NumberFormatException ex) {
             builder.setTitle("Error");
             builder.setDescription("Please provide the id of the message you want to delete!");
-            sendToOwner(builder);
+            ctx.notifyOwner(builder);
             return;
         }
 
         ctx.channel().retrieveMessageById(id).complete().delete().queue(v -> {
-        }, err -> {
+        }, _ -> {
         });
     }
 }

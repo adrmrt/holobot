@@ -63,14 +63,14 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
             );
         } catch (SQLException ex) {
             logger.error("Failed to blacklist userId={}", userId, ex);
-            sendErrorToOwner("Database error while blacklisting user.");
+            sendErrorToOwner(ctx, "Database error while blacklisting user.");
             return;
         }
 
         User cached = ctx.jda().getUserById(userId);
         String who = formatUser(cached, userId);
 
-        sendToOwner(embed()
+        ctx.notifyOwner(embed()
             .setTitle("User successfully blacklisted")
             .setDescription("**User:** " + who + "\n**Reason:** " + reason));
     }
@@ -91,14 +91,14 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
             blacklistService.unblacklist(userId);
         } catch (SQLException ex) {
             logger.error("Failed to unblacklist userId={}", userId, ex);
-            sendErrorToOwner("Database error while removing user from blacklist.");
+            sendErrorToOwner(ctx, "Database error while removing user from blacklist.");
             return;
         }
 
         User cached = ctx.jda().getUserById(userId);
         String who = formatUser(cached, userId);
 
-        sendToOwner(embed()
+        ctx.notifyOwner(embed()
             .setTitle("User removed from blacklist")
             .setDescription("**User:** " + who));
     }
@@ -134,15 +134,15 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
 
     private void sendUsage(CommandContext ctx, String message) {
         String p = ctx.prefix().orElse("");
-        sendToOwner(embed()
+        ctx.notifyOwner(embed()
             .setTitle("Incorrect Usage")
             .setDescription(message + "\n\n" +
                 "Add: `" + p + "blacklist <userId|@mention> [reason...]`\n" +
                 "Remove: `" + p + "blacklist remove <userId|@mention>`"));
     }
 
-    private void sendErrorToOwner(String message) {
-        sendToOwner(embed()
+    private void sendErrorToOwner(CommandContext ctx, String message) {
+        ctx.notifyOwner(embed()
             .setTitle("Error")
             .setDescription(message));
     }

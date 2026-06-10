@@ -27,6 +27,6 @@ public class CancelCmd extends AbstractCommand implements ExecutableCommand {
         builder.setTitle("Success");
         builder.setDescription("Cancelled all requests");
         builder.setTimestamp(Instant.now());
-        sendToOwner(builder);
+        ctx.notifyOwner(builder);
     }
 }

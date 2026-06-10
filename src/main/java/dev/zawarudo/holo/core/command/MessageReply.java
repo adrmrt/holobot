@@ -43,8 +43,8 @@ public final class MessageReply implements CommandContext.Reply {
     @Override
     public void embed(@NotNull MessageEmbed embed, int duration, TimeUnit unit) {
         replyTo.replyEmbeds(embed).queue(sent ->
-            sent.delete().queueAfter(duration, unit, __ -> {
-            }, __ -> {
+            sent.delete().queueAfter(duration, unit, _ -> {
+            }, _ -> {
             })
         );
     }
@@ -53,7 +53,7 @@ public final class MessageReply implements CommandContext.Reply {
     public void embedAndDeleteInvoke(@NotNull CommandContext ctx, @NotNull MessageEmbed embed, int duration, TimeUnit unit) {
         embed(embed, duration, unit);
         ctx.message().ifPresent(msg ->
-            msg.delete().queueAfter(duration, unit, null, ignored -> {
+            msg.delete().queueAfter(duration, unit, null, _ -> {
             }));
     }
 
