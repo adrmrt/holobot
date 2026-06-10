@@ -9,6 +9,7 @@ import dev.zawarudo.holo.utils.DateTimeUtils;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -94,7 +95,7 @@ public class PaletteCmd extends AbstractCommand implements ExecutableCommand {
         List<Color> colors = convertToIntColorList(array);
 
         int[] dominantColor = ColorThief.getColor(image);
-        Color dominant = convertToIntColorList(dominantColor).get(0);
+        Color dominant = convertToIntColorList(dominantColor).getFirst();
 
         return new ColorResult(dominant, colors);
     }
@@ -121,7 +122,7 @@ public class PaletteCmd extends AbstractCommand implements ExecutableCommand {
     }
 
     private int parseColorCount(CommandContext ctx) {
-        if (ctx.hasArgs() && isInteger(ctx.args().getFirst())) {
+        if (ctx.hasArgs() && ParsingUtils.isInteger(ctx.args().getFirst())) {
             int count = Math.max(2, Integer.parseInt(ctx.args().getFirst()));
             return Math.min(count, 20);
         }

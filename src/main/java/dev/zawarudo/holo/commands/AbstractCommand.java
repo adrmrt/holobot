@@ -7,14 +7,12 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -170,60 +168,6 @@ public abstract class AbstractCommand {
         }
         String footerText = String.format("Invoked by %s", event.getMember().getEffectiveName());
         builder.setFooter(footerText, event.getAuthor().getAvatarUrl());
-    }
-
-    /**
-     * Checks whether a String is an integer.
-     *
-     * @param s The String to check.
-     * @return True if the String is an integer, false otherwise.
-     */
-    @Deprecated(forRemoval = true)
-    protected boolean isInteger(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException _) {
-            return false;
-        }
-    }
-
-    /**
-     * Parses a positive integer from the given string.
-     *
-     * @param raw The string to parse
-     * @return The parsed integer if it is {@code >= 1}, or {@code -1} if parsing fails or the value is less than 1
-     */
-    @Deprecated(forRemoval = true)
-    protected int parseInt(String raw) {
-        try {
-            int n = Integer.parseInt(raw);
-            return (n >= 1) ? n : -1;
-        } catch (NumberFormatException _) {
-            return -1;
-        }
-    }
-
-    /**
-     * Checks whether a String is a boolean.
-     *
-     * @param s The String to check.
-     * @return True if the String is a boolean, false otherwise.
-     */
-    @Deprecated(forRemoval = true)
-    protected boolean isBoolean(String s) {
-        return "true".equals(s.toLowerCase(Locale.UK)) || "false".equals(s.toLowerCase(Locale.UK));
-    }
-
-    /**
-     * Checks whether a given URL is valid.
-     *
-     * @param url The URL to check.
-     * @return True if the URL is valid, false otherwise.
-     */
-    @Deprecated(forRemoval = true)
-    protected boolean isValidUrl(String url) {
-        return new UrlValidator().isValid(url);
     }
 
     /**

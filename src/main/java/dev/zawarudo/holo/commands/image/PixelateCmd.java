@@ -6,6 +6,7 @@ import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.entities.Message;
@@ -48,7 +49,7 @@ public class PixelateCmd extends AbstractCommand implements ExecutableCommand {
 
         int intensity = 1;
 
-        if (ctx.hasArgs() && isInteger(ctx.args().getFirst())) {
+        if (ctx.hasArgs() && ParsingUtils.isInteger(ctx.args().getFirst())) {
             intensity = Integer.parseInt(ctx.args().getFirst());
             if (intensity < 1 || intensity > 250) {
                 ctx.reply().errorEmbed("Intensity should be an integer between 1 and 250!");
