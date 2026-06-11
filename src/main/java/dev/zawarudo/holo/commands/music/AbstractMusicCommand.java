@@ -69,16 +69,26 @@ public abstract class AbstractMusicCommand extends AbstractCommand {
      * Checks if the user and the bot are in the same voice channel
      */
     protected boolean isUserInSameAudioChannel(MessageReceivedEvent e) {
-        if (e.getMember() == null || !isUserInAudioChannel(e.getMember()) || !isBotInAudioChannel(e.getGuild())) {
+        if (e.getMember() == null) {
+            return false;
+        }
+        return isUserInSameAudioChannel(e.getMember(), e.getGuild());
+    }
+
+    /**
+     * Checks if the user and the bot are in the same voice channel
+     */
+    protected boolean isUserInSameAudioChannel(Member member, Guild guild) {
+        if (!isUserInAudioChannel(member) || !isBotInAudioChannel(guild)) {
             return false;
         }
 
         // Check voice states
-        AudioChannel botChannel = getConnectedChannel(e.getGuild());
+        AudioChannel botChannel = getConnectedChannel(guild);
         if (botChannel == null) {
             return false;
         }
-        AudioChannel userChannel = getMemberVoiceState(e.getMember()).getChannel();
+        AudioChannel userChannel = getMemberVoiceState(member).getChannel();
         return botChannel.equals(userChannel);
     }
 }

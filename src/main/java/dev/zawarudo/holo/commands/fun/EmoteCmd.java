@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -135,18 +134,18 @@ public class EmoteCmd extends AbstractCommand implements ExecutableCommand {
     /**
      * Sends an emote as webhook message.
      */
-    public void sendEmoteMessage(MessageReceivedEvent event, CustomEmoji emote) {
-        if (event.getMember() == null) {
+    public void sendEmoteMessage(CommandContext ctx, CustomEmoji emote) {
+        if (ctx.member().isEmpty()) {
             return;
         }
 
-        deleteInvoke(event);
+        ctx.invocation().deleteInvokeIfPossible();
 
         try {
-            Webhook webhook = getWebhook(event.getChannel().asTextChannel(), event.getMember());
+            Webhook webhook = getWebhook(ctx.channel().asTextChannel(), ctx.member().orElseThrow());
             webhook.sendMessage(emote.getImageUrl()).queue(m -> webhook.delete().queue());
         } catch (IOException e) {
-            event.getChannel().sendMessage(e.getMessage()).queue();
+            ctx.channel().sendMessage(e.getMessage()).queue();
         }
     }
 

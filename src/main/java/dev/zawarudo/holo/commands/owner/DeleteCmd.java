@@ -41,7 +41,7 @@ public class DeleteCmd extends AbstractCommand implements ExecutableCommand {
         long id;
         try {
             id = Long.parseLong(ctx.args().getFirst());
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException _) {
             builder.setTitle("Error");
             builder.setDescription("Please provide the id of the message you want to delete!");
             ctx.notifyOwner(builder);

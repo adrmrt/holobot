@@ -41,7 +41,7 @@ public class AoCStatsCmd extends AbstractCommand implements ExecutableCommand {
         BufferedImage image;
         try {
             image = graph.generateImage();
-        } catch (APIException ex) {
+        } catch (APIException _) {
             ctx.reply().errorEmbed("Something went wrong while fetching the AOC data. Please try again later.");
             return;
         }
@@ -70,7 +70,7 @@ public class AoCStatsCmd extends AbstractCommand implements ExecutableCommand {
             try {
                 int parsedYear = Integer.parseInt(ctx.args().getFirst());
                 return (parsedYear >= 2015 && parsedYear <= currentYear) ? parsedYear : currentYear;
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException _) {
                 // Fall through to default year logic
             }
         }

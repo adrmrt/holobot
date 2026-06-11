@@ -138,7 +138,7 @@ public final class AniListMappers {
         try {
             String s = el.getAsString();
             return (s == null || s.isBlank()) ? null : s;
-        } catch (UnsupportedOperationException ignored) {
+        } catch (UnsupportedOperationException _) {
             return null;
         }
     }
@@ -147,7 +147,7 @@ public final class AniListMappers {
         if (el == null || el.isJsonNull()) return fallback;
         try {
             return el.getAsInt();
-        } catch (UnsupportedOperationException | NumberFormatException ignored) {
+        } catch (UnsupportedOperationException | NumberFormatException _) {
             return fallback;
         }
     }
@@ -211,7 +211,7 @@ public final class AniListMappers {
             }
 
             return season + " " + year;
-        } catch (UnsupportedOperationException | NumberFormatException e) {
+        } catch (UnsupportedOperationException | NumberFormatException _) {
             return null;
         }
     }
@@ -257,7 +257,7 @@ public final class AniListMappers {
                 if (!genre.isBlank()) {
                     genres.add(genre);
                 }
-            } catch (UnsupportedOperationException ignored) {
+            } catch (UnsupportedOperationException _) {
                 // skip invalid entries
             }
         }

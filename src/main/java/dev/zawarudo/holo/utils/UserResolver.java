@@ -25,7 +25,7 @@ public final class UserResolver {
             try {
                 long id = Long.parseLong(userId);
                 return Optional.ofNullable(ctx.jda().getUserById(id));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException _) {
             }
         }
         return Optional.of(ctx.user());
@@ -39,7 +39,7 @@ public final class UserResolver {
         return ctx.guild().flatMap(guild -> {
             try {
                 return Optional.of(guild.retrieveMember(user).complete());
-            } catch (ErrorResponseException ex) {
+            } catch (ErrorResponseException _) {
                 return Optional.empty();
             }
         });

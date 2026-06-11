@@ -95,17 +95,16 @@ public class CommandListener extends ListenerAdapter {
                 MDC.clear();
             }
 
-            String[] directedArgs = (split.size() > 1)
-                ? split.subList(1, split.size()).toArray(new String[0])
-                : new String[0];
+            List<String> directedArgs = (split.size() > 1) ? split.subList(1, split.size()) : List.of();
 
-            actionCmd.displayAction(event, actionCmd.getAction(invoke), directedArgs);
+            CommandContext ctx = ctxFactory.createForMessage(event, actionCmd.getName(), invoke, directedArgs, prefix);
+            actionCmd.displayAction(ctx, actionCmd.getAction(invoke), ctx.args());
             return;
         }
 
         // No valid command
         if (!cmdManager.isValidName(invoke)) {
-            checkEmoteInvoke(event, invoke);
+            checkEmoteInvoke(event, invoke, prefix);
             return;
         }
 
@@ -130,9 +129,19 @@ public class CommandListener extends ListenerAdapter {
             }
         }
 
-        var decision = permManager.check(event, cmd);
+        List<String> argList = (split.size() > 1) ? split.subList(1, split.size()) : List.of();
+
+        CommandContext ctx = ctxFactory.createForMessage(
+            event,
+            cmd.getName(),
+            invoke,
+            argList,
+            prefix
+        );
+
+        var decision = permManager.check(ctx, cmd);
         if (!decision.allowed()) {
-            permManager.respondDenied(event, decision);
+            permManager.respondDenied(ctx, decision);
             return;
         }
 
@@ -145,24 +154,9 @@ public class CommandListener extends ListenerAdapter {
             MDC.clear();
         }
 
-        List<String> argList = (split.size() > 1) ? split.subList(1, split.size()) : List.of();
-
-        CommandContext ctx = ctxFactory.createForMessage(
-            event,
-            cmd.getName(),
-            invoke,
-            argList,
-            prefix
-        );
-
         executorService.submit(withMdc(mdc, () -> {
             try {
-                if (cmd instanceof ExecutableCommand cc) {
-                    cc.execute(ctx);
-                } else {
-                    cmd.args = argList.toArray(new String[0]);
-                    cmd.onCommand(event);
-                }
+                ((ExecutableCommand) cmd).execute(ctx);
             } catch (InsufficientPermissionException ex) {
                 handlePermissionError(event, ex);
             } catch (Exception ex) {
@@ -240,7 +234,7 @@ public class CommandListener extends ListenerAdapter {
                 event.getAuthor().getName(), event.getAuthor().getId())));
     }
 
-    private void checkEmoteInvoke(MessageReceivedEvent event, String invoke) {
+    private void checkEmoteInvoke(MessageReceivedEvent event, String invoke, String prefix) {
         try {
             // Only guild channels support webhooks
             if (!event.isFromGuild()) {
@@ -260,7 +254,8 @@ public class CommandListener extends ListenerAdapter {
                 CustomEmoji emote = emoteOptional.get();
                 LOGGER.info("{} has called emote ({})", event.getAuthor().getName(), invoke);
                 EmoteCmd cmd = (EmoteCmd) cmdManager.getCommand("emote");
-                cmd.sendEmoteMessage(event, emote);
+                CommandContext ctx = ctxFactory.createForMessage(event, cmd.getName(), invoke, List.of(), prefix);
+                cmd.sendEmoteMessage(ctx, emote);
             }
         } catch (SQLException e) {
             event.getChannel().sendMessage(e.getMessage()).queue();

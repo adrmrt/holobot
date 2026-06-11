@@ -1,15 +1,17 @@
 package dev.zawarudo.holo.commands.general;
 
+import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.commands.CommandModule;
 import dev.zawarudo.holo.commands.ModuleRegistry;
-import dev.zawarudo.holo.utils.Formatter;
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
 import dev.zawarudo.holo.core.GuildConfig;
 import dev.zawarudo.holo.core.GuildConfigManager;
-import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.Formatter;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -23,7 +25,7 @@ import java.util.concurrent.TimeUnit;
     description = "See and change the configuration of the bot for this guild.",
     ownerOnly = true,
     category = CommandCategory.GENERAL)
-public class ConfigCmd extends AbstractCommand {
+public class ConfigCmd extends AbstractCommand implements ExecutableCommand {
 
     private final GuildConfigManager configManager;
     private final ModuleRegistry moduleRegistry;
@@ -34,40 +36,41 @@ public class ConfigCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        GuildConfig cfg = configManager.getOrCreate(event.getGuild());
+        GuildConfig cfg = configManager.getOrCreate(ctx.guild().orElseThrow());
 
-        if (args.length == 0) {
-            showCurrentConfig(event, cfg);
+        if (!ctx.hasArgs()) {
+            showCurrentConfig(ctx, cfg);
             return;
         }
 
-        String config = args[0].toLowerCase(Locale.ROOT);
+        String config = ctx.args().getFirst().toLowerCase(Locale.ROOT);
 
         switch (config) {
             case "prefix" -> {
-                if (args.length == 1) showPrefixInfo(event, cfg);
-                else changePrefix(event, cfg);
+                if (ctx.argCount() == 1) showPrefixInfo(ctx, cfg);
+                else changePrefix(ctx, cfg);
             }
             case "nsfw" -> {
-                if (args.length == 1) showNSFWInfo(event, cfg);
-                else changeNSFW(event, cfg);
+                if (ctx.argCount() == 1) showNSFWInfo(ctx, cfg);
+                else changeNSFW(ctx, cfg);
             }
-            case "modules" -> showModules(event, cfg);
-            case "module" -> showModule(event, cfg);
-            case "reset" -> resetConfiguration(event);
-            default -> showUnknownConfigurationEmbed(event);
+            case "modules" -> showModules(ctx, cfg);
+            case "module" -> showModule(ctx, cfg);
+            case "reset" -> resetConfiguration(ctx);
+            default -> showUnknownConfigurationEmbed(ctx, cfg);
         }
     }
 
-    private void showCurrentConfig(MessageReceivedEvent event, GuildConfig cfg) {
+    private void showCurrentConfig(CommandContext ctx, GuildConfig cfg) {
         String prefix = cfg.getPrefix();
+        Guild guild = ctx.guild().orElseThrow();
 
         EmbedBuilder builder = new EmbedBuilder()
-            .setTitle(String.format("Bot Configuration for %s", event.getGuild().getName()))
-            .setThumbnail(event.getGuild().getIconUrl())
+            .setTitle(String.format("Bot Configuration for %s", guild.getName()))
+            .setThumbnail(guild.getIconUrl())
             .setDescription(
                 "Here you can see all my configurations for this server.\n" +
                     "To see a specific configuration and how to change it, run:\n" +
@@ -77,14 +80,16 @@ public class ConfigCmd extends AbstractCommand {
             .addField("NSFW", Formatter.asCodeBlock(cfg.isNSFWEnabled() ? "Enabled" : "Disabled"), true)
             .addField("Modules", Formatter.asCodeBlock(prefix + "config modules"), false);
 
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 5, TimeUnit.MINUTES);
     }
 
-    private void showPrefixInfo(MessageReceivedEvent event, GuildConfig cfg) {
+    private void showPrefixInfo(CommandContext ctx, GuildConfig cfg) {
         String prefix = cfg.getPrefix();
+        Guild guild = ctx.guild().orElseThrow();
 
         EmbedBuilder builder = new EmbedBuilder()
-            .setTitle(String.format("Bot Prefix for %s", event.getGuild().getName()))
+            .setTitle(String.format("Bot Prefix for %s", guild.getName()))
             .setDescription(
                 "The prefix is needed to run commands.\n" +
                     "To change my prefix, run:\n" +
@@ -92,26 +97,29 @@ public class ConfigCmd extends AbstractCommand {
             )
             .addField("Current Prefix", Formatter.asCodeBlock(prefix), false);
 
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 5, TimeUnit.MINUTES);
     }
 
-    private void changePrefix(MessageReceivedEvent event, GuildConfig cfg) {
-        String newPrefix = args[1];
+    private void changePrefix(CommandContext ctx, GuildConfig cfg) {
+        String newPrefix = ctx.args().get(1);
         cfg.setPrefix(newPrefix);
 
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Prefix Changed")
             .addField("New Prefix", Formatter.asCodeBlock(newPrefix), false);
 
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
-        saveChanges(event, cfg);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
+        saveChanges(ctx, cfg);
     }
 
-    private void showNSFWInfo(MessageReceivedEvent event, GuildConfig cfg) {
+    private void showNSFWInfo(CommandContext ctx, GuildConfig cfg) {
         String prefix = cfg.getPrefix();
+        Guild guild = ctx.guild().orElseThrow();
 
         EmbedBuilder builder = new EmbedBuilder()
-            .setTitle(String.format("NSFW Configuration for %s", event.getGuild().getName()))
+            .setTitle(String.format("NSFW Configuration for %s", guild.getName()))
             .setDescription(
                 "This configuration determines if commands that might be considered NSFW are allowed.\n" +
                     "If enabled, NSFW commands can only be used in channels marked as 18+.\n" +
@@ -121,22 +129,24 @@ public class ConfigCmd extends AbstractCommand {
             )
             .addField("Status", Formatter.asCodeBlock(cfg.isNSFWEnabled() ? "Enabled" : "Disabled"), false);
 
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 5, TimeUnit.MINUTES);
     }
 
-    private void changeNSFW(MessageReceivedEvent event, GuildConfig cfg) {
-        boolean nsfw = Boolean.parseBoolean(args[1]);
+    private void changeNSFW(CommandContext ctx, GuildConfig cfg) {
+        boolean nsfw = Boolean.parseBoolean(ctx.args().get(1));
         cfg.setAllowNSFW(nsfw);
 
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("NSFW Config Changed")
             .setDescription("NSFW commands are now **" + (nsfw ? "enabled" : "disabled") + "**.");
 
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
-        saveChanges(event, cfg);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
+        saveChanges(ctx, cfg);
     }
 
-    private void showModules(MessageReceivedEvent event, GuildConfig cfg) {
+    private void showModules(CommandContext ctx, GuildConfig cfg) {
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Command Modules")
             .setDescription(
@@ -157,22 +167,24 @@ public class ConfigCmd extends AbstractCommand {
             builder.addField("No modules", "No modules registered.", false);
         }
 
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 5, TimeUnit.MINUTES);
     }
 
-    private void showModule(MessageReceivedEvent event, GuildConfig cfg) {
+    private void showModule(CommandContext ctx, GuildConfig cfg) {
         String prefix = cfg.getPrefix();
 
-        if (args.length < 2) {
+        if (ctx.argCount() < 2) {
             EmbedBuilder builder = new EmbedBuilder()
                 .setTitle("Missing module id")
                 .setDescription("Usage:\n" + Formatter.asCodeBlock(prefix + "config module <moduleId>"));
 
-            sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+            addFooter(ctx, builder);
+            ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
             return;
         }
 
-        String rawId = args[1].toLowerCase(Locale.ROOT);
+        String rawId = ctx.args().get(1).toLowerCase(Locale.ROOT);
 
         CommandModule.ModuleId moduleId = CommandModule.ModuleId.fromId(rawId).orElse(null);
         if (moduleId == null) {
@@ -184,7 +196,8 @@ public class ConfigCmd extends AbstractCommand {
                         Formatter.asCodeBlock(prefix + "config modules")
                 );
 
-            sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+            addFooter(ctx, builder);
+            ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
             return;
         }
 
@@ -194,7 +207,8 @@ public class ConfigCmd extends AbstractCommand {
                 .setTitle("Module not registered")
                 .setDescription("Module `" + moduleId.id() + "` is known but not registered.");
 
-            sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+            addFooter(ctx, builder);
+            ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
             return;
         }
 
@@ -210,11 +224,12 @@ public class ConfigCmd extends AbstractCommand {
                 false
             );
 
-        sendEmbed(event, builder, true, 5, TimeUnit.MINUTES);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 5, TimeUnit.MINUTES);
     }
 
-    private void resetConfiguration(MessageReceivedEvent event) {
-        GuildConfig newCfg = configManager.resetConfigurationForGuild(event.getGuild());
+    private void resetConfiguration(CommandContext ctx) {
+        GuildConfig newCfg = configManager.resetConfigurationForGuild(ctx.guild().orElseThrow());
 
         String prefix = newCfg.getPrefix();
 
@@ -223,27 +238,37 @@ public class ConfigCmd extends AbstractCommand {
             .setDescription("My configuration for this server has been reset to the default settings.")
             .addField("Prefix", Formatter.asCodeBlock(prefix), false);
 
-        sendEmbed(event, builder, true, 30, TimeUnit.SECONDS);
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 30, TimeUnit.SECONDS);
 
-        saveChanges(event, newCfg);
+        saveChanges(ctx, newCfg);
     }
 
-    private void showUnknownConfigurationEmbed(MessageReceivedEvent event) {
+    private void showUnknownConfigurationEmbed(CommandContext ctx, GuildConfig cfg) {
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Unknown Configuration")
             .setDescription(String.format("I don't know a configuration with the name `%s`. To see a " +
-                "list of configurations, use the following command:```%sconfig```", args[0], getPrefix(event)));
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+                "list of configurations, use the following command:```%sconfig```", ctx.args().getFirst(), cfg.getPrefix()));
+
+        addFooter(ctx, builder);
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Adds the standard "Invoked by" footer to the embed if the command was invoked by a guild member.
+     */
+    private void addFooter(CommandContext ctx, EmbedBuilder builder) {
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
     }
 
     /**
      * Saves the new configuration in the database.
      */
-    private void saveChanges(MessageReceivedEvent event, GuildConfig config) {
+    private void saveChanges(CommandContext ctx, GuildConfig config) {
         try {
             configManager.persist(config);
         } catch (SQLException ex) {
-            sendErrorEmbed(event, "Something went wrong while updating your configuration in the " +
+            ctx.reply().errorEmbed("Something went wrong while updating your configuration in the " +
                 "database. We will try to fix this ASAP.");
             logger.error("Something went wrong while storing the updated config in the database.", ex);
         }

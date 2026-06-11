@@ -61,7 +61,7 @@ public class UrbanDictionaryCmd extends AbstractCommand implements ExecutableCom
 
             paginator.start(ctx.message().orElseThrow(), ctx.user(), entries);
 
-        } catch (IOException e) {
+        } catch (IOException _) {
             ctx.reply().errorEmbed("Something went wrong while searching your term. Please try again at a later time.");
         }
     }

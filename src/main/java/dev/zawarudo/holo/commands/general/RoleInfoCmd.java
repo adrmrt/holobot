@@ -142,7 +142,7 @@ public class RoleInfoCmd extends AbstractCommand implements ExecutableCommand {
         try {
             long v = Long.parseLong(digits);
             return (v > 0) ? Optional.of(v) : Optional.empty();
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
             return Optional.empty();
         }
     }

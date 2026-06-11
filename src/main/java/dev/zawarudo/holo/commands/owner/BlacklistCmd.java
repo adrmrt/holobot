@@ -116,7 +116,7 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
 
         try {
             return Long.parseLong(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return null;
         }
     }

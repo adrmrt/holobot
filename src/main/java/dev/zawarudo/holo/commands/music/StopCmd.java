@@ -1,11 +1,12 @@
 package dev.zawarudo.holo.commands.music;
 
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -14,26 +15,24 @@ import java.util.concurrent.TimeUnit;
     description = "Stops the current song and clears the queue.",
     ownerOnly = true,
     category = CommandCategory.MUSIC)
-public class StopCmd extends AbstractMusicCommand {
+public class StopCmd extends AbstractMusicCommand implements ExecutableCommand {
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        EmbedBuilder builder = new EmbedBuilder();
-        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(ctx.guild().orElseThrow());
 
         if (musicManager.scheduler.audioPlayer.getPlayingTrack() == null && musicManager.scheduler.queue.isEmpty()) {
-            builder.setTitle("Error");
-            builder.setDescription("I'm currently idle!");
-            sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
+            ctx.reply().errorEmbed("I'm currently idle!");
             return;
         }
 
         musicManager.clear();
 
+        EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Success");
         builder.setDescription("Stopped current track and cleared queue!");
-        sendEmbed(event, builder, false, 15, TimeUnit.SECONDS);
+        ctx.reply().embed(builder.build(), 15, TimeUnit.SECONDS);
     }
 }

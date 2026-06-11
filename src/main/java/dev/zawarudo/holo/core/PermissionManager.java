@@ -1,17 +1,12 @@
 package dev.zawarudo.holo.core;
 
 import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.security.BlacklistService;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Handles the permissions and checks if a user is allowed to use a command.
@@ -19,37 +14,35 @@ import java.util.concurrent.TimeUnit;
 public class PermissionManager {
 
     private final BlacklistService blacklist;
-    private final GuildConfigManager guildConfigManager;
 
-    public PermissionManager(BlacklistService blacklist, GuildConfigManager guildConfigManager) {
+    public PermissionManager(BlacklistService blacklist) {
         this.blacklist = blacklist;
-        this.guildConfigManager = guildConfigManager;
     }
 
-    public Decision check(@NotNull MessageReceivedEvent event, @NotNull AbstractCommand command) {
-        long userId = event.getAuthor().getIdLong();
+    public Decision check(@NotNull CommandContext ctx, @NotNull AbstractCommand command) {
+        long userId = ctx.user().getIdLong();
 
         // Check if user has been blacklisted
         if (blacklist.isBlacklisted(userId)) {
             return Decision.deny(Decision.DenyReason.BLACKLISTED, null);
         }
 
-        Decision user = checkUserPermission(event, command);
+        Decision user = checkUserPermission(ctx, command);
         if (!user.allowed()) return user;
 
-        return checkChannelPermission(event, command);
+        return checkChannelPermission(ctx, command);
     }
 
-    private Decision checkUserPermission(MessageReceivedEvent event, AbstractCommand command) {
+    private Decision checkUserPermission(CommandContext ctx, AbstractCommand command) {
         if (command.isOwnerOnly()) {
-            return command.isBotOwner(event.getAuthor())
+            return ctx.isBotOwner()
                 ? Decision.allow()
                 : Decision.deny(Decision.DenyReason.OWNER_ONLY, null);
         }
 
         if (command.isAdminOnly()) {
             // Bot owner can bypass admin requirement
-            return command.isGuildAdmin(event) || command.isBotOwner(event.getAuthor())
+            return ctx.isGuildAdmin() || ctx.isBotOwner()
                 ? Decision.allow()
                 : Decision.deny(Decision.DenyReason.ADMIN_ONLY, null);
         }
@@ -57,17 +50,16 @@ public class PermissionManager {
         return Decision.allow();
     }
 
-    private Decision checkChannelPermission(MessageReceivedEvent event, AbstractCommand command) {
-        if (command.isGuildOnly() && !event.isFromGuild()) {
+    private Decision checkChannelPermission(CommandContext ctx, AbstractCommand command) {
+        if (command.isGuildOnly() && !ctx.inGuild()) {
             return Decision.deny(Decision.DenyReason.GUILD_ONLY, "This command can only be used in a server.");
         }
 
-        if (!command.isNSFW() || !event.isFromGuild()) {
+        if (!command.isNSFW() || !ctx.inGuild()) {
             return Decision.allow();
         }
 
-        Guild guild = event.getGuild();
-        GuildConfig config = guildConfigManager.getOrCreate(guild);
+        GuildConfig config = ctx.guildConfig().orElseThrow();
 
         if (!config.isNSFWEnabled()) {
             return Decision.deny(
@@ -76,7 +68,7 @@ public class PermissionManager {
             );
         }
 
-        if (!isChannelNSFW(event.getChannel())) {
+        if (!isChannelNSFW(ctx.channel())) {
             return Decision.deny(
                 Decision.DenyReason.NSFW_CHANNEL_REQUIRED,
                 "You can't use NSFW commands outside NSFW channels.\nPlease move to a NSFW channel to use this command."
@@ -95,23 +87,13 @@ public class PermissionManager {
         return channel instanceof IAgeRestrictedChannel c && c.isNSFW();
     }
 
-    public void respondDenied(@NotNull MessageReceivedEvent event, @NotNull Decision decision) {
+    public void respondDenied(@NotNull CommandContext ctx, @NotNull Decision decision) {
         if (decision.message() == null || decision.message().isBlank()) {
             return; // silent denies (blacklist/admin/owner)
         }
 
-        if (event.isFromGuild()) {
-            event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
-        }
-
-        EmbedBuilder builder = new EmbedBuilder()
-            .setTitle("Error")
-            .setDescription(decision.message())
-            .setColor(Color.RED);
-
-        event.getChannel()
-            .sendMessageEmbeds(builder.build())
-            .queue(msg -> msg.delete().queueAfter(30, TimeUnit.SECONDS));
+        ctx.invocation().deleteInvokeIfPossible();
+        ctx.reply().errorEmbed(decision.message());
     }
 
     public record Decision(boolean allowed, DenyReason reason, String message) {

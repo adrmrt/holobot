@@ -56,9 +56,9 @@ public class SpawnCmd extends AbstractCommand implements ExecutableCommand {
 
             pokemonSpawnManager.deleteMessage(channelId);
             pokemonSpawnManager.spawnNewPokemon(channelId, pokemon);
-        } catch (APIException ex) {
+        } catch (APIException _) {
             sendOwnerError(ctx, "PokéAPI error right now. Try again later.");
-        } catch (NotFoundException | InvalidIdException ex) {
+        } catch (NotFoundException | InvalidIdException _) {
             sendOwnerError(ctx, "Pokémon not found. Check typos / ID.");
         }
     }

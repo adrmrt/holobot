@@ -43,7 +43,7 @@ public class BugCmd extends AbstractCommand implements ExecutableCommand {
         try {
             Submission submission = new Submission("Bug", ctx, String.join(" ", ctx.args()));
             url = githubClient.createIssue(submission);
-        } catch (IOException ex) {
+        } catch (IOException _) {
             eb.setTitle("Error");
             eb.setDescription("An error occurred while creating a GitHub ticket! Please try again later.");
             ctx.channel().sendMessageEmbeds(eb.build()).queue(msg -> msg.delete().queueAfter(30, TimeUnit.SECONDS, null, ignored -> {
