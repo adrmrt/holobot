@@ -57,7 +57,7 @@ public class UpscaleCmd extends AbstractCommand implements ExecutableCommand {
         String imageUrl;
         try {
             imageUrl = process(url.get());
-        } catch (IOException ex) {
+        } catch (IOException _) {
             ctx.reply().errorEmbed("Something went wrong while processing your image! Please make sure it's an image and try again.");
             return;
         }

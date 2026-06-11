@@ -91,7 +91,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());
         }
     }
@@ -136,7 +136,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while storing your countdown.").queue());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             ctx.message().ifPresent(m -> m.reply("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.").queue());
         }
     }
@@ -160,7 +160,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
         } catch (SQLException e) {
             logger.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());
         }
     }

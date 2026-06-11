@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Url {
     @SerializedName("url")
-    String url;
+    String urlString;
 
     public String getUrl() {
-        return url;
+        return urlString;
     }
 }

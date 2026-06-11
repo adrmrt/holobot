@@ -68,7 +68,7 @@ public class CheckNSFWCmd extends AbstractCommand implements ExecutableCommand {
 
         try {
             obj = getEvaluation(imageUrl.get());
-        } catch (IOException ex) {
+        } catch (IOException _) {
             ctx.reply().errorEmbed("Something went wrong while communicating with the API");
             return;
         }
@@ -112,7 +112,7 @@ public class CheckNSFWCmd extends AbstractCommand implements ExecutableCommand {
                     // Display box information
                     String reason = detection.get("name").getAsString();
                     double confidence = detection.get("confidence").getAsDouble();
-                    String s = String.format("**Reason:** %s\n**Confidence:** %s", reason, confidence);
+                    String s = String.format("**Reason:** %s%n**Confidence:** %s", reason, confidence);
                     builder.addField("Box " + (i + 1), s, false);
                 }
 
@@ -123,7 +123,7 @@ public class CheckNSFWCmd extends AbstractCommand implements ExecutableCommand {
                     ctx.channel().sendFiles(FileUpload.fromData(input, "check.png")).setEmbeds(builder.build()).queue();
                 }
                 input.close();
-            } catch (IOException ex) {
+            } catch (IOException _) {
                 ctx.reply().errorEmbed("Something went wrong while processing and evaluating your image. Please try again in a few minutes!");
             }
         }

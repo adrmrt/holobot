@@ -3,12 +3,13 @@ package dev.zawarudo.holo.commands.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -21,32 +22,33 @@ import java.util.concurrent.TimeUnit;
     usage = "[history]",
     alias = {"q"},
     category = CommandCategory.MUSIC)
-public class QueueCmd extends AbstractMusicCommand {
+public class QueueCmd extends AbstractMusicCommand implements ExecutableCommand {
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        deleteInvoke(event);
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-        if (args.length >= 1 && args[0].equals("history")) {
-            displayHistory(event);
+        if (ctx.hasArgs() && "history".equals(ctx.args().getFirst())) {
+            displayHistory(ctx);
         } else {
-            displayQueue(event);
+            displayQueue(ctx);
         }
     }
 
     /**
      * Display current queue.
      */
-    private void displayQueue(MessageReceivedEvent event) {
-        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+    private void displayQueue(CommandContext ctx) {
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(ctx.guild().orElseThrow());
         BlockingQueue<AudioTrack> queue = musicManager.scheduler.queue;
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Queue");
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
 
         if (queue.isEmpty()) {
             builder.setDescription("My queue is empty!");
-            sendEmbed(event, builder, true, 30, TimeUnit.SECONDS);
+            ctx.reply().embed(builder.build(), 30, TimeUnit.SECONDS);
             return;
         }
 
@@ -75,22 +77,23 @@ public class QueueCmd extends AbstractMusicCommand {
         builder.setDescription(sb.toString());
         builder.addField("Total Duration", Formatter.formatTrackTime(duration), false);
 
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
     }
 
     /**
      * Display the last 10 tracks.
      */
-    private void displayHistory(MessageReceivedEvent event) {
-        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+    private void displayHistory(CommandContext ctx) {
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(ctx.guild().orElseThrow());
         BlockingQueue<AudioTrack> history = musicManager.scheduler.history;
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Queue History");
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
 
         if (history == null || history.isEmpty()) {
             builder.setDescription("I didn't play any tracks recently!");
-            sendEmbed(event, builder, true, 30, TimeUnit.SECONDS);
+            ctx.reply().embed(builder.build(), 30, TimeUnit.SECONDS);
             return;
         }
 
@@ -106,6 +109,6 @@ public class QueueCmd extends AbstractMusicCommand {
         }
 
         builder.setDescription(sb.toString());
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES);
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
     }
 }

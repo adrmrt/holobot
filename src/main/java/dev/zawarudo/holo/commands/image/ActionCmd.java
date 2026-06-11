@@ -5,21 +5,23 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.core.misc.EmbedColor;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.HoloHttp;
+import dev.zawarudo.holo.utils.ParsingUtils;
+import dev.zawarudo.holo.utils.Reader;
 import dev.zawarudo.holo.utils.TypeTokenUtils;
 import dev.zawarudo.holo.utils.Writer;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
-import dev.zawarudo.holo.commands.CommandCategory;
-import dev.zawarudo.holo.core.misc.EmbedColor;
-import dev.zawarudo.holo.utils.ParsingUtils;
-import dev.zawarudo.holo.utils.Reader;
 import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
 import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -39,7 +41,7 @@ import java.util.stream.Collectors;
     example = "blush",
     embedColor = EmbedColor.LIGHT_GRAY,
     category = CommandCategory.IMAGE)
-public class ActionCmd extends AbstractCommand {
+public class ActionCmd extends AbstractCommand implements ExecutableCommand {
 
     private static final String PERSISTED_PATH = "./data/actions.json";
     private static final String RESOURCE_PATH = "data/actions.json";
@@ -57,111 +59,113 @@ public class ActionCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
+    public void execute(@NotNull CommandContext ctx) {
         // Show a list of available actions
-        if (args.length == 0 || args[0].equals("list")) {
-            showList(event);
+        if (!ctx.hasArgs() || "list".equals(ctx.args().getFirst())) {
+            showList(ctx);
             return;
         }
 
-        String sub = args[0].toLowerCase(Locale.ROOT);
+        String sub = ctx.args().getFirst().toLowerCase(Locale.ROOT);
+        List<String> rest = ctx.args().subList(1, ctx.args().size());
 
         // Create new action
-        if ("create".equals(sub) && isBotOwner(event.getAuthor())) {
-            String[] rest = slice(args, 1);
-            createNewAction(event, rest);
+        if ("create".equals(sub) && ctx.isBotOwner()) {
+            createNewAction(ctx, rest);
             return;
         }
 
         // Add image or API to action
-        if ("add".equals(sub) && isBotOwner(event.getAuthor())) {
-            String[] rest = slice(args, 1);
-            addImageToAction(event, rest);
+        if ("add".equals(sub) && ctx.isBotOwner()) {
+            addImageToAction(ctx, rest);
             return;
         }
 
         // Call specific action
         if (isAction(sub)) {
-            Action action = actions.get(sub);
-            String[] directed = slice(args, 1);
-            displayAction(event, action, directed);
+            displayAction(ctx, actions.get(sub), rest);
             return;
         }
 
         // Unknown action
-        sendErrorEmbed(event, "Couldn't find this action. Use `" + getPrefix(event) + "action list` to see all available actions.");
+        ctx.reply().errorEmbed("Couldn't find this action. Use `" + ctx.prefix().orElse("") + "action list` to see all available actions.");
     }
 
-    private void showList(MessageReceivedEvent event) {
-        deleteInvoke(event);
+    private void showList(CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
+
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("List of Actions")
-            .setDescription(getActionsAsString());
-        sendEmbed(event, builder, true, 1, TimeUnit.MINUTES, getEmbedColor());
+            .setDescription(getActionsAsString())
+            .setColor(getEmbedColor());
+
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
+
+        ctx.reply().embed(builder.build(), 1, TimeUnit.MINUTES);
     }
 
-    private void createNewAction(MessageReceivedEvent event, String[] restArgs) {
+    private void createNewAction(CommandContext ctx, List<String> restArgs) {
         // E.g. <action create <name> <is_api> <text>
-        if (restArgs.length < 3) {
-            sendErrorEmbed(event, "Insufficient argument: Expected `<name> <is_api> <sentence>`");
+        if (restArgs.size() < 3) {
+            ctx.reply().errorEmbed("Insufficient argument: Expected `<name> <is_api> <sentence>`");
             return;
         }
 
-        String name = restArgs[0];
-        boolean isApi = ParsingUtils.isBoolean(restArgs[1]) && Boolean.parseBoolean(restArgs[1]);
-        int start = ParsingUtils.isBoolean(restArgs[1]) ? 2 : 1;
-        String sentence = String.join(" ", Arrays.copyOfRange(restArgs, start, restArgs.length));
+        String name = restArgs.get(0);
+        boolean isApi = ParsingUtils.isBoolean(restArgs.get(1)) && Boolean.parseBoolean(restArgs.get(1));
+        int start = ParsingUtils.isBoolean(restArgs.get(1)) ? 2 : 1;
+        String sentence = String.join(" ", restArgs.subList(start, restArgs.size()));
 
         if (isAction(name)) {
-            sendErrorEmbed(event, "This action already exists!");
+            ctx.reply().errorEmbed("This action already exists!");
             return;
         }
 
         if (!sentence.contains("{s}")) {
-            sendErrorEmbed(event, "Sentence needs a subject (`{s}`)!");
+            ctx.reply().errorEmbed("Sentence needs a subject (`{s}`)!");
             return;
         }
 
-        deleteInvoke(event);
+        ctx.invocation().deleteInvokeIfPossible();
         actions.put(name, new Action(name, sentence, isApi));
 
         try {
             writeActionsToFile();
-            event.getChannel().sendMessage(String.format("Successfully created action: `%s`", name)).queue();
+            ctx.channel().sendMessage(String.format("Successfully created action: `%s`", name)).queue();
         } catch (IOException e) {
-            sendErrorEmbed(event, "Something went wrong while storing the updated actions: " + e.getMessage());
+            ctx.reply().errorEmbed("Something went wrong while storing the updated actions: " + e.getMessage());
             logger.error("Something went wrong while storing the new action.", e);
         }
     }
 
-    private void addImageToAction(MessageReceivedEvent event, String[] restArgs) {
+    private void addImageToAction(CommandContext ctx, List<String> restArgs) {
         // E.g. <action add <name> <url>
-        if (restArgs.length < 2) {
-            sendErrorEmbed(event, "Insufficient arguments: Expected `<name> <url>`");
+        if (restArgs.size() < 2) {
+            ctx.reply().errorEmbed("Insufficient arguments: Expected `<name> <url>`");
             return;
         }
 
-        String name = restArgs[0];
-        String url = restArgs[1];
+        String name = restArgs.get(0);
+        String url = restArgs.get(1);
 
         if (!isAction(name)) {
-            sendErrorEmbed(event, "Not a valid action: " + args[0]);
+            ctx.reply().errorEmbed("Not a valid action: " + name);
             return;
         }
 
         if (!ParsingUtils.isValidUrl(url)) {
-            sendErrorEmbed(event, "Not a valid URL: " + args[1]);
+            ctx.reply().errorEmbed("Not a valid URL: " + url);
             return;
         }
 
-        deleteInvoke(event);
+        ctx.invocation().deleteInvokeIfPossible();
         getAction(name).addNewUrl(url);
 
         try {
             writeActionsToFile();
-            event.getChannel().sendMessage(String.format("Added new link to action: `%s`", name)).queue();
+            ctx.channel().sendMessage(String.format("Added new link to action: `%s`", name)).queue();
         } catch (IOException e) {
-            sendErrorEmbed(event, "Something went wrong while storing the updated actions: " + e.getMessage());
+            ctx.reply().errorEmbed("Something went wrong while storing the updated actions: " + e.getMessage());
             logger.error("Something went wrong while storing the action with the new url.", e);
         }
     }
@@ -169,25 +173,23 @@ public class ActionCmd extends AbstractCommand {
     /**
      * Displays the action GIF or image in an embed and sends it.
      */
-    public void displayAction(MessageReceivedEvent event, Action action, String[] directedArgs) {
-        if (event.getMember() == null) {
-            return;
-        }
+    public void displayAction(CommandContext ctx, Action action, List<String> directedArgs) {
+        Member member = ctx.member().orElseThrow();
 
-        deleteInvoke(event);
+        ctx.invocation().deleteInvokeIfPossible();
 
         Optional<String> result = fetchActionUrl(action);
         if (result.isEmpty()) {
-            sendErrorEmbed(event, "Something went wrong while fetching an image. Please try again later.");
+            ctx.reply().errorEmbed("Something went wrong while fetching an image. Please try again later.");
             return;
         }
 
-        String mention = determineMention(event, directedArgs);
+        String mention = determineMention(ctx, directedArgs);
         String title = action.getSentence()
-            .replace("{s}", event.getMember().getEffectiveName())
+            .replace("{s}", member.getEffectiveName())
             .replace("{u}", mention);
 
-        sendActionEmbed(event, result.get(), title);
+        sendActionEmbed(ctx, result.get(), title);
     }
 
     private Optional<String> fetchActionUrl(Action action) {
@@ -208,30 +210,33 @@ public class ActionCmd extends AbstractCommand {
         }
     }
 
-    private String determineMention(MessageReceivedEvent event, String[] directedArgs) {
-        Message repliedTo = event.getMessage().getReferencedMessage();
+    private String determineMention(CommandContext ctx, List<String> directedArgs) {
+        Message repliedTo = ctx.message().orElseThrow().getReferencedMessage();
         if (repliedTo != null) {
             return "you";
         }
 
-        if (directedArgs.length != 0) {
-            return event.getMessage().getMentions().getMembers().isEmpty() ?
+        if (!directedArgs.isEmpty()) {
+            List<Member> mentioned = ctx.invocation().mentionedMembers();
+            return mentioned.isEmpty() ?
                 String.join(" ", directedArgs) :
-                event.getMessage().getMentions().getMembers().getFirst().getEffectiveName();
+                mentioned.getFirst().getEffectiveName();
         }
 
         return "nothing";
     }
 
-    private void sendActionEmbed(MessageReceivedEvent event, String url, String title) {
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setImage(url).setTitle(title);
+    private void sendActionEmbed(CommandContext ctx, String url, String title) {
+        EmbedBuilder builder = new EmbedBuilder()
+            .setImage(url)
+            .setTitle(title)
+            .setColor(getEmbedColor());
 
-        Message repliedTo = event.getMessage().getReferencedMessage();
+        Message repliedTo = ctx.message().orElseThrow().getReferencedMessage();
         if (repliedTo != null) {
-            sendReplyEmbed(repliedTo, builder, getEmbedColor());
+            repliedTo.replyEmbeds(builder.build()).queue();
         } else {
-            sendEmbed(event, builder, false, getEmbedColor());
+            ctx.channel().sendMessageEmbeds(builder.build()).queue();
         }
     }
 
@@ -353,10 +358,5 @@ public class ActionCmd extends AbstractCommand {
         public boolean equals(Object obj) {
             return obj instanceof Action action && name.equals(action.name);
         }
-    }
-
-    private static String[] slice(String[] a, int from) {
-        if (a == null || from >= a.length) return new String[0];
-        return Arrays.copyOfRange(a, from, a.length);
     }
 }

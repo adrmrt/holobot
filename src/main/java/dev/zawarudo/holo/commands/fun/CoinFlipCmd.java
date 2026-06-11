@@ -63,7 +63,7 @@ public class CoinFlipCmd extends AbstractCommand implements ExecutableCommand {
         try {
             int n = Integer.parseInt(raw);
             return (n >= 1) ? n : -1;
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
             return -1;
         }
     }

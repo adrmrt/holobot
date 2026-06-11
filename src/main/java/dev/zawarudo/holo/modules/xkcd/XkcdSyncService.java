@@ -165,7 +165,7 @@ public class XkcdSyncService {
                     lastError = "DB error at issue " + i + ": " + ex.getMessage();
                     LOGGER.error("XKCD sync failed at issue {} (DB).", i, ex);
                     break;
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException _) {
                     // stopRequested or external interrupt
                     Thread.currentThread().interrupt();
                     if (!stopRequested) {

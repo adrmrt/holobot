@@ -86,7 +86,7 @@ public class Character implements Comparable<Character> {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Character && ((Character) o).id == id;
+        return o instanceof Character character && character.id == id;
     }
 
     @Override

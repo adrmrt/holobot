@@ -137,7 +137,7 @@ public class Holo extends ListenerAdapter {
         guildConfigManager = new GuildConfigManager(guildConfigDao);
         pokemonSpawnManager = new PokemonSpawnManager(jda);
         akinatorSessionManager = new AkinatorSessionManager();
-        permissionManager = new PermissionManager(blacklistService, guildConfigManager);
+        permissionManager = new PermissionManager(blacklistService);
 
         imageResolver = new ImageResolver();
         userResolver = new UserResolver();

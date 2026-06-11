@@ -70,7 +70,7 @@ public class EchoCmd extends AbstractCommand implements ExecutableCommand {
     private static Integer tryParseInt(String s) {
         try {
             return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return null;
         }
     }
