@@ -4,6 +4,8 @@ import dev.zawarudo.holo.modules.anime.jikan.JikanApiClient;
 import dev.zawarudo.holo.modules.anime.jikan.model.Anime;
 import dev.zawarudo.holo.modules.anime.jikan.model.Season;
 import dev.zawarudo.holo.utils.exceptions.APIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
  *
  */
 public final class SeasonPlan {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SeasonPlan.class);
 
     private SeasonPlan() {
         throw new UnsupportedOperationException("Not implemented!");
@@ -26,10 +30,9 @@ public final class SeasonPlan {
         for (Anime anime : seasonalAnime) {
             anime.changeBroadcastTimeZone("Europe/Zurich");
 
-            System.out.println(anime.getTitle());
+            LOGGER.info(anime.getTitle());
 
-            System.out.println(anime.getBroadcast().getDay());
-            System.out.println(anime.getBroadcast().getTime());
+            LOGGER.info("{} {}", anime.getBroadcast().getDay(), anime.getBroadcast().getTime());
         }
 
         throw new UnsupportedOperationException("Not yet implemented!");

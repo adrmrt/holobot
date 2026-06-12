@@ -57,7 +57,7 @@ public class CatchCmd implements CommandMetadata, ExecutableCommand {
         PokemonSpecies species;
         try {
             species = pokemon.getPokemonSpecies();
-        } catch (IOException | APIException ex) {
+        } catch (APIException ex) {
             ctx.reply().errorEmbed("API error. Please try again later");
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("There has been an API error.", ex);
