@@ -41,7 +41,7 @@ public final class PokeApiClient {
         try {
             JsonObject obj = fetchJsonOrThrow(url);
             return GSON.fromJson(obj, PokemonSpecies.class);
-        } catch (NotFoundException | InvalidRequestException ex) {
+        } catch (NotFoundException | InvalidRequestException _) {
             throw new InvalidIdException("Invalid Pokédex id: " + id);
         }
     }
@@ -57,7 +57,7 @@ public final class PokeApiClient {
         try {
             JsonObject obj = fetchJsonOrThrow(url);
             return GSON.fromJson(obj, PokemonSpecies.class);
-        } catch (NotFoundException | InvalidRequestException ex) {
+        } catch (NotFoundException | InvalidRequestException _) {
             throw new NotFoundException("Invalid Pokémon species: " + name);
         }
     }
@@ -73,7 +73,7 @@ public final class PokeApiClient {
         try {
             JsonObject obj = fetchJsonOrThrow(url);
             return GSON.fromJson(obj, Pokemon.class);
-        } catch (NotFoundException | InvalidRequestException ex) {
+        } catch (NotFoundException | InvalidRequestException _) {
             throw new InvalidIdException("Invalid Pokédex id: " + id);
         }
     }
@@ -102,7 +102,7 @@ public final class PokeApiClient {
         try {
             JsonObject obj = fetchJsonOrThrow(url);
             return GSON.fromJson(obj, PokemonType.class);
-        } catch (NotFoundException | InvalidRequestException ex) {
+        } catch (NotFoundException | InvalidRequestException _) {
             throw new IllegalArgumentException("Invalid Pokémon type id: " + typeId);
         }
     }
@@ -115,7 +115,7 @@ public final class PokeApiClient {
         try {
             JsonObject obj = fetchJsonOrThrow(url);
             return GSON.fromJson(obj, PokemonType.class);
-        } catch (NotFoundException | InvalidRequestException ex) {
+        } catch (NotFoundException | InvalidRequestException _) {
             throw new IllegalArgumentException("Invalid Pokémon type name: " + name);
         }
     }
@@ -132,7 +132,7 @@ public final class PokeApiClient {
             int id = nextRandomId();
             try {
                 return getPokemonSpecies(id);
-            } catch (InvalidIdException e) {
+            } catch (InvalidIdException _) {
                 // Gap/out-of-date count: try another id
             }
         }
@@ -152,7 +152,7 @@ public final class PokeApiClient {
             int id = nextRandomId();
             try {
                 return getPokemon(id);
-            } catch (InvalidIdException e) {
+            } catch (InvalidIdException _) {
                 // Gap/out-of-date count: try another id
             }
         }
@@ -174,7 +174,7 @@ public final class PokeApiClient {
     private static int nextRandomId() {
         try {
             return getRandomNumberFromRandomOrg();
-        } catch (Exception ignored) {
+        } catch (Exception _) {
             // fallback
             return 1 + java.util.concurrent.ThreadLocalRandom.current().nextInt(POKEMON_COUNT);
         }
@@ -210,7 +210,7 @@ public final class PokeApiClient {
                 Callable<Pokemon> task = () -> {
                     try {
                         return PokeApiClient.getPokemon(id);
-                    } catch (InvalidIdException ex) {
+                    } catch (InvalidIdException _) {
                         return null;
                     }
                 };

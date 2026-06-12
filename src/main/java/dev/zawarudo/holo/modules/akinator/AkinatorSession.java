@@ -252,7 +252,7 @@ public final class AkinatorSession {
                 Button.secondary(prefixed("done"), "Done").asDisabled()
             ))
             .setFiles(resource(rendered.attachmentName()))
-            .queue(null, ignored -> {
+            .queue(null, _ -> {
             });
     }
 

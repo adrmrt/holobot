@@ -112,7 +112,7 @@ public final class DateTimeUtils {
                     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
                     return zonedDateTime.toInstant().toEpochMilli();
                 }
-            } catch (DateTimeParseException ignored) {
+            } catch (DateTimeParseException _) {
             }
         }
 
@@ -121,13 +121,13 @@ public final class DateTimeUtils {
                 LocalDate localDate = LocalDate.parse(input, formatter);
                 ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
                 return zonedDateTime.toInstant().toEpochMilli();
-            } catch (DateTimeParseException ignored) {
+            } catch (DateTimeParseException _) {
             }
         }
 
         try {
             return Long.parseLong(input);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             throw new IllegalArgumentException("Unsupported date time format: " + input);
         }
     }

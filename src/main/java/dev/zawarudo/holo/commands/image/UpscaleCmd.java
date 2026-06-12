@@ -66,7 +66,7 @@ public class UpscaleCmd implements CommandMetadata, ExecutableCommand {
         embedBuilder.setTitle("Upscaled Image");
         embedBuilder.setImage(imageUrl);
         embedBuilder.setColor(getEmbedColor());
-        ctx.channel().sendMessageEmbeds(embedBuilder.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES, null, ignored -> {
+        ctx.channel().sendMessageEmbeds(embedBuilder.build()).queue(msg -> msg.delete().queueAfter(5, TimeUnit.MINUTES, null, _ -> {
         }));
     }
 

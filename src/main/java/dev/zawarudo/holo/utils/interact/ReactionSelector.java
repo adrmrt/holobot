@@ -160,7 +160,7 @@ public final class ReactionSelector<T> {
         }
 
         if (deleteOnSelect) {
-            msg.delete().queue(null, ignored -> {
+            msg.delete().queue(null, _ -> {
             });
         }
 
@@ -173,7 +173,7 @@ public final class ReactionSelector<T> {
             return;
         }
         if (deleteOnTimeout) {
-            msg.delete().queue(null, ignored -> {
+            msg.delete().queue(null, _ -> {
             });
         }
     }

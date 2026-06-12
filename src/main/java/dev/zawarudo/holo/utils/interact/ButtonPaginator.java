@@ -114,8 +114,8 @@ public final class ButtonPaginator<T> {
         // Immediate delete
         if (ID_EXIT.equals(id)) {
             evt.deferEdit().queue(
-                ignored -> msg.delete().queue(),
-                ignored -> msg.delete().queue()
+                _ -> msg.delete().queue(),
+                _ -> msg.delete().queue()
             );
             return;
         }
@@ -152,14 +152,14 @@ public final class ButtonPaginator<T> {
     private void onTimeout(@NotNull Message msg) {
         List<MessageEmbed> embeds = msg.getEmbeds();
         if (embeds.isEmpty()) {
-            msg.editMessageComponents().queue(null, ignored -> {
+            msg.editMessageComponents().queue(null, _ -> {
             });
             return;
         }
         // Remove footer with page info
         MessageEmbed stripped = new EmbedBuilder(embeds.getFirst()).setFooter(null).build();
         // Remove action row
-        msg.editMessageEmbeds(stripped).setComponents().queue(null, ignored -> {
+        msg.editMessageEmbeds(stripped).setComponents().queue(null, _ -> {
         });
     }
 

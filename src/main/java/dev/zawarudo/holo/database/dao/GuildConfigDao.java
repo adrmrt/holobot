@@ -90,7 +90,7 @@ public final class GuildConfigDao {
         if (s.equalsIgnoreCase("false")) return false;
         try {
             return Integer.parseInt(s) != 0;
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException _) {
         }
         return rs.getBoolean(col);
     }
