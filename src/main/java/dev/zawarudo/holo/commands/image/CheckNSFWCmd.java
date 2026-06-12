@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.image;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
         "as an additional argument.",
     usage = "[advanced | adv] [<image url>]",
     category = CommandCategory.IMAGE)
-public class CheckNSFWCmd extends AbstractCommand implements ExecutableCommand {
+public class CheckNSFWCmd implements CommandMetadata, ExecutableCommand {
 
     /**
      * The url of the NSFW Detector API.

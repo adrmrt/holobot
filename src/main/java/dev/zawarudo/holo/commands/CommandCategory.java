@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands;
 
 /**
- * Enum representing categories of {@link AbstractCommand}s.
+ * Enum representing categories of {@link CommandMetadata}s.
  */
 public enum CommandCategory {
     /**

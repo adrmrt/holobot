@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.fun;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ import java.util.Random;
     description = "Flips a coin. You can provide an additional argument as the number of times I should flip a coin with the limit being 1'000'000 coin flips at once.",
     usage = "[<times>]",
     category = CommandCategory.MISC)
-public class CoinFlipCmd extends AbstractCommand implements ExecutableCommand {
+public class CoinFlipCmd implements CommandMetadata, ExecutableCommand {
 
     private static final int MAX_COIN_FLIPS = 1_000_000;
     private static final Random RANDOM = new Random();

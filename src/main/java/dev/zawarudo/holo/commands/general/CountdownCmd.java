@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -12,6 +12,8 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -25,7 +27,9 @@ import java.util.Optional;
     alias = {"cd"},
     category = CommandCategory.MISC
 )
-public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
+public class CountdownCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CountdownCmd.class);
 
     private final CountdownDao countdownDao;
 
@@ -89,7 +93,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
                 ctx.message().ifPresent(m -> m.reply("You don't have a countdown with the given ID! Please check your list and try again.").queue());
             }
         } catch (SQLException e) {
-            logger.error("Something went wrong", e);
+            LOGGER.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
         } catch (NumberFormatException _) {
             ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());
@@ -112,7 +116,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
 
             ctx.message().ifPresent(m -> m.replyEmbeds(embedBuilder.build()).queue());
         } catch (SQLException e) {
-            logger.error("Something went wrong", e);
+            LOGGER.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while fetching your countdowns.").queue());
         }
     }
@@ -134,7 +138,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
 
             ctx.message().ifPresent(m -> m.replyEmbeds(embedBuilder.build()).queue());
         } catch (SQLException e) {
-            logger.error("Something went wrong", e);
+            LOGGER.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while storing your countdown.").queue());
         } catch (IllegalArgumentException _) {
             ctx.message().ifPresent(m -> m.reply("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.").queue());
@@ -158,7 +162,7 @@ public class CountdownCmd extends AbstractCommand implements ExecutableCommand {
                 ctx.message().ifPresent(m -> m.reply("You don't have a countdown with the given ID! Please check your list and try again.").queue());
             }
         } catch (SQLException e) {
-            logger.error("Something went wrong", e);
+            LOGGER.error("Something went wrong", e);
             ctx.message().ifPresent(m -> m.reply("Something went wrong while working with the database.").queue());
         } catch (NumberFormatException _) {
             ctx.message().ifPresent(m -> m.reply("Please enter a valid countdown ID!").queue());

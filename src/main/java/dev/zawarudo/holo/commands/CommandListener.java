@@ -108,7 +108,7 @@ public class CommandListener extends ListenerAdapter {
             return;
         }
 
-        AbstractCommand cmd = cmdManager.getCommand(invoke);
+        CommandMetadata cmd = cmdManager.getCommand(invoke);
 
         // Module disabled check (guild-only)
         if (event.isFromGuild()) {

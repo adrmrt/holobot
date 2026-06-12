@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
     embedColor = EmbedColor.INSPIRO,
     guildOnly = false,
     category = CommandCategory.IMAGE)
-public class InspiroCmd extends AbstractCommand implements ExecutableCommand {
+public class InspiroCmd implements CommandMetadata, ExecutableCommand {
 
     private static final String API_URL = "https://inspirobot.me/api?generate=true";
 

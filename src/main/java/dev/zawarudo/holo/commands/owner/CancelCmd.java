@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.owner;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.time.Instant;
     description = "Cancels all the ongoing requests.",
     ownerOnly = true,
     category = CommandCategory.OWNER)
-public class CancelCmd extends AbstractCommand implements ExecutableCommand {
+public class CancelCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

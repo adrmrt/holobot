@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.owner;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.entities.Activity;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
     usage = "[default | listening <message> | watching <message> | playing <message> | competing <message>]",
     ownerOnly = true,
     category = CommandCategory.OWNER)
-public class StatusCmd extends AbstractCommand implements ExecutableCommand {
+public class StatusCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.anime;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -18,6 +18,8 @@ import dev.zawarudo.holo.utils.interact.ReactionSelector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,7 +31,9 @@ import java.util.List;
     thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
     embedColor = EmbedColor.MAL,
     category = CommandCategory.ANIME)
-public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand {
+public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MangaSearchCmd.class);
 
     private final MediaSearchService searchService;
     private final ReactionSelector<MangaResult> selector;
@@ -81,7 +85,7 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
                 : searchService.searchManga(search, 10);
         } catch (APIException | InvalidRequestException ex) {
             ctx.reply().errorEmbed("An error occurred while trying to search for the manga! Please try again later.");
-            logger.error("Manga search failed: {}", search, ex);
+            LOGGER.error("Manga search failed: {}", search, ex);
             return;
         }
 

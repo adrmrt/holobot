@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
     example = "@Holo",
     alias = {"stalk"},
     category = CommandCategory.GENERAL)
-public class WhoisCmd extends AbstractCommand implements ExecutableCommand {
+public class WhoisCmd implements CommandMetadata, ExecutableCommand {
 
     private final UserResolver userResolver;
 

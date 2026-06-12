@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +31,8 @@ import java.util.concurrent.TimeUnit;
     alias = {"p"},
     category = CommandCategory.MUSIC)
 public class PlayCmd extends AbstractMusicCommand implements ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlayCmd.class);
 
     @Override
     public void execute(@NotNull CommandContext ctx) {
@@ -124,8 +128,8 @@ public class PlayCmd extends AbstractMusicCommand implements ExecutableCommand {
                 builder.setDescription("Something went wrong while loading the track! My owner has already been notified. Please try again later.");
                 EmbedUtils.sendTimed(channel, builder.build(), 1, TimeUnit.MINUTES);
 
-                if (logger.isErrorEnabled()) {
-                    logger.error("Load failed for track: {}", link, exception);
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error("Load failed for track: {}", link, exception);
                 }
             }
         };

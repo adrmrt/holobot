@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.owner;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,7 +15,7 @@ import java.util.List;
     alias = {"say", "repeat"},
     ownerOnly = true,
     category = CommandCategory.OWNER)
-public class EchoCmd extends AbstractCommand implements ExecutableCommand {
+public class EchoCmd implements CommandMetadata, ExecutableCommand {
 
     private static final int MIN_TIMES = 1;
     private static final int MAX_TIMES = 100;

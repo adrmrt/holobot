@@ -2,7 +2,7 @@ package dev.zawarudo.holo.commands.image;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -14,6 +14,8 @@ import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,7 +27,9 @@ import java.util.concurrent.TimeUnit;
     description = "Fetches an image of a dog.",
     usage = "[breeds | <breed> | random]",
     category = CommandCategory.IMAGE)
-public class DogCmd extends AbstractCommand implements ExecutableCommand {
+public class DogCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DogCmd.class);
 
     private static final String RESOURCE_PATH = "data/dog-breeds.json";
     private final String[] breeds;
@@ -69,8 +73,8 @@ public class DogCmd extends AbstractCommand implements ExecutableCommand {
             url = DogCeoClient.getRandomImage();
         } catch (APIException ex) {
             ctx.reply().errorEmbed("An error occurred while fetching the image from the API. Try again later!");
-            if (logger.isErrorEnabled()) {
-                logger.error("An error occurred while fetching the image from the API.", ex);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("An error occurred while fetching the image from the API.", ex);
             }
             return;
         }
@@ -101,8 +105,8 @@ public class DogCmd extends AbstractCommand implements ExecutableCommand {
             url = DogCeoClient.getRandomBreedImage(breed);
         } catch (APIException | InvalidRequestException ex) {
             ctx.reply().errorEmbed("An error occurred while fetching the image from the API. Try again later!");
-            if (logger.isErrorEnabled()) {
-                logger.error("An error occurred while fetching the image from the API.", ex);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("An error occurred while fetching the image from the API.", ex);
             }
             return;
         }

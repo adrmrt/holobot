@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.fun;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -17,6 +17,8 @@ import dev.zawarudo.holo.utils.interact.ButtonPaginator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +34,9 @@ import java.util.stream.Collectors;
     embedColor = EmbedColor.DICTIONARY,
     category = CommandCategory.MISC
 )
-public class DictionaryCmd extends AbstractCommand implements ExecutableCommand {
+public class DictionaryCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryCmd.class);
 
     private static final int DELETE_AFTER_MINUTES = 5;
 
@@ -66,7 +70,7 @@ public class DictionaryCmd extends AbstractCommand implements ExecutableCommand 
             result = client.lookupDictionary(term);
         } catch (APIException | InvalidRequestException | NotFoundException ex) {
             ctx.reply().errorEmbed("An error occurred while looking up that word. Please try again later.");
-            logger.error("Dictionary lookup failed: {}", term, ex);
+            LOGGER.error("Dictionary lookup failed: {}", term, ex);
             return;
         }
 

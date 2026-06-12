@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.owner;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -9,6 +9,8 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -21,7 +23,9 @@ import java.time.Instant;
     usage = "<user id|@mention> [reason...] | remove <user id|@mention>",
     ownerOnly = true,
     category = CommandCategory.OWNER)
-public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
+public class BlacklistCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistCmd.class);
 
     private final BlacklistService blacklistService;
 
@@ -62,7 +66,7 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
                 ctx.message().map(m -> m.getTimeCreated().toString()).orElse("")
             );
         } catch (SQLException ex) {
-            logger.error("Failed to blacklist userId={}", userId, ex);
+            LOGGER.error("Failed to blacklist userId={}", userId, ex);
             sendErrorToOwner(ctx, "Database error while blacklisting user.");
             return;
         }
@@ -90,7 +94,7 @@ public class BlacklistCmd extends AbstractCommand implements ExecutableCommand {
         try {
             blacklistService.unblacklist(userId);
         } catch (SQLException ex) {
-            logger.error("Failed to unblacklist userId={}", userId, ex);
+            LOGGER.error("Failed to unblacklist userId={}", userId, ex);
             sendErrorToOwner(ctx, "Database error while removing user from blacklist.");
             return;
         }

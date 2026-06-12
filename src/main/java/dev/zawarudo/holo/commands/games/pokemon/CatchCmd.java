@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.games.pokemon;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -30,7 +32,9 @@ import java.util.concurrent.TimeUnit;
     usage = "<Pokémon name>",
     embedColor = EmbedColor.POKEMON,
     category = CommandCategory.GAMES)
-public class CatchCmd extends AbstractCommand implements ExecutableCommand {
+public class CatchCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatchCmd.class);
 
     private final PokemonSpawnManager pokemonSpawnManager;
 
@@ -55,16 +59,16 @@ public class CatchCmd extends AbstractCommand implements ExecutableCommand {
             species = pokemon.getPokemonSpecies();
         } catch (IOException | APIException ex) {
             ctx.reply().errorEmbed("API error. Please try again later");
-            if (logger.isErrorEnabled()) {
-                logger.error("There has been an API error.", ex);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("There has been an API error.", ex);
             }
             return;
         } catch (NotFoundException ex) {
             ctx.reply().errorEmbed("There has been an internal error that wasn't supposed to " +
                 "happen. Please submit a bug report with the name of this Pokémon and the id of " +
                 "the channel where this happened.");
-            if (logger.isErrorEnabled()) {
-                logger.error("There has been an internal error. Check for possible bug report.", ex);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("There has been an internal error. Check for possible bug report.", ex);
             }
             return;
         }

@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -32,7 +34,9 @@ import java.util.stream.Collectors;
     category = CommandCategory.IMAGE,
     ownerOnly = true
 )
-public class FilterCmd extends AbstractCommand implements ExecutableCommand {
+public class FilterCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilterCmd.class);
 
     private final ImageResolver imageResolver;
 
@@ -104,7 +108,7 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
             BufferedImage img = readImage(url);
             if (img == null) {
                 ctx.reply().errorEmbed("I couldn't read the image. Please try a different format.");
-                logger.error("Image is null: {}", url);
+                LOGGER.error("Image is null: {}", url);
                 return;
             }
 
@@ -119,7 +123,7 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
             ctx.reply().errorEmbed(ex.getMessage());
         } catch (IOException ex) {
             ctx.reply().errorEmbed("Something went wrong while applying the filter.");
-            logger.error("Error applying filter {} on image: {}", filter.name(), url, ex);
+            LOGGER.error("Error applying filter {} on image: {}", filter.name(), url, ex);
         }
     }
 

@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -12,6 +12,8 @@ import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,7 +28,9 @@ import java.util.Optional;
     usage = "[<intensity>]",
     alias = {"pixel"},
     category = CommandCategory.IMAGE)
-public class PixelateCmd extends AbstractCommand implements ExecutableCommand {
+public class PixelateCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PixelateCmd.class);
 
     private final ImageResolver imageResolver;
 
@@ -61,7 +65,7 @@ public class PixelateCmd extends AbstractCommand implements ExecutableCommand {
             BufferedImage img = ImageIO.read(URI.create(url.get()).toURL());
             if (img == null) {
                 ctx.reply().errorEmbed("I couldn't read the image. Please check your image format or try a different image.");
-                logger.error("Image is null: {}", url);
+                LOGGER.error("Image is null: {}", url);
                 return;
             }
             BufferedImage result = pixelate(img, intensity);
@@ -69,7 +73,7 @@ public class PixelateCmd extends AbstractCommand implements ExecutableCommand {
             msg.replyFiles(FileUpload.fromData(input, "result.png")).queue();
         } catch (IOException ex) {
             ctx.reply().errorEmbed("Something went wrong while pixelating your image. Please try again later.");
-            logger.error("Something went wrong during the pixelation of the image: {}", url, ex);
+            LOGGER.error("Something went wrong during the pixelation of the image: {}", url, ex);
         }
     }
 

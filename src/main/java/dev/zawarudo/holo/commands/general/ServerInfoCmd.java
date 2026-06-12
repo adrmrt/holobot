@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @CommandInfo(name = "serverinfo",
     description = "Shows information about the server",
     category = CommandCategory.GENERAL)
-public class ServerInfoCmd extends AbstractCommand implements ExecutableCommand {
+public class ServerInfoCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

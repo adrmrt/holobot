@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.games.pokemon;
 import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -18,7 +18,7 @@ import java.util.List;
     usage = "[<Pokémon name or id> | random]",
     ownerOnly = true,
     category = CommandCategory.GAMES)
-public class SpawnCmd extends AbstractCommand implements ExecutableCommand {
+public class SpawnCmd implements CommandMetadata, ExecutableCommand {
 
     private final PokemonSpawnManager pokemonSpawnManager;
 

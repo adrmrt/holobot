@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.core;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.security.BlacklistService;
 import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel;
@@ -19,7 +19,7 @@ public class PermissionManager {
         this.blacklist = blacklist;
     }
 
-    public Decision check(@NotNull CommandContext ctx, @NotNull AbstractCommand command) {
+    public Decision check(@NotNull CommandContext ctx, @NotNull CommandMetadata command) {
         long userId = ctx.user().getIdLong();
 
         // Check if user has been blacklisted
@@ -33,7 +33,7 @@ public class PermissionManager {
         return checkChannelPermission(ctx, command);
     }
 
-    private Decision checkUserPermission(CommandContext ctx, AbstractCommand command) {
+    private Decision checkUserPermission(CommandContext ctx, CommandMetadata command) {
         if (command.isOwnerOnly()) {
             return ctx.isBotOwner()
                 ? Decision.allow()
@@ -50,7 +50,7 @@ public class PermissionManager {
         return Decision.allow();
     }
 
-    private Decision checkChannelPermission(CommandContext ctx, AbstractCommand command) {
+    private Decision checkChannelPermission(CommandContext ctx, CommandMetadata command) {
         if (command.isGuildOnly() && !ctx.inGuild()) {
             return Decision.deny(Decision.DenyReason.GUILD_ONLY, "This command can only be used in a server.");
         }

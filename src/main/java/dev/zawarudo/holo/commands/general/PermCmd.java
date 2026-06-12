@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @CommandInfo(name = "perm",
     description = "Shows my permissions in this channel",
     category = CommandCategory.GENERAL)
-public class PermCmd extends AbstractCommand implements ExecutableCommand {
+public class PermCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

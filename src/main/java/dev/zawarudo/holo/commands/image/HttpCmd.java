@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -18,7 +18,7 @@ import java.util.List;
     thumbnail = "https://http.cat/images/404.jpg",
     guildOnly = false
 )
-public class HttpCmd extends AbstractCommand implements ExecutableCommand {
+public class HttpCmd implements CommandMetadata, ExecutableCommand {
 
     private static final List<String> CODES = List.of(
         "100", "101", "102", "103",

@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.fun;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
     usage = "<emote_name>",
     example = "kekw",
     category = CommandCategory.IMAGE)
-public class EmoteCmd extends AbstractCommand implements ExecutableCommand {
+public class EmoteCmd implements CommandMetadata, ExecutableCommand {
 
     private final EmoteManager emoteManager;
 

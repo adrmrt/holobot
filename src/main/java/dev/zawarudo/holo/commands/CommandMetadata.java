@@ -3,23 +3,19 @@ package dev.zawarudo.holo.commands;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 
 /**
- * Abstract class representing a bot command.
+ * Provides metadata about a bot command, derived from its {@link CommandInfo} annotation.
  */
-public abstract class AbstractCommand {
-
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+public interface CommandMetadata {
 
     /**
      * Returns the name of the command.
      */
     @NotNull
-    public String getName() {
+    default String getName() {
         return getClass().getAnnotation(CommandInfo.class).name();
     }
 
@@ -27,7 +23,7 @@ public abstract class AbstractCommand {
      * Returns the description of the command.
      */
     @NotNull
-    public String getDescription() {
+    default String getDescription() {
         return getClass().getAnnotation(CommandInfo.class).description();
     }
 
@@ -35,7 +31,7 @@ public abstract class AbstractCommand {
      * Returns the usage of the command.
      */
     @Nullable
-    public String getUsage() {
+    default String getUsage() {
         String usage = getClass().getAnnotation(CommandInfo.class).usage();
         if (usage.isEmpty()) {
             return null;
@@ -46,7 +42,7 @@ public abstract class AbstractCommand {
     /**
      * Returns whether the command has a specific usage.
      */
-    public boolean hasUsage() {
+    default boolean hasUsage() {
         return getUsage() != null;
     }
 
@@ -54,7 +50,7 @@ public abstract class AbstractCommand {
      * Returns an example of the command.
      */
     @Nullable
-    public String getExample() {
+    default String getExample() {
         String example = getClass().getAnnotation(CommandInfo.class).example();
         if (example.isEmpty()) {
             return null;
@@ -65,7 +61,7 @@ public abstract class AbstractCommand {
     /**
      * Returns whether the command has an example.
      */
-    public boolean hasExample() {
+    default boolean hasExample() {
         return getExample() != null;
     }
 
@@ -73,14 +69,14 @@ public abstract class AbstractCommand {
      * Returns the aliases of the command.
      */
     @NotNull
-    public String[] getAlias() {
+    default String[] getAlias() {
         return getClass().getAnnotation(CommandInfo.class).alias();
     }
 
     /**
      * Returns whether the command has aliases.
      */
-    public boolean hasAlias() {
+    default boolean hasAlias() {
         return getAlias().length > 0;
     }
 
@@ -88,7 +84,7 @@ public abstract class AbstractCommand {
      * Returns the thumbnail of the command.
      */
     @Nullable
-    public String getThumbnail() {
+    default String getThumbnail() {
         String thumbnail = getClass().getAnnotation(CommandInfo.class).thumbnail();
         if (thumbnail.isEmpty()) {
             return null;
@@ -99,7 +95,7 @@ public abstract class AbstractCommand {
     /**
      * Returns whether the command has a thumbnail.
      */
-    public boolean hasThumbnail() {
+    default boolean hasThumbnail() {
         return getThumbnail() != null;
     }
 
@@ -107,7 +103,7 @@ public abstract class AbstractCommand {
      * Returns the embed color of the command.
      */
     @Nullable
-    public Color getEmbedColor() {
+    default Color getEmbedColor() {
         return getClass().getAnnotation(CommandInfo.class).embedColor().getColor();
     }
 
@@ -115,35 +111,35 @@ public abstract class AbstractCommand {
      * Returns the command category.
      */
     @NotNull
-    public CommandCategory getCategory() {
+    default CommandCategory getCategory() {
         return getClass().getAnnotation(CommandInfo.class).category();
     }
 
     /**
      * Checks whether this command can only be used in a guild.
      */
-    public boolean isGuildOnly() {
+    default boolean isGuildOnly() {
         return getClass().getAnnotation(CommandInfo.class).guildOnly();
     }
 
     /**
      * Checks whether this command can only be used by guild administrators.
      */
-    public boolean isAdminOnly() {
+    default boolean isAdminOnly() {
         return getClass().getAnnotation(CommandInfo.class).adminOnly();
     }
 
     /**
      * Checks whether this command can only be used by the bot owner.
      */
-    public boolean isOwnerOnly() {
+    default boolean isOwnerOnly() {
         return getClass().getAnnotation(CommandInfo.class).ownerOnly();
     }
 
     /**
      * Checks whether this command is NSFW (not safe for work).
      */
-    public boolean isNSFW() {
+    default boolean isNSFW() {
         return getClass().getAnnotation(CommandInfo.class).isNSFW();
     }
 }

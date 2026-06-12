@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.fun;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -17,6 +17,8 @@ import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -28,7 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     thumbnail = "https://xkcd.com/s/0b7742.png",
     embedColor = EmbedColor.WHITE,
     category = CommandCategory.MISC)
-public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
+public class XkcdCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XkcdCmd.class);
 
     private static final Random RANDOM = new Random();
 
@@ -101,7 +105,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
             XkcdComic comic = getComicDbFirst(issue).orElseThrow();
             sendXkcd(ctx, comic);
         } catch (APIException | InvalidRequestException | SQLException ex) {
-            logger.error("Failed to fetch/store random XKCD comic.", ex);
+            LOGGER.error("Failed to fetch/store random XKCD comic.", ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
@@ -113,10 +117,10 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
             sendXkcd(ctx, latest);
             xkcdDao.insertIgnore(latest);
         } catch (APIException ex) {
-            logger.error("Failed to fetch newest XKCD comic.", ex);
+            LOGGER.error("Failed to fetch newest XKCD comic.", ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
         } catch (SQLException ex) {
-            logger.warn("Failed to store latest XKCD comic.", ex);
+            LOGGER.warn("Failed to store latest XKCD comic.", ex);
         }
     }
 
@@ -165,7 +169,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
             );
 
         } catch (SQLException ex) {
-            logger.error("XKCD search failed. broadQuery='{}' phraseQuery='{}'", broadQuery, phraseQuery, ex);
+            LOGGER.error("XKCD search failed. broadQuery='{}' phraseQuery='{}'", broadQuery, phraseQuery, ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
@@ -209,7 +213,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
 
             sendXkcd(ctx, comic.get());
         } catch (APIException | InvalidRequestException | SQLException ex) {
-            logger.error("Failed to fetch/store XKCD comic #{}.", num, ex);
+            LOGGER.error("Failed to fetch/store XKCD comic #{}.", num, ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
@@ -226,7 +230,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
 
             return latest.getIssueNr();
         } catch (APIException | SQLException ex) {
-            logger.warn("Could not fetch/store latest XKCD issue.", ex);
+            LOGGER.warn("Could not fetch/store latest XKCD issue.", ex);
             return latestIssue.get();
         }
     }
@@ -258,7 +262,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
             }
             sendXkcd(ctx, comic.get());
         } catch (SQLException ex) {
-            logger.error("DB lookup by title failed: '{}'", title, ex);
+            LOGGER.error("DB lookup by title failed: '{}'", title, ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
@@ -326,7 +330,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
         try {
             dbCount = xkcdDao.countComics();
         } catch (SQLException ex) {
-            logger.error("Failed to count XKCD comics.", ex);
+            LOGGER.error("Failed to count XKCD comics.", ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
             return;
         }
@@ -353,11 +357,11 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
         try {
             started = xkcdSyncService.start(from, to);
         } catch (IllegalArgumentException ex) {
-            logger.error("Failed to start XKCD sync due to invalid range: {} -> {}", from, to, ex);
+            LOGGER.error("Failed to start XKCD sync due to invalid range: {} -> {}", from, to, ex);
             ctx.reply().errorEmbed("Failed to start sync (invalid range).");
             return;
         } catch (Exception ex) {
-            logger.error("Failed to start XKCD sync.", ex);
+            LOGGER.error("Failed to start XKCD sync.", ex);
             ctx.reply().errorEmbed(ERROR_RETRIEVING);
             return;
         }
@@ -383,7 +387,7 @@ public class XkcdCmd extends AbstractCommand implements ExecutableCommand {
         try {
             dbCount = xkcdDao.countComics();
         } catch (SQLException ex) {
-            logger.error("countComics failed", ex);
+            LOGGER.error("countComics failed", ex);
         }
 
         XkcdSyncService.SyncStatus s = xkcdSyncService.status(0, dbCount);

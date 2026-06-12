@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.games.pokemon;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
     alias = {"dex"},
     guildOnly = false,
     category = CommandCategory.GAMES)
-public class PokedexCmd extends AbstractCommand implements ExecutableCommand {
+public class PokedexCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

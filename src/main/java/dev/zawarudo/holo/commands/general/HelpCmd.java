@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.commands.CommandManager;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
     example = "ping",
     guildOnly = false,
     category = CommandCategory.GENERAL)
-public class HelpCmd extends AbstractCommand implements ExecutableCommand {
+public class HelpCmd implements CommandMetadata, ExecutableCommand {
 
     private final CommandManager manager;
 
@@ -81,14 +81,14 @@ public class HelpCmd extends AbstractCommand implements ExecutableCommand {
             );
 
         for (CommandCategory category : CommandCategory.values()) {
-            List<AbstractCommand> visible = getVisibleCommands(category, ctx);
+            List<CommandMetadata> visible = getVisibleCommands(category, ctx);
 
             if (visible.isEmpty()) {
                 continue;
             }
 
             String names = visible.stream()
-                .map(AbstractCommand::getName)
+                .map(CommandMetadata::getName)
                 .sorted(String::compareToIgnoreCase)
                 .collect(Collectors.joining(", "));
 
@@ -100,7 +100,7 @@ public class HelpCmd extends AbstractCommand implements ExecutableCommand {
         ctx.reply().embed(builder.build(), 2, TimeUnit.MINUTES);
     }
 
-    private List<AbstractCommand> getVisibleCommands(CommandCategory category, CommandContext ctx) {
+    private List<CommandMetadata> getVisibleCommands(CommandCategory category, CommandContext ctx) {
         if (!canSeeCategory(category, ctx)) {
             return List.of();
         }
@@ -133,7 +133,7 @@ public class HelpCmd extends AbstractCommand implements ExecutableCommand {
     /**
      * Sends the help page for a given command.
      */
-    private void sendHelpPageForCommand(CommandContext ctx, AbstractCommand cmd) {
+    private void sendHelpPageForCommand(CommandContext ctx, CommandMetadata cmd) {
         String prefix = ctx.prefix().orElse("");
 
         EmbedBuilder builder = new EmbedBuilder()

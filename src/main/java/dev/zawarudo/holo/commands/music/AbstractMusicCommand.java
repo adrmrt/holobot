@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public abstract class AbstractMusicCommand extends AbstractCommand {
+public abstract class AbstractMusicCommand implements CommandMetadata {
 
     /**
      * Returns the voice state of a member within a guild.

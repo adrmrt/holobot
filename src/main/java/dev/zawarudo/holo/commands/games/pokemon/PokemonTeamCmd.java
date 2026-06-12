@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.games.pokemon;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
     alias = {"poketeam"},
     guildOnly = false,
     category = CommandCategory.GAMES)
-public class PokemonTeamCmd extends AbstractCommand implements ExecutableCommand {
+public class PokemonTeamCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

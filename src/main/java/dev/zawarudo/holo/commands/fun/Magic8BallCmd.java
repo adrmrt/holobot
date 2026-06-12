@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.fun;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -21,7 +21,7 @@ import java.util.Random;
     thumbnail = "https://media.discordapp.net/attachments/778991087847079972/946790101109841990/magic8ball.png",
     guildOnly = false,
     category = CommandCategory.MISC)
-public class Magic8BallCmd extends AbstractCommand implements ExecutableCommand {
+public class Magic8BallCmd implements CommandMetadata, ExecutableCommand {
 
     private static final Random RANDOM = new Random();
     private final List<String> responses;
