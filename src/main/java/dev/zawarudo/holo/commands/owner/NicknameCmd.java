@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.owner;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
     alias = {"nick"},
     ownerOnly = true,
     category = CommandCategory.OWNER)
-public class NicknameCmd extends AbstractCommand implements ExecutableCommand {
+public class NicknameCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

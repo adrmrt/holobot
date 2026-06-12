@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
     description = "Shows information about me",
     alias = {"source", "bot", "sauce"},
     category = CommandCategory.GENERAL)
-public class BotInfoCmd extends AbstractCommand implements ExecutableCommand {
+public class BotInfoCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

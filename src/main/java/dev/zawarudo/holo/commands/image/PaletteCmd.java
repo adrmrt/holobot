@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.image;
 
 import de.androidpit.colorthief.ColorThief;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -33,7 +35,9 @@ import java.util.stream.Collectors;
     usage = "[<color count>] [<image url>]",
     thumbnail = "https://www.pinclipart.com/picdir/big/141-1416768_painting-clipart-paint-palette-art-emoji-png-transparent.png",
     category = CommandCategory.IMAGE)
-public class PaletteCmd extends AbstractCommand implements ExecutableCommand {
+public class PaletteCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaletteCmd.class);
 
     private static final int DEFAULT_COLOR_COUNT = 5;
     private static final String PALETTE_IMAGE_FORMAT = "palette_%s.png";
@@ -75,7 +79,7 @@ public class PaletteCmd extends AbstractCommand implements ExecutableCommand {
             BufferedImage paletteImage = createPaletteImage(result.representativeColors);
             imageStream = ImageOperations.toInputStream(paletteImage);
         } catch (IOException | URISyntaxException e) {
-            logger.error("Something went wrong while creating a color palette.", e);
+            LOGGER.error("Something went wrong while creating a color palette.", e);
             ctx.reply().errorEmbed("Something went wrong. Please try again later.");
             return;
         }

@@ -2,7 +2,7 @@ package dev.zawarudo.holo.commands.image;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
         "as an attachment or as a link to process it. Alternatively, you can reply to a message " +
         "with an image.",
     category = CommandCategory.IMAGE)
-public class UpscaleCmd extends AbstractCommand implements ExecutableCommand {
+public class UpscaleCmd implements CommandMetadata, ExecutableCommand {
 
     /**
      * The URL of the Waifu2x API.

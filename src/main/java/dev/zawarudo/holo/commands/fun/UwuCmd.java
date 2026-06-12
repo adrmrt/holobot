@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.fun;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.Random;
     description = "Uwuify a text of your choice. You can also reply to a message to uwuify it.",
     usage = "<text>",
     category = CommandCategory.MISC)
-public class UwuCmd extends AbstractCommand implements ExecutableCommand {
+public class UwuCmd implements CommandMetadata, ExecutableCommand {
 
     private static final Random rand = new Random();
 

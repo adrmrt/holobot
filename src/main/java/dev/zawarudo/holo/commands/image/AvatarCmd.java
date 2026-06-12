@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
     usage = "[<user id>]",
     alias = {"av", "pfp"},
     category = CommandCategory.IMAGE)
-public class AvatarCmd extends AbstractCommand implements ExecutableCommand {
+public class AvatarCmd implements CommandMetadata, ExecutableCommand {
 
     private final UserResolver userResolver;
 

@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.games;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -19,7 +19,7 @@ import org.jspecify.annotations.NonNull;
     category = CommandCategory.GAMES,
     embedColor = EmbedColor.AKINATOR
 )
-public class AkinatorCmd extends AbstractCommand implements ExecutableCommand {
+public class AkinatorCmd implements CommandMetadata, ExecutableCommand {
 
     private final EventWaiter waiter;
     private final AkinatorSessionManager sessions;

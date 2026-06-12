@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.command.CommandContext;
@@ -14,6 +14,8 @@ import dev.zawarudo.holo.utils.exceptions.APIException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -24,7 +26,9 @@ import java.time.ZonedDateTime;
 @CommandInfo(name = "aoc",
     description = "Displays the graph of Advent of Code",
     category = CommandCategory.IMAGE)
-public class AoCStatsCmd extends AbstractCommand implements ExecutableCommand {
+public class AoCStatsCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AoCStatsCmd.class);
 
     private static final int LEADERBOARD_ID = 1501119;
 
@@ -58,7 +62,7 @@ public class AoCStatsCmd extends AbstractCommand implements ExecutableCommand {
             ctx.channel().sendFiles(upload).setEmbeds(builder.build()).queue();
         } catch (IOException ex) {
             ctx.reply().errorEmbed("An error occurred while sending the image. Please try again later.");
-            logger.error("An error occurred while sending the AoC image.", ex);
+            LOGGER.error("An error occurred while sending the AoC image.", ex);
         }
     }
 

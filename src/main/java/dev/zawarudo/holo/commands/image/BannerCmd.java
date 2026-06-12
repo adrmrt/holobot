@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
     description = "Retrieves the current banner of this guild. Note that a guild " +
         "needs to be boosted to level 2 in order to have a banner.",
     category = CommandCategory.IMAGE)
-public class BannerCmd extends AbstractCommand implements ExecutableCommand {
+public class BannerCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

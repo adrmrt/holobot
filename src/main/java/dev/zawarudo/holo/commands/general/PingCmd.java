@@ -3,7 +3,7 @@ package dev.zawarudo.holo.commands.general;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
     description = "Shows the ping of the bot",
     alias = {"pong"},
     category = CommandCategory.GENERAL)
-public class PingCmd extends AbstractCommand implements ExecutableCommand {
+public class PingCmd implements CommandMetadata, ExecutableCommand {
 
     @Override
     public void execute(@NotNull CommandContext ctx) {

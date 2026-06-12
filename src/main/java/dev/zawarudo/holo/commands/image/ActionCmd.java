@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -23,6 +23,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -41,7 +43,9 @@ import java.util.stream.Collectors;
     example = "blush",
     embedColor = EmbedColor.LIGHT_GRAY,
     category = CommandCategory.IMAGE)
-public class ActionCmd extends AbstractCommand implements ExecutableCommand {
+public class ActionCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionCmd.class);
 
     private static final String PERSISTED_PATH = "./data/actions.json";
     private static final String RESOURCE_PATH = "data/actions.json";
@@ -134,7 +138,7 @@ public class ActionCmd extends AbstractCommand implements ExecutableCommand {
             ctx.channel().sendMessage(String.format("Successfully created action: `%s`", name)).queue();
         } catch (IOException e) {
             ctx.reply().errorEmbed("Something went wrong while storing the updated actions: " + e.getMessage());
-            logger.error("Something went wrong while storing the new action.", e);
+            LOGGER.error("Something went wrong while storing the new action.", e);
         }
     }
 
@@ -166,7 +170,7 @@ public class ActionCmd extends AbstractCommand implements ExecutableCommand {
             ctx.channel().sendMessage(String.format("Added new link to action: `%s`", name)).queue();
         } catch (IOException e) {
             ctx.reply().errorEmbed("Something went wrong while storing the updated actions: " + e.getMessage());
-            logger.error("Something went wrong while storing the action with the new url.", e);
+            LOGGER.error("Something went wrong while storing the action with the new url.", e);
         }
     }
 
@@ -202,10 +206,10 @@ public class ActionCmd extends AbstractCommand implements ExecutableCommand {
             String imageUrl = obj.getAsJsonArray("results").get(0).getAsJsonObject().get("url").getAsString();
             return (imageUrl == null || imageUrl.isBlank()) ? Optional.empty() : Optional.of(imageUrl);
         } catch (HttpStatusException ex) {
-            logger.warn("Action API HTTP error: status={} url={}", ex.getStatusCode(), url);
+            LOGGER.warn("Action API HTTP error: status={} url={}", ex.getStatusCode(), url);
             return Optional.empty();
         } catch (HttpTransportException ex) {
-            logger.warn("Action API transport error: url={}", url, ex);
+            LOGGER.warn("Action API transport error: url={}", url, ex);
             return Optional.empty();
         }
     }

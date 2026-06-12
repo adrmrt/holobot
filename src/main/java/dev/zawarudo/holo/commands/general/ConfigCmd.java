@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.general;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.commands.CommandModule;
 import dev.zawarudo.holo.commands.ModuleRegistry;
@@ -13,6 +13,8 @@ import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Locale;
@@ -25,7 +27,9 @@ import java.util.concurrent.TimeUnit;
     description = "See and change the configuration of the bot for this guild.",
     ownerOnly = true,
     category = CommandCategory.GENERAL)
-public class ConfigCmd extends AbstractCommand implements ExecutableCommand {
+public class ConfigCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCmd.class);
 
     private final GuildConfigManager configManager;
     private final ModuleRegistry moduleRegistry;
@@ -270,7 +274,7 @@ public class ConfigCmd extends AbstractCommand implements ExecutableCommand {
         } catch (SQLException ex) {
             ctx.reply().errorEmbed("Something went wrong while updating your configuration in the " +
                 "database. We will try to fix this ASAP.");
-            logger.error("Something went wrong while storing the updated config in the database.", ex);
+            LOGGER.error("Something went wrong while storing the updated config in the database.", ex);
         }
     }
 }

@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.fun;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
     thumbnail = "https://media.discordapp.net/attachments/804619918120452109/1132687110806192229/72d52e81ce2903194bc1e04ec73c922e.png",
     embedColor = EmbedColor.URBAN,
     category = CommandCategory.MISC)
-public class UrbanDictionaryCmd extends AbstractCommand implements ExecutableCommand {
+public class UrbanDictionaryCmd implements CommandMetadata, ExecutableCommand {
 
     private final UrbanDictionaryScraper scraper = new UrbanDictionaryScraper();
 

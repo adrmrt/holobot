@@ -37,8 +37,8 @@ public class CommandManager extends ListenerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
 
-    private final Map<String, AbstractCommand> commands = new LinkedHashMap<>();
-    private final Map<AbstractCommand, CommandModule.ModuleId> ownerModule = new IdentityHashMap<>();
+    private final Map<String, CommandMetadata> commands = new LinkedHashMap<>();
+    private final Map<CommandMetadata, CommandModule.ModuleId> ownerModule = new IdentityHashMap<>();
 
     public CommandManager(
         EventWaiter waiter,
@@ -138,11 +138,11 @@ public class CommandManager extends ListenerAdapter {
      *
      * @param cmd The command to register.
      */
-    public void addCommand(@NotNull AbstractCommand cmd) {
+    public void addCommand(@NotNull CommandMetadata cmd) {
         addCommand(cmd, null);
     }
 
-    public void addCommand(@NotNull AbstractCommand cmd, @Nullable CommandModule.ModuleId moduleId) {
+    public void addCommand(@NotNull CommandMetadata cmd, @Nullable CommandModule.ModuleId moduleId) {
         // Missing @CommandInfo annotation
         if (!cmd.getClass().isAnnotationPresent(CommandInfo.class)) {
             String msg = "Command " + cmd.getClass().getName() + " is missing @CommandInfo annotation";
@@ -171,15 +171,15 @@ public class CommandManager extends ListenerAdapter {
         }
     }
 
-    private void putKey(String key, AbstractCommand cmd) {
-        AbstractCommand existing = commands.putIfAbsent(key, cmd);
+    private void putKey(String key, CommandMetadata cmd) {
+        CommandMetadata existing = commands.putIfAbsent(key, cmd);
         if (existing != null && existing != cmd) {
             LOGGER.warn("Command key '{}' already registered by {}. Ignoring {}",
                 key, existing.getClass().getSimpleName(), cmd.getClass().getSimpleName());
         }
     }
 
-    public Optional<CommandModule.ModuleId> getModuleOf(@NotNull AbstractCommand cmd) {
+    public Optional<CommandModule.ModuleId> getModuleOf(@NotNull CommandMetadata cmd) {
         return Optional.ofNullable(ownerModule.get(cmd));
     }
 
@@ -190,7 +190,7 @@ public class CommandManager extends ListenerAdapter {
      * @param name The name of the command.
      * @return The command that matches the given name, or <code>null</code> if no command matches.
      */
-    public AbstractCommand getCommand(String name) {
+    public CommandMetadata getCommand(String name) {
         return commands.get(name);
     }
 
@@ -210,10 +210,10 @@ public class CommandManager extends ListenerAdapter {
      * @param category The {@link CommandCategory} to get the commands from.
      * @return A list of commands.
      */
-    public List<AbstractCommand> getCommands(CommandCategory category) {
+    public List<CommandMetadata> getCommands(CommandCategory category) {
         // LinkedHashSet so the list keeps the item insertion order
-        Set<AbstractCommand> cmdSet = new LinkedHashSet<>();
-        for (AbstractCommand cmd : this.commands.values()) {
+        Set<CommandMetadata> cmdSet = new LinkedHashSet<>();
+        for (CommandMetadata cmd : this.commands.values()) {
             if (cmd.getCategory() == category) {
                 cmdSet.add(cmd);
             }
