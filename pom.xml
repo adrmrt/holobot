@@ -55,7 +55,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.5.2</version>
                 <configuration>
                     <from>
                         <image>eclipse-temurin:25-jre-alpine</image>
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>6.4.1</version>
+            <version>6.5.0</version>
         </dependency>
 
         <!-- Maintained version of JDA Utilities -->
@@ -172,7 +172,7 @@
         <dependency>
             <groupId>dev.arbjerg</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>2.2.6</version>
+            <version>2.2.7</version>
         </dependency>
         <!-- YouTube source plugin for LavaPlayer 2.x -->
         <dependency>
@@ -191,19 +191,19 @@
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>impl-jni</artifactId>
-            <version>85e76e911</version>
+            <version>539e600fa</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-linux-musl-x86-64</artifactId>
-            <version>85e76e911</version>
+            <version>539e600fa</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-win-x86-64</artifactId>
-            <version>85e76e911</version>
+            <version>117ad37e8</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -224,7 +224,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>12.7.0</version>
+            <version>12.11.0</version>
         </dependency>
 
         <!-- JLyrics to browse lyrics and song information -->
@@ -245,12 +245,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.34</version>
+            <version>1.5.38</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.5.34</version>
+            <version>1.5.38</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -262,12 +262,12 @@
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-jpeg</artifactId>
-            <version>3.13.1</version>
+            <version>3.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-tiff</artifactId>
-            <version>3.13.1</version>
+            <version>3.14.0</version>
         </dependency>
         <dependency>
             <groupId>org.sejda.imageio</groupId>
@@ -288,7 +288,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>6.1.0</version>
+            <version>6.1.2</version>
             <scope>test</scope>
         </dependency>
 
