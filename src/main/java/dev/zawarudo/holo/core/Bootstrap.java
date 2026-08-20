@@ -83,6 +83,7 @@ public final class Bootstrap {
             .githubToken(env.get("GITHUB_TOKEN", ""))
             .dictionaryKey(env.get("KEY_DICTIONARY", ""))
             .thesaurusKey(env.get("KEY_THESAURUS", ""))
+            .catApiKey(env.get("CAT_API_KEY", ""))
             .build();
     }
 

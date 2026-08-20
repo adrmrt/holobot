@@ -7,6 +7,7 @@ import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.TheCatApiClient;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
+import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -16,6 +17,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+// TODO: The Cat API's breed_ids filter intermittently returns empty results for
+//  authenticated requests on low-image breeds (e.g. Thai, Elf Cat).
+@Deactivated
 @CommandInfo(name = "cat",
     description = "Fetches an image of a cat.",
     usage = "[breeds | <breed> | random]",

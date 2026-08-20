@@ -3,6 +3,7 @@ package dev.zawarudo.holo.modules;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.utils.HoloHttp;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Client for <a href="https://thecatapi.com">The Cat API</a>.
@@ -70,7 +72,9 @@ public final class TheCatApiClient {
 
     private static JsonArray fetchArrayOrThrow(String url) throws APIException {
         try {
-            return HoloHttp.getJsonArray(url);
+            String apiKey = Bootstrap.holo.getConfig().getCatApiKey();
+            Map<String, String> headers = apiKey.isBlank() ? null : Map.of("x-api-key", apiKey);
+            return HoloHttp.getJsonArray(url, headers);
         } catch (HttpStatusException e) {
             throw new APIException("API error (" + e.getStatusCode() + "): " + url, e);
         } catch (HttpTransportException e) {
