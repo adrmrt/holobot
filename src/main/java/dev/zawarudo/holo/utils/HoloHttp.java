@@ -67,6 +67,11 @@ public final class HoloHttp {
         return JsonParser.parseString(getString(url)).getAsJsonArray();
     }
 
+    public static @NotNull JsonArray getJsonArray(@NotNull String url, @Nullable Map<String, String> headers)
+        throws HttpStatusException, HttpTransportException {
+        return JsonParser.parseString(getString(url, headers)).getAsJsonArray();
+    }
+
     public static <T> @NotNull T getJson(@NotNull String url, @NotNull Class<T> clazz) throws HttpStatusException, HttpTransportException {
         String body = getString(url);
         return GSON.fromJson(body, clazz);

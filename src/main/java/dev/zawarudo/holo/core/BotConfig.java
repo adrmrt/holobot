@@ -18,6 +18,7 @@ public final class BotConfig {
     private final String githubToken;
     private final String dictionaryKey;
     private final String thesaurusKey;
+    private final String catApiKey;
 
     private final String defaultPrefix;
     private final String dbPath;
@@ -31,6 +32,7 @@ public final class BotConfig {
         String githubToken,
         String dictionaryKey,
         String thesaurusKey,
+        String catApiKey,
         String defaultPrefix,
         String dbPath
     ) {
@@ -42,6 +44,7 @@ public final class BotConfig {
         this.githubToken = nullToEmpty(githubToken);
         this.dictionaryKey = dictionaryKey;
         this.thesaurusKey = thesaurusKey;
+        this.catApiKey = nullToEmpty(catApiKey);
         this.defaultPrefix = defaultPrefix == null || defaultPrefix.isBlank() ? "<" : defaultPrefix;
         this.dbPath = dbPath;
     }
@@ -103,6 +106,13 @@ public final class BotConfig {
     }
 
     /**
+     * The Cat API key.
+     */
+    public String getCatApiKey() {
+        return catApiKey;
+    }
+
+    /**
      * Default command prefix (defaults to {@code "<"}).
      */
     public String getDefaultPrefix() {
@@ -128,6 +138,7 @@ public final class BotConfig {
         private String githubToken;
         private String dictionaryKey;
         private String thesaurusKey;
+        private String catApiKey;
         private String defaultPrefix = "<";
         private String dbPath;
 
@@ -171,6 +182,11 @@ public final class BotConfig {
             return this;
         }
 
+        public Builder catApiKey(String catApiKey) {
+            this.catApiKey = catApiKey;
+            return this;
+        }
+
         public Builder defaultPrefix(String defaultPrefix) {
             this.defaultPrefix = defaultPrefix;
             return this;
@@ -194,6 +210,7 @@ public final class BotConfig {
                 githubToken,
                 dictionaryKey,
                 thesaurusKey,
+                catApiKey,
                 defaultPrefix,
                 dbPath
             );
@@ -216,6 +233,7 @@ public final class BotConfig {
             ", githubToken=" + mask(githubToken) +
             ", dictionaryKey=" + mask(dictionaryKey) +
             ", thesaurusKey=" + mask(thesaurusKey) +
+            ", catApiKey=" + mask(catApiKey) +
             ", defaultPrefix='" + defaultPrefix + '\'' +
             ", dbPath='" + dbPath + '\'' +
             '}';
