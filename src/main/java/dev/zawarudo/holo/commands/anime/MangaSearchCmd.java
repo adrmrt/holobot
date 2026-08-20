@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.anime;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -18,18 +18,22 @@ import dev.zawarudo.holo.utils.interact.ReactionSelector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @CommandInfo(name = "mangasearch",
-        description = "Use this command to search for a manga. Optionally specify a platform (mal or anilist) to search on.",
-        usage = "[mal|anilist] <title>",
-        example = "mal black clover",
-        alias = {"ms", "manga"},
-        thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
-        embedColor = EmbedColor.MAL,
-        category = CommandCategory.ANIME)
-public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand {
+    description = "Use this command to search for a manga. Optionally specify a platform (mal or anilist) to search on.",
+    usage = "[mal|anilist] <title>",
+    example = "mal black clover",
+    alias = {"ms", "manga"},
+    thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png",
+    embedColor = EmbedColor.MAL,
+    category = CommandCategory.ANIME)
+public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MangaSearchCmd.class);
 
     private final MediaSearchService searchService;
     private final ReactionSelector<MangaResult> selector;
@@ -38,19 +42,19 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
         this.searchService = searchService;
 
         this.selector = new ReactionSelector<>(
-                waiter,
-                items -> {
-                    MediaPlatform platform = items.getFirst().platform();
-                    return ReactionSelector.defaultNumberedListEmbed(
-                            "Manga Search Results",
-                            items,
-                            m -> String.format("%s [%s]", m.title(), m.type()),
-                            getEmbedColor(),
-                            platform.getName(),
-                            platform.getUrl(),
-                            platform.getIconUrl()
-                    );
-                }
+            waiter,
+            items -> {
+                MediaPlatform platform = items.getFirst().platform();
+                return ReactionSelector.defaultNumberedListEmbed(
+                    "Manga Search Results",
+                    items,
+                    m -> String.format("%s [%s]", m.title(), m.type()),
+                    getEmbedColor(),
+                    platform.getName(),
+                    platform.getUrl(),
+                    platform.getIconUrl()
+                );
+            }
         );
     }
 
@@ -65,8 +69,8 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
 
         MediaPlatform platform = parsePlatformFlag(ctx.args().getFirst());
         final String search = platform != null
-                ? String.join(" ", ctx.args().subList(1, ctx.args().size())).trim()
-                : ctx.argString();
+            ? String.join(" ", ctx.args().subList(1, ctx.args().size())).trim()
+            : ctx.argString();
 
         if (search.isBlank()) {
             ctx.reply().errorEmbed("Please provide a title to search for.");
@@ -77,11 +81,11 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
         try {
             List<MediaPlatform> order = platform != null ? List.of(platform) : null;
             results = order != null
-                    ? searchService.searchManga(search, 10, order)
-                    : searchService.searchManga(search, 10);
+                ? searchService.searchManga(search, 10, order)
+                : searchService.searchManga(search, 10);
         } catch (APIException | InvalidRequestException ex) {
             ctx.reply().errorEmbed("An error occurred while trying to search for the manga! Please try again later.");
-            logger.error("Manga search failed: {}", search, ex);
+            LOGGER.error("Manga search failed: {}", search, ex);
             return;
         }
 
@@ -121,7 +125,7 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
 
         // Titles
         if (manga.titleEnglish() != null && !manga.titleEnglish().isBlank()
-                && !manga.titleEnglish().equalsIgnoreCase(manga.title())) {
+            && !manga.titleEnglish().equalsIgnoreCase(manga.title())) {
             b.addField("English Title", manga.titleEnglish(), true);
         }
         if (manga.titleJapanese() != null && !manga.titleJapanese().isBlank()) {
@@ -180,8 +184,8 @@ public class MangaSearchCmd extends AbstractCommand implements ExecutableCommand
 
         // Link
         String linkName = (manga.platform() == MediaPlatform.ANILIST)
-                ? "AniList"
-                : "MyAnimeList";
+            ? "AniList"
+            : "MyAnimeList";
         if (!manga.url().isBlank()) {
             b.addField("Link", "[" + linkName + "](" + manga.url() + ")", false);
         }

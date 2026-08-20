@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.games;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -14,12 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 @CommandInfo(
-        name = "akinator",
-        description = "Play Akinator using buttons.",
-        category = CommandCategory.GAMES,
-        embedColor = EmbedColor.AKINATOR
+    name = "akinator",
+    description = "Play Akinator using buttons.",
+    category = CommandCategory.GAMES,
+    embedColor = EmbedColor.AKINATOR
 )
-public class AkinatorCmd extends AbstractCommand implements ExecutableCommand {
+public class AkinatorCmd implements CommandMetadata, ExecutableCommand {
 
     private final EventWaiter waiter;
     private final AkinatorSessionManager sessions;
@@ -41,15 +41,15 @@ public class AkinatorCmd extends AbstractCommand implements ExecutableCommand {
         ctx.reply().typing();
 
         long guildId = ctx.guild()
-                .map(ISnowflake::getIdLong)
-                .orElse(0L);
+            .map(ISnowflake::getIdLong)
+            .orElse(0L);
 
         AkinatorSession session = new AkinatorSession(
-                userId,
-                guildId,
-                guildId,
-                waiter,
-                sessions
+            userId,
+            guildId,
+            guildId,
+            waiter,
+            sessions
         );
 
         if (!sessions.registerSession(session)) {
@@ -58,8 +58,8 @@ public class AkinatorCmd extends AbstractCommand implements ExecutableCommand {
         }
 
         ctx.message().ifPresentOrElse(
-                session::start,
-                () -> ctx.reply().text("This command currently requires a message-based invocation.")
+            session::start,
+            () -> ctx.reply().text("This command currently requires a message-based invocation.")
         );
     }
 }

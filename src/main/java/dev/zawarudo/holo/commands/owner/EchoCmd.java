@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.owner;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -10,12 +10,12 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 @CommandInfo(name = "echo",
-        description = "Repeats a given message by a given amount.",
-        usage = "<amount> <message>",
-        alias = {"say", "repeat"},
-        ownerOnly = true,
-        category = CommandCategory.OWNER)
-public class EchoCmd extends AbstractCommand implements ExecutableCommand {
+    description = "Repeats a given message by a given amount.",
+    usage = "<amount> <message>",
+    alias = {"say", "repeat"},
+    ownerOnly = true,
+    category = CommandCategory.OWNER)
+public class EchoCmd implements CommandMetadata, ExecutableCommand {
 
     private static final int MIN_TIMES = 1;
     private static final int MAX_TIMES = 100;
@@ -70,7 +70,7 @@ public class EchoCmd extends AbstractCommand implements ExecutableCommand {
     private static Integer tryParseInt(String s) {
         try {
             return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return null;
         }
     }

@@ -106,18 +106,18 @@ public class XkcdSyncService {
         }
 
         return new SyncStatus(
-                runningLocal,
-                left,
-                lastCheckedIssue,
-                lastInsertedIssue,
-                target,
-                maxStoredIssue,
-                dbCount,
-                attemptedThisRun.get(),
-                affectedThisRun.get(),
-                startedAtMs > 0 ? new Date(startedAtMs) : null,
-                lastUpdateAtMs > 0 ? new Date(lastUpdateAtMs) : null,
-                lastError
+            runningLocal,
+            left,
+            lastCheckedIssue,
+            lastInsertedIssue,
+            target,
+            maxStoredIssue,
+            dbCount,
+            attemptedThisRun.get(),
+            affectedThisRun.get(),
+            startedAtMs > 0 ? new Date(startedAtMs) : null,
+            lastUpdateAtMs > 0 ? new Date(lastUpdateAtMs) : null,
+            lastError
         );
     }
 
@@ -165,7 +165,7 @@ public class XkcdSyncService {
                     lastError = "DB error at issue " + i + ": " + ex.getMessage();
                     LOGGER.error("XKCD sync failed at issue {} (DB).", i, ex);
                     break;
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException _) {
                     // stopRequested or external interrupt
                     Thread.currentThread().interrupt();
                     if (!stopRequested) {
@@ -206,18 +206,18 @@ public class XkcdSyncService {
     }
 
     public record SyncStatus(
-            boolean running,
-            int leftToSync,
-            int lastCheckedIssue,
-            int lastInsertedIssue,
-            int targetIssue,
-            int maxStoredIssue,
-            int dbCount,
-            int attemptedThisRun,
-            int affectedThisRun,
-            Date startedAt,
-            Date lastUpdateAt,
-            String lastError
+        boolean running,
+        int leftToSync,
+        int lastCheckedIssue,
+        int lastInsertedIssue,
+        int targetIssue,
+        int maxStoredIssue,
+        int dbCount,
+        int attemptedThisRun,
+        int affectedThisRun,
+        Date startedAt,
+        Date lastUpdateAt,
+        String lastError
     ) {
     }
 }

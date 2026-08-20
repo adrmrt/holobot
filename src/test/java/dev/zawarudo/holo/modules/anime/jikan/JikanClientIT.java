@@ -80,7 +80,7 @@ public class JikanClientIT {
             assertFalse(results.isEmpty(), "Expected non-empty search results");
 
             assertTrue(results.stream().anyMatch(a -> a.getId() == 21),
-                    "Expected search results to include anime id=21 (One Piece)");
+                "Expected search results to include anime id=21 (One Piece)");
         }
 
         @Test
@@ -135,7 +135,7 @@ public class JikanClientIT {
             assertFalse(results.isEmpty());
 
             assertTrue(results.stream().anyMatch(m -> m.getId() == 13),
-                    "Expected search results to include manga id=13 (One Piece)");
+                "Expected search results to include manga id=13 (One Piece)");
         }
 
         @Test
@@ -157,7 +157,7 @@ public class JikanClientIT {
 
             assertEquals(40, c.getId());
             assertTrue(c.getName().toLowerCase(Locale.UK).contains("luffy"),
-                    "Expected character name to contain 'luffy'");
+                "Expected character name to contain 'luffy'");
         }
 
         @Test
@@ -176,7 +176,7 @@ public class JikanClientIT {
             assertFalse(results.isEmpty());
 
             assertTrue(results.stream().anyMatch(c -> c.getId() == 40),
-                    "Expected search results to include character id=40 (Luffy)");
+                "Expected search results to include character id=40 (Luffy)");
         }
     }
 

@@ -1,7 +1,7 @@
 package dev.zawarudo.holo.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public abstract class AbstractMusicCommand extends AbstractCommand {
+public abstract class AbstractMusicCommand implements CommandMetadata {
 
     /**
      * Returns the voice state of a member within a guild.
@@ -69,16 +69,26 @@ public abstract class AbstractMusicCommand extends AbstractCommand {
      * Checks if the user and the bot are in the same voice channel
      */
     protected boolean isUserInSameAudioChannel(MessageReceivedEvent e) {
-        if (e.getMember() == null || !isUserInAudioChannel(e.getMember()) || !isBotInAudioChannel(e.getGuild())) {
+        if (e.getMember() == null) {
+            return false;
+        }
+        return isUserInSameAudioChannel(e.getMember(), e.getGuild());
+    }
+
+    /**
+     * Checks if the user and the bot are in the same voice channel
+     */
+    protected boolean isUserInSameAudioChannel(Member member, Guild guild) {
+        if (!isUserInAudioChannel(member) || !isBotInAudioChannel(guild)) {
             return false;
         }
 
-		// Check voice states
-        AudioChannel botChannel = getConnectedChannel(e.getGuild());
+        // Check voice states
+        AudioChannel botChannel = getConnectedChannel(guild);
         if (botChannel == null) {
             return false;
         }
-        AudioChannel userChannel = getMemberVoiceState(e.getMember()).getChannel();
+        AudioChannel userChannel = getMemberVoiceState(member).getChannel();
         return botChannel.equals(userChannel);
     }
 }

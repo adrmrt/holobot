@@ -60,30 +60,30 @@ public final class AniListMappers {
         String season = formatSeason(object);
 
         return new AnimeResult(
-                MediaPlatform.ANILIST,
-                id,
+            MediaPlatform.ANILIST,
+            id,
 
-                displayTitle,
-                safeText(getSafeString(object, "format"), "?"),
-                safeText(getSafeString(object, "siteUrl"), ""),
+            displayTitle,
+            safeText(getSafeString(object, "format"), "?"),
+            safeText(getSafeString(object, "siteUrl"), ""),
 
-                imageUrl,
-                description,
+            imageUrl,
+            description,
 
-                emptyToNull(titleEnglish),
-                emptyToNull(titleNative),
+            emptyToNull(titleEnglish),
+            emptyToNull(titleNative),
 
-                averageScoreStr,
-                rank,
-                intValNullable(object.get("episodes"), 0),
+            averageScoreStr,
+            rank,
+            intValNullable(object.get("episodes"), 0),
 
-                emptyToNull(getSafeString(object, "status")),
-                season,
+            emptyToNull(getSafeString(object, "status")),
+            season,
 
-                List.of(), // studios not requested
-                extractGenres(object.getAsJsonArray("genres")),
-                List.of(), // themes not requested
-                List.of()  // demographics not requested
+            List.of(), // studios not requested
+            extractGenres(object.getAsJsonArray("genres")),
+            List.of(), // themes not requested
+            List.of()  // demographics not requested
         );
     }
 
@@ -105,29 +105,29 @@ public final class AniListMappers {
         int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
 
         return new MangaResult(
-                MediaPlatform.ANILIST,
-                id,
+            MediaPlatform.ANILIST,
+            id,
 
-                displayTitle,
-                safeText(getSafeString(object, "format"), "?"),
-                safeText(getSafeString(object, "siteUrl"), ""),
+            displayTitle,
+            safeText(getSafeString(object, "format"), "?"),
+            safeText(getSafeString(object, "siteUrl"), ""),
 
-                imageUrl,
-                description,
+            imageUrl,
+            description,
 
-                emptyToNull(titleEnglish),
-                emptyToNull(titleNative),
+            emptyToNull(titleEnglish),
+            emptyToNull(titleNative),
 
-                averageScoreStr,
-                rank,
-                intValNullable(object.get("chapters"), 0),
-                intValNullable(object.get("volumes"), 0),
+            averageScoreStr,
+            rank,
+            intValNullable(object.get("chapters"), 0),
+            intValNullable(object.get("volumes"), 0),
 
-                emptyToNull(getSafeString(object, "status")),
-                List.of(), // authors not requested
-                extractGenres(object.getAsJsonArray("genres")),
-                List.of(), // themes not requested
-                List.of()  // demographics not requested
+            emptyToNull(getSafeString(object, "status")),
+            List.of(), // authors not requested
+            extractGenres(object.getAsJsonArray("genres")),
+            List.of(), // themes not requested
+            List.of()  // demographics not requested
         );
     }
 
@@ -138,7 +138,7 @@ public final class AniListMappers {
         try {
             String s = el.getAsString();
             return (s == null || s.isBlank()) ? null : s;
-        } catch (UnsupportedOperationException ignored) {
+        } catch (UnsupportedOperationException _) {
             return null;
         }
     }
@@ -147,7 +147,7 @@ public final class AniListMappers {
         if (el == null || el.isJsonNull()) return fallback;
         try {
             return el.getAsInt();
-        } catch (UnsupportedOperationException | NumberFormatException ignored) {
+        } catch (UnsupportedOperationException | NumberFormatException _) {
             return fallback;
         }
     }
@@ -211,7 +211,7 @@ public final class AniListMappers {
             }
 
             return season + " " + year;
-        } catch (UnsupportedOperationException | NumberFormatException e) {
+        } catch (UnsupportedOperationException | NumberFormatException _) {
             return null;
         }
     }
@@ -257,7 +257,7 @@ public final class AniListMappers {
                 if (!genre.isBlank()) {
                     genres.add(genre);
                 }
-            } catch (UnsupportedOperationException ignored) {
+            } catch (UnsupportedOperationException _) {
                 // skip invalid entries
             }
         }

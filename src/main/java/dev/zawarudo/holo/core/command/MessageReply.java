@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.core.command;
 
 import dev.zawarudo.holo.core.misc.EmbedColor;
+import dev.zawarudo.holo.utils.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -42,16 +43,15 @@ public final class MessageReply implements CommandContext.Reply {
 
     @Override
     public void embed(@NotNull MessageEmbed embed, int duration, TimeUnit unit) {
-        replyTo.replyEmbeds(embed).queue(sent ->
-                sent.delete().queueAfter(duration, unit, __ -> {}, __ -> {})
-        );
+        EmbedUtils.deleteAfter(replyTo.replyEmbeds(embed), duration, unit);
     }
 
     @Override
     public void embedAndDeleteInvoke(@NotNull CommandContext ctx, @NotNull MessageEmbed embed, int duration, TimeUnit unit) {
         embed(embed, duration, unit);
         ctx.message().ifPresent(msg ->
-                msg.delete().queueAfter(duration, unit, null, ignored -> {}));
+            msg.delete().queueAfter(duration, unit, null, _ -> {
+            }));
     }
 
     @Override
@@ -66,9 +66,9 @@ public final class MessageReply implements CommandContext.Reply {
 
     private @NotNull MessageEmbed buildErrorEmbed(@NotNull String content) {
         return new EmbedBuilder()
-                .setTitle("Error")
-                .setDescription(content)
-                .setColor(EmbedColor.ERROR.getColor())
-                .build();
+            .setTitle("Error")
+            .setDescription(content)
+            .setColor(EmbedColor.ERROR.getColor())
+            .build();
     }
 }

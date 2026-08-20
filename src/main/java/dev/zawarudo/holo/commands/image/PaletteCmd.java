@@ -1,18 +1,22 @@
 package dev.zawarudo.holo.commands.image;
 
 import de.androidpit.colorthief.ColorThief;
-import dev.zawarudo.holo.utils.DateTimeUtils;
-import dev.zawarudo.holo.utils.ImageResolver;
-import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.utils.DateTimeUtils;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.ImageOperations;
+import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.ParsingUtils;
+import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,11 +31,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "palette",
-        description = "Creates a palette of representative colors for a given image.",
-        usage = "[<color count>] [<image url>]",
-        thumbnail = "https://www.pinclipart.com/picdir/big/141-1416768_painting-clipart-paint-palette-art-emoji-png-transparent.png",
-        category = CommandCategory.IMAGE)
-public class PaletteCmd extends AbstractCommand {
+    description = "Creates a palette of representative colors for a given image.",
+    usage = "[<color count>] [<image url>]",
+    thumbnail = "https://www.pinclipart.com/picdir/big/141-1416768_painting-clipart-paint-palette-art-emoji-png-transparent.png",
+    category = CommandCategory.IMAGE)
+public class PaletteCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaletteCmd.class);
 
     private static final int DEFAULT_COLOR_COUNT = 5;
     private static final String PALETTE_IMAGE_FORMAT = "palette_%s.png";
@@ -44,44 +50,44 @@ public class PaletteCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        Message msg = event.getMessage();
+    public void execute(@NotNull CommandContext ctx) {
+        Message msg = ctx.message().orElseThrow();
         Optional<String> url = msg.getReferencedMessage() == null
-                ? imageResolver.resolveImageUrl(msg)
-                : imageResolver.resolveImageUrl(msg.getReferencedMessage());
+            ? imageResolver.resolveImageUrl(msg)
+            : imageResolver.resolveImageUrl(msg.getReferencedMessage());
 
         if (url.isEmpty() || url.get().contains("gif")) {
-            sendErrorEmbed(event, "Incorrect usage! Please provide an image, either as an attachment or as an url.");
+            ctx.reply().errorEmbed("Incorrect usage! Please provide an image, either as an attachment or as an url.");
             return;
         }
 
-        deleteInvoke(event);
+        ctx.invocation().deleteInvokeIfPossible();
         String name = String.format(PALETTE_IMAGE_FORMAT, DateTimeUtils.getCurrentDateTimeString());
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Color Palette");
         builder.setThumbnail(url.get());
         builder.setImage("attachment://" + name);
-        builder.setFooter("Invoked by " + event.getMember().getEffectiveName(), event.getAuthor().getEffectiveAvatarUrl());
+        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
 
         ColorResult result;
         InputStream imageStream;
 
         try {
             BufferedImage image = readImage(url.get());
-            result = analyzeColors(image, parseColorCount());
+            result = analyzeColors(image, parseColorCount(ctx));
             BufferedImage paletteImage = createPaletteImage(result.representativeColors);
             imageStream = ImageOperations.toInputStream(paletteImage);
         } catch (IOException | URISyntaxException e) {
-            logger.error("Something went wrong while creating a color palette.", e);
-            sendErrorEmbed(event, "Something went wrong. Please try again later.");
+            LOGGER.error("Something went wrong while creating a color palette.", e);
+            ctx.reply().errorEmbed("Something went wrong. Please try again later.");
             return;
         }
 
         builder.setColor(result.dominantColor);
         builder.setDescription(result.formatColors());
         FileUpload upload = FileUpload.fromData(imageStream, name);
-        event.getChannel().sendFiles(upload).setEmbeds(builder.build()).queue();
+        ctx.channel().sendFiles(upload).setEmbeds(builder.build()).queue();
     }
 
     private BufferedImage readImage(String url) throws URISyntaxException, IOException {
@@ -93,16 +99,16 @@ public class PaletteCmd extends AbstractCommand {
         List<Color> colors = convertToIntColorList(array);
 
         int[] dominantColor = ColorThief.getColor(image);
-        Color dominant = convertToIntColorList(dominantColor).get(0);
+        Color dominant = convertToIntColorList(dominantColor).getFirst();
 
         return new ColorResult(dominant, colors);
     }
 
     private List<Color> convertToIntColorList(int[]... rgbArray) {
         return Arrays.stream(rgbArray)
-                .filter(rgb -> rgb.length == 3)
-                .map(rgb -> new Color(rgb[0], rgb[1], rgb[2]))
-                .toList();
+            .filter(rgb -> rgb.length == 3)
+            .map(rgb -> new Color(rgb[0], rgb[1], rgb[2]))
+            .toList();
     }
 
     private BufferedImage createPaletteImage(List<Color> colors) {
@@ -119,9 +125,9 @@ public class PaletteCmd extends AbstractCommand {
         return image;
     }
 
-    private int parseColorCount() {
-        if (args.length > 0 && isInteger(args[0])) {
-            int count = Math.max(2, Integer.parseInt(args[0]));
+    private int parseColorCount(CommandContext ctx) {
+        if (ctx.hasArgs() && ParsingUtils.isInteger(ctx.args().getFirst())) {
+            int count = Math.max(2, Integer.parseInt(ctx.args().getFirst()));
             return Math.min(count, 20);
         }
         return DEFAULT_COLOR_COUNT;
@@ -130,9 +136,9 @@ public class PaletteCmd extends AbstractCommand {
     record ColorResult(Color dominantColor, List<Color> representativeColors) {
         public String formatColors() {
             return representativeColors.stream()
-                    .map(Formatter::getColorHexString)
-                    .map(hex -> "* " + hex)
-                    .collect(Collectors.joining("\n"));
+                .map(Formatter::getColorHexString)
+                .map(hex -> "* " + hex)
+                .collect(Collectors.joining("\n"));
         }
     }
 }

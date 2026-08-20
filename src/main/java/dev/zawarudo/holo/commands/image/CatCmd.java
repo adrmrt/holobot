@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -9,6 +9,8 @@ import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,7 +20,9 @@ import java.util.concurrent.TimeUnit;
     description = "Fetches an image of a cat.",
     usage = "[breeds | <breed> | random]",
     category = CommandCategory.IMAGE)
-public class CatCmd extends AbstractCommand implements ExecutableCommand {
+public class CatCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatCmd.class);
 
     /** Maps lowercase breed name → breed record. Populated at construction. Empty on API failure. */
     private final Map<String, TheCatApiClient.CatBreed> breeds = new LinkedHashMap<>();
@@ -29,7 +33,7 @@ public class CatCmd extends AbstractCommand implements ExecutableCommand {
                 breeds.put(breed.name().toLowerCase(), breed);
             }
         } catch (Exception ex) {
-            logger.warn("Failed to load cat breeds from The Cat API — breed filtering unavailable.", ex);
+            LOGGER.warn("Failed to load cat breeds from The Cat API — breed filtering unavailable.", ex);
         }
     }
 
@@ -60,7 +64,7 @@ public class CatCmd extends AbstractCommand implements ExecutableCommand {
             url = TheCatApiClient.getRandomImage();
         } catch (Exception ex) {
             ctx.reply().errorEmbed("Failed to fetch a cat image. Try again later!");
-            logger.error("Error fetching random cat image.", ex);
+            LOGGER.error("Error fetching random cat image.", ex);
             return;
         }
 
@@ -96,7 +100,7 @@ public class CatCmd extends AbstractCommand implements ExecutableCommand {
             url = TheCatApiClient.getRandomBreedImage(breed.id());
         } catch (Exception ex) {
             ctx.reply().errorEmbed("Failed to fetch a cat image for that breed. Try again later!");
-            logger.error("Error fetching cat image for breed '{}'.", breed.id(), ex);
+            LOGGER.error("Error fetching cat image for breed '{}'.", breed.id(), ex);
             return;
         }
 

@@ -19,6 +19,7 @@ import dev.zawarudo.holo.modules.anime.MediaSearchService;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
+import dev.zawarudo.holo.utils.UserResolver;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.annotations.Deactivated;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -36,23 +37,24 @@ public class CommandManager extends ListenerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
 
-    private final Map<String, AbstractCommand> commands = new LinkedHashMap<>();
-    private final Map<AbstractCommand, CommandModule.ModuleId> ownerModule = new IdentityHashMap<>();
+    private final Map<String, CommandMetadata> commands = new LinkedHashMap<>();
+    private final Map<CommandMetadata, CommandModule.ModuleId> ownerModule = new IdentityHashMap<>();
 
     public CommandManager(
-            EventWaiter waiter,
-            ModuleRegistry moduleRegistry,
-            GitHubClient gitHubClient,
-            MerriamWebsterClient merriamWebsterClient,
-            GuildConfigManager guildConfigManager,
-            EmoteManager emoteManager,
-            AkinatorSessionManager akinatorSessionManager,
-            XkcdDao xkcdDao,
-            XkcdSyncService xkcdSyncService,
-            BlacklistService blacklistService,
-            MediaSearchService mediaSearchService,
-            CountdownDao countdownDao,
-            ImageResolver imageResolver
+        EventWaiter waiter,
+        ModuleRegistry moduleRegistry,
+        GitHubClient gitHubClient,
+        MerriamWebsterClient merriamWebsterClient,
+        GuildConfigManager guildConfigManager,
+        EmoteManager emoteManager,
+        AkinatorSessionManager akinatorSessionManager,
+        XkcdDao xkcdDao,
+        XkcdSyncService xkcdSyncService,
+        BlacklistService blacklistService,
+        MediaSearchService mediaSearchService,
+        CountdownDao countdownDao,
+        ImageResolver imageResolver,
+        UserResolver userResolver
     ) {
         // General Cmds
         addCommand(new BugCmd(gitHubClient));
@@ -65,7 +67,7 @@ public class CommandManager extends ListenerAdapter {
         addCommand(new ServerInfoCmd());
         addCommand(new ServerRolesCmd());
         addCommand(new SuggestionCmd(gitHubClient));
-        addCommand(new WhoisCmd());
+        addCommand(new WhoisCmd(userResolver));
 
         // Anime Cmds
         addCommand(new AnimeSearchCmd(waiter, mediaSearchService));
@@ -77,7 +79,7 @@ public class CommandManager extends ListenerAdapter {
         // Image Cmds
         addCommand(new ActionCmd());
         addCommand(new AoCStatsCmd());
-        addCommand(new AvatarCmd());
+        addCommand(new AvatarCmd(userResolver));
         addCommand(new BannerCmd());
         addCommand(new CatCmd());
         addCommand(new CheckNSFWCmd(imageResolver));
@@ -118,7 +120,7 @@ public class CommandManager extends ListenerAdapter {
             if (m.getClass().isAnnotationPresent(Deactivated.class)) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Module {} ({}) is deactivated.",
-                            m.id(), m.getClass().getSimpleName());
+                        m.id(), m.getClass().getSimpleName());
                 }
                 continue;
             }
@@ -136,11 +138,11 @@ public class CommandManager extends ListenerAdapter {
      *
      * @param cmd The command to register.
      */
-    public void addCommand(@NotNull AbstractCommand cmd) {
+    public void addCommand(@NotNull CommandMetadata cmd) {
         addCommand(cmd, null);
     }
 
-    public void addCommand(@NotNull AbstractCommand cmd, @Nullable CommandModule.ModuleId moduleId) {
+    public void addCommand(@NotNull CommandMetadata cmd, @Nullable CommandModule.ModuleId moduleId) {
         // Missing @CommandInfo annotation
         if (!cmd.getClass().isAnnotationPresent(CommandInfo.class)) {
             String msg = "Command " + cmd.getClass().getName() + " is missing @CommandInfo annotation";
@@ -169,15 +171,15 @@ public class CommandManager extends ListenerAdapter {
         }
     }
 
-    private void putKey(String key, AbstractCommand cmd) {
-        AbstractCommand existing = commands.putIfAbsent(key, cmd);
+    private void putKey(String key, CommandMetadata cmd) {
+        CommandMetadata existing = commands.putIfAbsent(key, cmd);
         if (existing != null && existing != cmd) {
             LOGGER.warn("Command key '{}' already registered by {}. Ignoring {}",
-                    key, existing.getClass().getSimpleName(), cmd.getClass().getSimpleName());
+                key, existing.getClass().getSimpleName(), cmd.getClass().getSimpleName());
         }
     }
 
-    public Optional<CommandModule.ModuleId> getModuleOf(@NotNull AbstractCommand cmd) {
+    public Optional<CommandModule.ModuleId> getModuleOf(@NotNull CommandMetadata cmd) {
         return Optional.ofNullable(ownerModule.get(cmd));
     }
 
@@ -188,7 +190,7 @@ public class CommandManager extends ListenerAdapter {
      * @param name The name of the command.
      * @return The command that matches the given name, or <code>null</code> if no command matches.
      */
-    public AbstractCommand getCommand(String name) {
+    public CommandMetadata getCommand(String name) {
         return commands.get(name);
     }
 
@@ -208,10 +210,10 @@ public class CommandManager extends ListenerAdapter {
      * @param category The {@link CommandCategory} to get the commands from.
      * @return A list of commands.
      */
-    public List<AbstractCommand> getCommands(CommandCategory category) {
+    public List<CommandMetadata> getCommands(CommandCategory category) {
         // LinkedHashSet so the list keeps the item insertion order
-        Set<AbstractCommand> cmdSet = new LinkedHashSet<>();
-        for (AbstractCommand cmd : this.commands.values()) {
+        Set<CommandMetadata> cmdSet = new LinkedHashSet<>();
+        for (CommandMetadata cmd : this.commands.values()) {
             if (cmd.getCategory() == category) {
                 cmdSet.add(cmd);
             }

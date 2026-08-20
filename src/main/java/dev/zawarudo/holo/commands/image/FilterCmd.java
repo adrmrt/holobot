@@ -1,6 +1,6 @@
 package dev.zawarudo.holo.commands.image;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,13 +28,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @CommandInfo(
-        name = "filter",
-        description = "Applies a dramatic grayscale filter while preserving red tones",
-        alias = {"acheron"},
-        category = CommandCategory.IMAGE,
-        ownerOnly = true
+    name = "filter",
+    description = "Applies a dramatic grayscale filter while preserving red tones",
+    alias = {"acheron"},
+    category = CommandCategory.IMAGE,
+    ownerOnly = true
 )
-public class FilterCmd extends AbstractCommand implements ExecutableCommand {
+public class FilterCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilterCmd.class);
 
     private final ImageResolver imageResolver;
 
@@ -71,8 +75,8 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
         }
 
         final String[] filterArgs = (args.size() > 1)
-                ? args.subList(1, args.size()).toArray(String[]::new)
-                : new String[0];
+            ? args.subList(1, args.size()).toArray(String[]::new)
+            : new String[0];
 
         ctx.reply().typing();
         applyFilterAndReply(invokeMsg, ctx, imageUrl.get(), filter, filterArgs);
@@ -80,8 +84,8 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
 
     private void replyWithFilterListEmbed(@NotNull CommandContext ctx) {
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Available filters")
-                .setDescription(formatFiltersAsCodeBlock());
+            .setTitle("Available filters")
+            .setDescription(formatFiltersAsCodeBlock());
 
         ctx.reply().embed(eb);
     }
@@ -89,22 +93,22 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
     private Optional<String> resolveImageUrl(@NotNull Message invokeMessage) {
         Message referenced = invokeMessage.getReferencedMessage();
         return referenced != null
-                ? imageResolver.resolveImageUrl(referenced)
-                : imageResolver.resolveImageUrl(invokeMessage);
+            ? imageResolver.resolveImageUrl(referenced)
+            : imageResolver.resolveImageUrl(invokeMessage);
     }
 
     private void applyFilterAndReply(
-            @NotNull Message invokeMsg,
-            @NotNull CommandContext ctx,
-            @NotNull String url,
-            @NotNull ImageFilter filter,
-            @NotNull String[] filterArgs
+        @NotNull Message invokeMsg,
+        @NotNull CommandContext ctx,
+        @NotNull String url,
+        @NotNull ImageFilter filter,
+        @NotNull String[] filterArgs
     ) {
         try {
             BufferedImage img = readImage(url);
             if (img == null) {
                 ctx.reply().errorEmbed("I couldn't read the image. Please try a different format.");
-                logger.error("Image is null: {}", url);
+                LOGGER.error("Image is null: {}", url);
                 return;
             }
 
@@ -112,14 +116,14 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
 
             try (InputStream input = ImageOperations.toInputStream(result)) {
                 invokeMsg.replyFiles(FileUpload.fromData(input, String.format("filter-%s.png", filter.name())))
-                        .queue();
+                    .queue();
             }
 
         } catch (IllegalArgumentException ex) {
             ctx.reply().errorEmbed(ex.getMessage());
         } catch (IOException ex) {
             ctx.reply().errorEmbed("Something went wrong while applying the filter.");
-            logger.error("Error applying filter {} on image: {}", filter.name(), url, ex);
+            LOGGER.error("Error applying filter {} on image: {}", filter.name(), url, ex);
         }
     }
 
@@ -131,9 +135,9 @@ public class FilterCmd extends AbstractCommand implements ExecutableCommand {
         List<ImageFilter> filters = FilterRegistry.list();
 
         String joined = filters.stream()
-                .map(ImageFilter::name)
-                .sorted(String.CASE_INSENSITIVE_ORDER)
-                .collect(Collectors.joining("\n"));
+            .map(ImageFilter::name)
+            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .collect(Collectors.joining("\n"));
 
         return Formatter.asCodeBlock(joined);
     }

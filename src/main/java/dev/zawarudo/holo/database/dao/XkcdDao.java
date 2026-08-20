@@ -258,9 +258,9 @@ public final class XkcdDao {
         comic.setAlt(rs.getString("alt"));
         comic.setImg(rs.getString("img"));
         comic.setDate(
-                rs.getInt("day"),
-                rs.getInt("month"),
-                rs.getInt("year")
+            rs.getInt("day"),
+            rs.getInt("month"),
+            rs.getInt("year")
         );
         return comic;
     }

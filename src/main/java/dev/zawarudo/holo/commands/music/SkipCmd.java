@@ -2,126 +2,142 @@ package dev.zawarudo.holo.commands.music;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import dev.zawarudo.holo.commands.CommandCategory;
-import dev.zawarudo.holo.utils.Emote;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.music.GuildMusicManager;
 import dev.zawarudo.holo.modules.music.PlayerManager;
+import dev.zawarudo.holo.utils.EmbedUtils;
+import dev.zawarudo.holo.utils.Emote;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "skip",
-		description = "Requests to skip the current track. About half of the members " +
-				"in the voice channel (bot excluded) that are actively listening (i.e. " +
-				"not deafened) have to react with an upvote in order to skip the current track.",
-		category = CommandCategory.MUSIC)
-public class SkipCmd extends AbstractMusicCommand {
+    description = "Requests to skip the current track. About half of the members " +
+        "in the voice channel (bot excluded) that are actively listening (i.e. " +
+        "not deafened) have to react with an upvote in order to skip the current track.",
+    category = CommandCategory.MUSIC)
+public class SkipCmd extends AbstractMusicCommand implements ExecutableCommand {
 
-	private final EventWaiter waiter;
+    private final EventWaiter waiter;
 
-	public SkipCmd(EventWaiter waiter) {
-		this.waiter = waiter;
-	}
+    public SkipCmd(EventWaiter waiter) {
+        this.waiter = waiter;
+    }
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent event) {
-		deleteInvoke(event);
+    @Override
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+        Guild guild = ctx.guild().orElseThrow();
+        Member member = ctx.member().orElseThrow();
+        GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
 
-		// Checks if there are tracks to skip
-		if (musicManager.audioPlayer.getPlayingTrack() == null) {
-			sendErrorEmbed(event, "I'm not playing any tracks at the moment!");
-			return;
-		}
+        // Checks if there are tracks to skip
+        if (musicManager.audioPlayer.getPlayingTrack() == null) {
+            ctx.reply().errorEmbed("I'm not playing any tracks at the moment!");
+            return;
+        }
 
-		// Bot owner can always skip
-		if (isBotOwner(event.getAuthor())) {
-			musicManager.resetVoting();
-			skip(event);
-			return;
-		}
+        MessageChannelUnion channel = ctx.channel();
+        Color embedColor = getEmbedColor();
+        String footerText = "Invoked by " + member.getEffectiveName();
+        String footerIconUrl = ctx.user().getEffectiveAvatarUrl();
 
-		// Check vc conditions (user and bot in same vc, etc.)
-		if (!isUserInSameAudioChannel(event)) {
-			sendErrorEmbed(event, "You need to be in the same voice channel as me to use this command!");
-			return;
-		}
+        // Bot owner can always skip
+        if (ctx.isBotOwner()) {
+            musicManager.resetVoting();
+            sendSkippedEmbed(channel, musicManager, embedColor, footerText, footerIconUrl);
+            return;
+        }
 
-		// Checks if there is already a voting for the guild
-		if (musicManager.isVoting()) {
-			sendErrorEmbed(event, "There is already a voting ongoing!");
-			return;
-		}
+        // Check vc conditions (user and bot in same vc, etc.)
+        if (!isUserInSameAudioChannel(member, guild)) {
+            ctx.reply().errorEmbed("You need to be in the same voice channel as me to use this command!");
+            return;
+        }
 
-		AudioChannelUnion channel = getConnectedChannel(event.getGuild());
+        // Checks if there is already a voting for the guild
+        if (musicManager.isVoting()) {
+            ctx.reply().errorEmbed("There is already a voting ongoing!");
+            return;
+        }
 
-		if (channel == null) {
-			sendErrorEmbed(event, "I am not connected to a voice channel!");
-			return;
-		}
+        AudioChannelUnion voiceChannel = getConnectedChannel(guild);
 
-		musicManager.setVoting(true);
+        if (voiceChannel == null) {
+            ctx.reply().errorEmbed("I am not connected to a voice channel!");
+            return;
+        }
 
-		List<Member> listeners = channel.getMembers().stream()
-				.filter(m -> !m.getUser().isBot() && !getMemberVoiceState(m).isDeafened()).toList();
+        musicManager.setVoting(true);
 
-		int requiredVotes = (int) Math.floor(listeners.size() / 2.0);
+        List<Member> listeners = voiceChannel.getMembers().stream()
+            .filter(m -> !m.getUser().isBot() && !getMemberVoiceState(m).isDeafened()).toList();
 
-		// User can clear without voting
-		if (requiredVotes == 0) {
-			musicManager.resetVoting();
-			skip(event);
-			return;
-		}
+        int requiredVotes = (int) Math.floor(listeners.size() / 2.0);
 
-		String username = event.getMember() != null ? event.getMember().getEffectiveName() : event.getAuthor().getName();
+        // User can skip without voting
+        if (requiredVotes == 0) {
+            musicManager.resetVoting();
+            sendSkippedEmbed(channel, musicManager, embedColor, footerText, footerIconUrl);
+            return;
+        }
 
-		EmbedBuilder builder = new EmbedBuilder();
-		builder.setTitle(username + " requested a skip");
-		builder.setDescription("Upvote to skip current track\n`" + requiredVotes + "` upvotes are required");
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(member.getEffectiveName() + " requested a skip");
+        builder.setDescription("Upvote to skip current track\n`" + requiredVotes + "` upvotes are required");
+        builder.setColor(embedColor);
 
-		event.getChannel().sendMessageEmbeds(builder.build()).queue(msg -> {
-			msg.addReaction(Emote.ARROW_UP.getAsEmoji()).queue(v -> {}, err -> {});
+        channel.sendMessageEmbeds(builder.build()).queue(msg -> {
+            msg.addReaction(Emote.ARROW_UP.getAsEmoji()).queue(v -> {
+            }, err -> {
+            });
 
-			waiter.waitForEvent(MessageReactionAddEvent.class, evt -> {
-				// So reactions on other messages and bot reactions are ignored
-				if (evt.getMessageIdLong() != msg.getIdLong()) {
-					return false;
-				}
+            waiter.waitForEvent(MessageReactionAddEvent.class, evt -> {
+                // So reactions on other messages and bot reactions are ignored
+                if (evt.getMessageIdLong() != msg.getIdLong()) {
+                    return false;
+                }
 
-				if (evt.retrieveUser().complete().isBot()) {
-					return false;
-				}
+                if (evt.retrieveUser().complete().isBot()) {
+                    return false;
+                }
 
-				if (listeners.contains(evt.getMember()) && evt.getReaction().getEmoji().equals(Emote.ARROW_UP.getAsEmoji())) {
-					return musicManager.getVoteCounter().incrementAndGet() >= requiredVotes;
-				}
-				return false;
-			}, evt -> {
-				msg.delete().queue();
-				musicManager.resetVoting();
-				skip(event);
-			}, 1L, TimeUnit.MINUTES, () -> {
-				msg.delete().queue();
-				musicManager.resetVoting();
-			});
-		});
-	}
+                if (listeners.contains(evt.getMember()) && evt.getReaction().getEmoji().equals(Emote.ARROW_UP.getAsEmoji())) {
+                    return musicManager.getVoteCounter().incrementAndGet() >= requiredVotes;
+                }
+                return false;
+            }, evt -> {
+                msg.delete().queue();
+                musicManager.resetVoting();
+                sendSkippedEmbed(channel, musicManager, embedColor, footerText, footerIconUrl);
+            }, 1L, TimeUnit.MINUTES, () -> {
+                msg.delete().queue();
+                musicManager.resetVoting();
+            });
+        });
+    }
 
-	private void skip(MessageReceivedEvent e) {
-		GuildMusicManager musicManager = PlayerManager.getInstance().getMusicManager(e.getGuild());
-		EmbedBuilder builder = new EmbedBuilder();
-		musicManager.scheduler.playNext();
-		builder.setTitle("Skipped Track");
-		builder.setDescription(musicManager.audioPlayer.getPlayingTrack() == null ? "Nothing to play next!"
-				: "Now playing: `" + musicManager.audioPlayer.getPlayingTrack().getInfo().title + "`");
-		sendEmbed(e, builder, true, 30, TimeUnit.SECONDS);
-	}
+    private void sendSkippedEmbed(MessageChannelUnion channel, GuildMusicManager musicManager, Color embedColor, String footerText, String footerIconUrl) {
+        musicManager.scheduler.playNext();
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Skipped Track");
+        builder.setDescription(musicManager.audioPlayer.getPlayingTrack() == null ? "Nothing to play next!"
+            : "Now playing: `" + musicManager.audioPlayer.getPlayingTrack().getInfo().title + "`");
+        builder.setColor(embedColor);
+        builder.setFooter(footerText, footerIconUrl);
+
+        EmbedUtils.sendTimed(channel, builder.build(), 30, TimeUnit.SECONDS);
+    }
 }

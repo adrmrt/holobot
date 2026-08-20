@@ -21,9 +21,9 @@ public enum GraphTheme {
 
     Theme load() {
         return loadThemes().stream()
-                .filter(t -> name.equals(t.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Theme '" + name + "' not found in graph_themes.json"));
+            .filter(t -> name.equals(t.getName()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Theme '" + name + "' not found in graph_themes.json"));
     }
 
     private static List<Theme> loadThemes() {

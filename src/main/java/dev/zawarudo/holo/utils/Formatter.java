@@ -145,20 +145,20 @@ public final class Formatter {
      */
     public static String formatPokemonName(String name) {
         return Arrays.stream(name.replace("--", "-").split("-"))
-                .map(Formatter::capitalize)
-                .collect(Collectors.joining(" "))
-                .replace("Mr", "Mr.")
-                .replace("Jr", "Jr.");
+            .map(Formatter::capitalize)
+            .collect(Collectors.joining(" "))
+            .replace("Mr", "Mr.")
+            .replace("Jr", "Jr.");
     }
 
     public static String getRelativeTime(long millis) {
         long diff = Math.abs(millis - System.currentTimeMillis());
 
         long[] timeUnits = {
-                TimeUnit.MILLISECONDS.toDays(diff),
-                TimeUnit.MILLISECONDS.toHours(diff) % 24,
-                TimeUnit.MILLISECONDS.toMinutes(diff) % 60,
-                TimeUnit.MILLISECONDS.toSeconds(diff) % 60
+            TimeUnit.MILLISECONDS.toDays(diff),
+            TimeUnit.MILLISECONDS.toHours(diff) % 24,
+            TimeUnit.MILLISECONDS.toMinutes(diff) % 60,
+            TimeUnit.MILLISECONDS.toSeconds(diff) % 60
         };
         String[] unitNames = {" day", " hour", " minute", " second"};
 
@@ -249,11 +249,11 @@ public final class Formatter {
 
         // Decode common HTML entities
         s = s.replace("&quot;", "\"")
-                .replace("&amp;", "&")
-                .replace("&lt;", "<")
-                .replace("&gt;", ">")
-                .replace("&#039;", "'")
-                .replace("&nbsp;", " ");
+            .replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&#039;", "'")
+            .replace("&nbsp;", " ");
 
         // Normalize line endings
         s = s.replace("\r", "");

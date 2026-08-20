@@ -1,4 +1,4 @@
 UPDATE DiscordUsers
-SET username      = ?,
-    is_bot        = ?
+SET username = ?,
+    is_bot   = ?
 WHERE user_id = ?;

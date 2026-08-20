@@ -32,7 +32,7 @@ class DateTimeTest {
     void testAmericanFormatWithTimezone() {
         String input = "February 26, 2024 23:59 (UTC+8)";
         long expected = ZonedDateTime.of(2024, 2, 26, 23, 59, 0, 0, ZoneId.of("UTC+8"))
-                .toInstant().toEpochMilli();
+            .toInstant().toEpochMilli();
         assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 
@@ -40,7 +40,7 @@ class DateTimeTest {
     void testAmericanFormat() {
         String input = "February 26, 2024 23:59";
         long expected = LocalDateTime.of(2024, 2, 26, 23, 59)
-                .atZone(ZH).toInstant().toEpochMilli();
+            .atZone(ZH).toInstant().toEpochMilli();
         assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 
@@ -48,7 +48,7 @@ class DateTimeTest {
     void testAmericanFormatWithoutTime() {
         String input = "February 26, 2024";
         long expected = LocalDateTime.of(2024, 2, 26, 0, 0)
-                .atZone(ZH).toInstant().toEpochMilli();
+            .atZone(ZH).toInstant().toEpochMilli();
         assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 
@@ -56,7 +56,7 @@ class DateTimeTest {
     void testEuropeanFormat() {
         String input = "26. February 2024 23:59";
         long expected = LocalDateTime.of(2024, 2, 26, 23, 59)
-                .atZone(ZH).toInstant().toEpochMilli();
+            .atZone(ZH).toInstant().toEpochMilli();
         assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 
@@ -64,7 +64,7 @@ class DateTimeTest {
     void testMillis() {
         String input = "1708988340000";
         long expected = LocalDateTime.of(2024, 2, 26, 23, 59)
-                .atZone(ZH).toInstant().toEpochMilli();
+            .atZone(ZH).toInstant().toEpochMilli();
         assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 

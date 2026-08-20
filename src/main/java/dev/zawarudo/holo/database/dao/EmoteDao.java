@@ -34,9 +34,9 @@ public final class EmoteDao {
 
             while (rs.next()) {
                 result.add(new EmoteLite(
-                        rs.getLong(COL_ID),
-                        rs.getString(COL_NAME),
-                        rs.getBoolean(COL_ANIM)
+                    rs.getLong(COL_ID),
+                    rs.getString(COL_NAME),
+                    rs.getBoolean(COL_ANIM)
                 ));
             }
         }
@@ -104,8 +104,8 @@ public final class EmoteDao {
             while (rs.next()) {
                 String baseName = rs.getString("base_name");
                 EmoteNameRow row = new EmoteNameRow(
-                        rs.getLong(COL_ID),
-                        rs.getString(COL_NAME)
+                    rs.getLong(COL_ID),
+                    rs.getString(COL_NAME)
                 );
 
                 groups.computeIfAbsent(baseName, k -> new ArrayList<>()).add(row);
@@ -162,9 +162,9 @@ public final class EmoteDao {
             try (var rs = ps.executeQuery()) {
                 while (rs.next()) {
                     out.add(new EmoteLite(
-                            rs.getLong(COL_ID),
-                            rs.getString(COL_NAME),
-                            rs.getBoolean(COL_ANIM)
+                        rs.getLong(COL_ID),
+                        rs.getString(COL_NAME),
+                        rs.getBoolean(COL_ANIM)
                     ));
                 }
                 return out;
@@ -183,9 +183,9 @@ public final class EmoteDao {
             try (var rs = ps.executeQuery()) {
                 if (!rs.next()) return Optional.empty();
                 return Optional.of(new EmoteLite(
-                        rs.getLong(COL_ID),
-                        rs.getString(COL_NAME),
-                        rs.getBoolean(COL_ANIM)
+                    rs.getLong(COL_ID),
+                    rs.getString(COL_NAME),
+                    rs.getBoolean(COL_ANIM)
                 ));
             }
         }

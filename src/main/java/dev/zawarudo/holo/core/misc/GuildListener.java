@@ -52,8 +52,8 @@ public class GuildListener extends ListenerAdapter {
             DBOperations.insertGuild(event.getGuild());
 
             emoteManager.insertEmotes(event.getGuild().getEmojis().stream()
-                    .map(e -> (CustomEmoji) e)
-                    .toArray(CustomEmoji[]::new));
+                .map(e -> (CustomEmoji) e)
+                .toArray(CustomEmoji[]::new));
 
             configManager.ensureConfigExists(event.getGuild());
 
@@ -170,7 +170,7 @@ public class GuildListener extends ListenerAdapter {
             PlayerManager.getInstance().getMusicManager(event.getGuild()).stop();
             // 500ms delay lets in-flight DAVE re-keying messages drain before the native session is destroyed
             CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS)
-                    .execute(() -> disconnectIfStillAlone(event.getGuild(), channelId));
+                .execute(() -> disconnectIfStillAlone(event.getGuild(), channelId));
         }
     }
 

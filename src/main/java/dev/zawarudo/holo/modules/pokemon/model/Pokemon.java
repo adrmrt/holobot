@@ -7,7 +7,6 @@ import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.NotFoundException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -455,7 +454,7 @@ public class Pokemon implements Comparable<Pokemon> {
     /**
      * Returns the {@link PokemonSpecies} of this Pokémon.
      */
-    public PokemonSpecies getPokemonSpecies() throws IOException, NotFoundException, APIException {
+    public PokemonSpecies getPokemonSpecies() throws NotFoundException, APIException {
         return PokeApiClient.getPokemonSpecies(species.getName());
     }
 
@@ -471,6 +470,6 @@ public class Pokemon implements Comparable<Pokemon> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Pokemon && ((Pokemon) obj).pokedexId == pokedexId;
+        return obj instanceof Pokemon pokemon && pokemon.pokedexId == pokedexId;
     }
 }

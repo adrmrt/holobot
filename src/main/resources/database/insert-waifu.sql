@@ -1,1 +1,2 @@
-INSERT INTO Gelbooru (id, tag, title) VALUES (?, ?, ?);
+INSERT INTO Gelbooru (id, tag, title)
+VALUES (?, ?, ?);

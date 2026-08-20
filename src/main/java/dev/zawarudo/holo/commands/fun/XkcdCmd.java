@@ -1,32 +1,38 @@
 package dev.zawarudo.holo.commands.fun;
 
-import dev.zawarudo.holo.commands.AbstractCommand;
+import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.core.misc.EmbedColor;
 import dev.zawarudo.holo.database.dao.XkcdDao;
 import dev.zawarudo.holo.modules.xkcd.XkcdAPI;
 import dev.zawarudo.holo.modules.xkcd.XkcdComic;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.Formatter;
+import dev.zawarudo.holo.utils.ParsingUtils;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @CommandInfo(name = "xkcd",
-        description = "Use this command to access the comics of xkcd.",
-        usage = "[new | search <query> | <issue nr> | <title>]",
-        thumbnail = "https://xkcd.com/s/0b7742.png",
-        embedColor = EmbedColor.WHITE,
-        category = CommandCategory.MISC)
-public class XkcdCmd extends AbstractCommand {
+    description = "Use this command to access the comics of xkcd.",
+    usage = "[new | search <query> | <issue nr> | <title>]",
+    thumbnail = "https://xkcd.com/s/0b7742.png",
+    embedColor = EmbedColor.WHITE,
+    category = CommandCategory.MISC)
+public class XkcdCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XkcdCmd.class);
 
     private static final Random RANDOM = new Random();
 
@@ -49,45 +55,45 @@ public class XkcdCmd extends AbstractCommand {
     }
 
     @Override
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        if (args.length == 0) {
-            sendRandomComic(event);
+    public void execute(@NotNull CommandContext ctx) {
+        if (!ctx.hasArgs()) {
+            sendRandomComic(ctx);
             return;
         }
 
         // Fetch and display newest xkcd comic
-        if (args.length == 1 && args[0].equalsIgnoreCase("new")) {
-            sendNewestComic(event);
+        if (ctx.argCount() == 1 && "new".equalsIgnoreCase(ctx.args().getFirst())) {
+            sendNewestComic(ctx);
             return;
         }
 
         // Full-text search using FTS5
-        if (args.length >= 2 && args[0].equalsIgnoreCase("search")) {
-            sendSearch(event);
+        if (ctx.argCount() >= 2 && "search".equalsIgnoreCase(ctx.args().getFirst())) {
+            sendSearch(ctx);
             return;
         }
 
         // Sync xkcd comics
-        if (args.length >= 2 && args[0].equalsIgnoreCase("sync")) {
-            handleSync(event);
+        if (ctx.argCount() >= 2 && "sync".equalsIgnoreCase(ctx.args().getFirst())) {
+            handleSync(ctx);
             return;
         }
 
         // Fetch comic by issue number
-        if (isInteger(args[0])) {
-            sendComicByIssueNumber(event);
+        if (ParsingUtils.isInteger(ctx.args().getFirst())) {
+            sendComicByIssueNumber(ctx);
             return;
         }
 
         // Fetch comic by title
-        sendComicByTitle(event);
+        sendComicByTitle(ctx);
     }
 
-    private void sendRandomComic(MessageReceivedEvent event) {
+    private void sendRandomComic(CommandContext ctx) {
         try {
             int upper = getLatestIssue();
             if (upper <= 0) {
-                sendErrorEmbed(event, ERROR_RETRIEVING);
+                ctx.reply().errorEmbed(ERROR_RETRIEVING);
                 return;
             }
 
@@ -97,37 +103,37 @@ public class XkcdCmd extends AbstractCommand {
             if (issue == 404) issue = 403;
 
             XkcdComic comic = getComicDbFirst(issue).orElseThrow();
-            sendXkcd(event, comic);
+            sendXkcd(ctx, comic);
         } catch (APIException | InvalidRequestException | SQLException ex) {
-            logger.error("Failed to fetch/store random XKCD comic.", ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("Failed to fetch/store random XKCD comic.", ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
 
-    private void sendNewestComic(MessageReceivedEvent event) {
+    private void sendNewestComic(CommandContext ctx) {
         try {
             XkcdComic latest = XkcdAPI.getLatest();
             latestIssue.updateAndGet(cur -> Math.max(cur, latest.getIssueNr()));
-            sendXkcd(event, latest);
+            sendXkcd(ctx, latest);
             xkcdDao.insertIgnore(latest);
         } catch (APIException ex) {
-            logger.error("Failed to fetch newest XKCD comic.", ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("Failed to fetch newest XKCD comic.", ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
         } catch (SQLException ex) {
-            logger.warn("Failed to store latest XKCD comic.", ex);
+            LOGGER.warn("Failed to store latest XKCD comic.", ex);
         }
     }
 
-    private void sendSearch(MessageReceivedEvent event) {
-        String raw = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).trim();
+    private void sendSearch(CommandContext ctx) {
+        String raw = String.join(" ", ctx.args().subList(1, ctx.args().size())).trim();
         if (raw.isBlank()) {
-            sendErrorEmbed(event, "Usage: `" + getPrefix(event) + "xkcd search <query>`");
+            ctx.reply().errorEmbed("Usage: `" + ctx.prefix().orElse("") + "xkcd search <query>`");
             return;
         }
 
         String broadQuery = toBroadQuery(raw);
         if (broadQuery.isBlank()) {
-            sendErrorEmbed(event, "Search query is empty after filtering.");
+            ctx.reply().errorEmbed("Search query is empty after filtering.");
             return;
         }
 
@@ -137,80 +143,78 @@ public class XkcdCmd extends AbstractCommand {
             List<XkcdComic> results = xkcdDao.searchPrioritized(broadQuery, phraseQuery, SEARCH_LIMIT, 0);
 
             if (results.isEmpty()) {
-                event.getMessage().replyEmbeds(
-                        new EmbedBuilder()
-                                .setTitle("xkcd Search Results")
-                                .setDescription("No results found for:\n`" + raw + "`")
-                                .setColor(getEmbedColor())
-                                .build()
-                ).queue();
+                ctx.reply().embed(
+                    new EmbedBuilder()
+                        .setTitle("xkcd Search Results")
+                        .setDescription("No results found for:\n`" + raw + "`")
+                        .setColor(getEmbedColor())
+                );
                 return;
             }
 
             StringBuilder body = new StringBuilder();
             for (XkcdComic comic : results) {
                 body.append(comic.getIssueNr()).append('\n')
-                        .append(comic.getTitle()).append('\n')
-                        .append(comic.getAlt()).append("\n\n");
+                    .append(comic.getTitle()).append('\n')
+                    .append(comic.getAlt()).append("\n\n");
             }
 
-            event.getMessage().replyEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("xkcd Search Results")
-                            .setDescription(Formatter.asCodeBlock(body.toString()))
-                            .setFooter("Showing top " + results.size()
-                                    + " results • Open with " + getPrefix(event) + "xkcd <issue nr>")
-                            .setColor(getEmbedColor())
-                            .build()
-            ).queue();
+            ctx.reply().embed(
+                new EmbedBuilder()
+                    .setTitle("xkcd Search Results")
+                    .setDescription(Formatter.asCodeBlock(body.toString()))
+                    .setFooter("Showing top " + results.size()
+                        + " results • Open with " + ctx.prefix().orElse("") + "xkcd <issue nr>")
+                    .setColor(getEmbedColor())
+            );
 
         } catch (SQLException ex) {
-            logger.error("XKCD search failed. broadQuery='{}' phraseQuery='{}'", broadQuery, phraseQuery, ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("XKCD search failed. broadQuery='{}' phraseQuery='{}'", broadQuery, phraseQuery, ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
 
-    private void handleSync(MessageReceivedEvent event) {
-        if (!isBotOwner(event.getAuthor())) {
+    private void handleSync(CommandContext ctx) {
+        if (!ctx.isBotOwner()) {
             // Command is owner-only
             return;
         }
 
-        String sub = args[1].toLowerCase(Locale.ROOT);
+        String sub = ctx.args().get(1).toLowerCase(Locale.ROOT);
 
         switch (sub) {
-            case "start" -> syncStart(event);
-            case "status" -> syncStatus(event);
-            case "stop" -> syncStop(event);
-            default -> sendErrorEmbed(event,
-                    "Usage: `" + getPrefix(event) + "xkcd sync <start|status|stop>`");
+            case "start" -> syncStart(ctx);
+            case "status" -> syncStatus(ctx);
+            case "stop" -> syncStop(ctx);
+            default -> ctx.reply().errorEmbed(
+                "Usage: `" + ctx.prefix().orElse("") + "xkcd sync <start|status|stop>`");
         }
     }
 
-    private void sendComicByIssueNumber(MessageReceivedEvent event) {
-        int num = Integer.parseInt(args[0]);
+    private void sendComicByIssueNumber(CommandContext ctx) {
+        int num = Integer.parseInt(ctx.args().getFirst());
         if (num < 1) {
-            sendErrorEmbed(event, String.format(ERROR_DOES_NOT_EXIST, getPrefix(event)));
+            ctx.reply().errorEmbed(String.format(ERROR_DOES_NOT_EXIST, ctx.prefix().orElse("")));
             return;
         }
 
         try {
             int latest = getLatestIssue();
             if (latest > 0 && num > latest) {
-                sendErrorEmbed(event, String.format(ERROR_DOES_NOT_EXIST, getPrefix(event)));
+                ctx.reply().errorEmbed(String.format(ERROR_DOES_NOT_EXIST, ctx.prefix().orElse("")));
                 return;
             }
 
             Optional<XkcdComic> comic = getComicDbFirst(num);
             if (comic.isEmpty()) {
-                sendErrorEmbed(event, String.format(ERROR_DOES_NOT_EXIST, getPrefix(event)));
+                ctx.reply().errorEmbed(String.format(ERROR_DOES_NOT_EXIST, ctx.prefix().orElse("")));
                 return;
             }
 
-            sendXkcd(event, comic.get());
+            sendXkcd(ctx, comic.get());
         } catch (APIException | InvalidRequestException | SQLException ex) {
-            logger.error("Failed to fetch/store XKCD comic #{}.", num, ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("Failed to fetch/store XKCD comic #{}.", num, ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
 
@@ -226,7 +230,7 @@ public class XkcdCmd extends AbstractCommand {
 
             return latest.getIssueNr();
         } catch (APIException | SQLException ex) {
-            logger.warn("Could not fetch/store latest XKCD issue.", ex);
+            LOGGER.warn("Could not fetch/store latest XKCD issue.", ex);
             return latestIssue.get();
         }
     }
@@ -243,41 +247,40 @@ public class XkcdCmd extends AbstractCommand {
         return Optional.of(fetched);
     }
 
-    private void sendComicByTitle(MessageReceivedEvent event) {
-        String title = String.join(" ", args);
+    private void sendComicByTitle(CommandContext ctx) {
+        String title = ctx.argString();
         if (title.isBlank()) {
-            sendErrorEmbed(event, "Usage: `" + getPrefix(event) + "xkcd <title>`");
+            ctx.reply().errorEmbed("Usage: `" + ctx.prefix().orElse("") + "xkcd <title>`");
             return;
         }
 
         try {
             Optional<XkcdComic> comic = xkcdDao.findByExactTitle(title);
             if (comic.isEmpty()) {
-                sendErrorEmbed(event, String.format(ERROR_DOES_NOT_EXIST, getPrefix(event)));
+                ctx.reply().errorEmbed(String.format(ERROR_DOES_NOT_EXIST, ctx.prefix().orElse("")));
                 return;
             }
-            sendXkcd(event, comic.get());
+            sendXkcd(ctx, comic.get());
         } catch (SQLException ex) {
-            logger.error("DB lookup by title failed: '{}'", title, ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("DB lookup by title failed: '{}'", title, ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
         }
     }
 
-    private void sendXkcd(MessageReceivedEvent event, XkcdComic comic) {
+    private void sendXkcd(CommandContext ctx, XkcdComic comic) {
         String alt = comic.getAlt();
         alt = alt.length() > MessageEmbed.TEXT_MAX_LENGTH
-                ? alt.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 3) + "..."
-                : alt;
+            ? alt.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 3) + "..."
+            : alt;
 
-        event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd " + comic.getIssueNr() + ": " + comic.getTitle())
-                        .setDescription("[Explanation](" + comic.getExplainedUrl() + ")")
-                        .setImage(comic.getImg())
-                        .setFooter(alt)
-                        .setColor(getEmbedColor())
-                        .build()
-        ).queue();
+        ctx.reply().embed(
+            new EmbedBuilder()
+                .setTitle("xkcd " + comic.getIssueNr() + ": " + comic.getTitle())
+                .setDescription("[Explanation](" + comic.getExplainedUrl() + ")")
+                .setImage(comic.getImg())
+                .setFooter(alt)
+                .setColor(getEmbedColor())
+        );
     }
 
     private static String toBroadQuery(String raw) {
@@ -302,16 +305,16 @@ public class XkcdCmd extends AbstractCommand {
 
     private static String toPhraseQuery(String raw) {
         String normalized = raw.toLowerCase()
-                .trim()
-                .replaceAll("\\s+", " ") // Replace extra spaces
-                .replace("\"", "");
+            .trim()
+            .replaceAll("\\s+", " ") // Replace extra spaces
+            .replace("\"", "");
 
         if (normalized.isBlank()) return "";
 
         return "\"" + normalized + "\"";
     }
 
-    private void syncStart(@NotNull MessageReceivedEvent event) {
+    private void syncStart(@NotNull CommandContext ctx) {
         int latest;
 
         if (latestIssue.get() <= 0) {
@@ -319,7 +322,7 @@ public class XkcdCmd extends AbstractCommand {
         }
         latest = latestIssue.get();
         if (latest <= 0) {
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
             return;
         }
 
@@ -327,8 +330,8 @@ public class XkcdCmd extends AbstractCommand {
         try {
             dbCount = xkcdDao.countComics();
         } catch (SQLException ex) {
-            logger.error("Failed to count XKCD comics.", ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("Failed to count XKCD comics.", ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
             return;
         }
 
@@ -336,15 +339,14 @@ public class XkcdCmd extends AbstractCommand {
         int expectedCount = latest - ((latest >= 404) ? 1 : 0);
 
         if (dbCount >= expectedCount) {
-            event.getMessage().replyEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("xkcd sync")
-                            .setDescription("Already up to date.\n"
-                                    + "Comics in DB: **" + dbCount + "** / **" + expectedCount + "**\n"
-                                    + "Latest: **#" + latest + "**")
-                            .setColor(getEmbedColor())
-                            .build()
-            ).queue();
+            ctx.reply().embed(
+                new EmbedBuilder()
+                    .setTitle("xkcd sync")
+                    .setDescription("Already up to date.\n"
+                        + "Comics in DB: **" + dbCount + "** / **" + expectedCount + "**\n"
+                        + "Latest: **#" + latest + "**")
+                    .setColor(getEmbedColor())
+            );
             return;
         }
 
@@ -355,38 +357,37 @@ public class XkcdCmd extends AbstractCommand {
         try {
             started = xkcdSyncService.start(from, to);
         } catch (IllegalArgumentException ex) {
-            logger.error("Failed to start XKCD sync due to invalid range: {} -> {}", from, to, ex);
-            sendErrorEmbed(event, "Failed to start sync (invalid range).");
+            LOGGER.error("Failed to start XKCD sync due to invalid range: {} -> {}", from, to, ex);
+            ctx.reply().errorEmbed("Failed to start sync (invalid range).");
             return;
         } catch (Exception ex) {
-            logger.error("Failed to start XKCD sync.", ex);
-            sendErrorEmbed(event, ERROR_RETRIEVING);
+            LOGGER.error("Failed to start XKCD sync.", ex);
+            ctx.reply().errorEmbed(ERROR_RETRIEVING);
             return;
         }
 
         if (!started) {
-            sendErrorEmbed(event, "Sync is already running. Use `" + getPrefix(event) + "xkcd sync status`.");
+            ctx.reply().errorEmbed("Sync is already running. Use `" + ctx.prefix().orElse("") + "xkcd sync status`.");
             return;
         }
 
-        event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync started")
-                        .setDescription("Syncing comics (safe re-sync) from **#" + from + "** to **#" + to + "**.\n"
-                                + "Progress: **" + dbCount + "** / **" + expectedCount + "** stored.\n"
-                                + "Check progress with `" + getPrefix(event) + "xkcd sync status`.")
-                        .setColor(getEmbedColor())
-                        .build()
-        ).queue();
+        ctx.reply().embed(
+            new EmbedBuilder()
+                .setTitle("xkcd sync started")
+                .setDescription("Syncing comics (safe re-sync) from **#" + from + "** to **#" + to + "**.\n"
+                    + "Progress: **" + dbCount + "** / **" + expectedCount + "** stored.\n"
+                    + "Check progress with `" + ctx.prefix().orElse("") + "xkcd sync status`.")
+                .setColor(getEmbedColor())
+        );
     }
 
-    private void syncStatus(@NotNull MessageReceivedEvent event) {
+    private void syncStatus(@NotNull CommandContext ctx) {
         int dbCount = -1;
 
         try {
             dbCount = xkcdDao.countComics();
         } catch (SQLException ex) {
-            logger.error("countComics failed", ex);
+            LOGGER.error("countComics failed", ex);
         }
 
         XkcdSyncService.SyncStatus s = xkcdSyncService.status(0, dbCount);
@@ -421,29 +422,27 @@ public class XkcdCmd extends AbstractCommand {
             desc.append("\n**Last error:** ").append(s.lastError());
         }
 
-        event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync status")
-                        .setDescription(desc.toString())
-                        .setColor(getEmbedColor())
-                        .build()
-        ).queue();
+        ctx.reply().embed(
+            new EmbedBuilder()
+                .setTitle("xkcd sync status")
+                .setDescription(desc.toString())
+                .setColor(getEmbedColor())
+        );
     }
 
-    private void syncStop(@NotNull MessageReceivedEvent event) {
+    private void syncStop(@NotNull CommandContext ctx) {
         if (!xkcdSyncService.isRunning()) {
-            sendErrorEmbed(event, "No sync is currently running.");
+            ctx.reply().errorEmbed("No sync is currently running.");
             return;
         }
 
         xkcdSyncService.stop();
 
-        event.getMessage().replyEmbeds(
-                new EmbedBuilder()
-                        .setTitle("xkcd sync stopping")
-                        .setDescription("Stopping sync... (it should stop shortly)")
-                        .setColor(getEmbedColor())
-                        .build()
-        ).queue();
+        ctx.reply().embed(
+            new EmbedBuilder()
+                .setTitle("xkcd sync stopping")
+                .setDescription("Stopping sync... (it should stop shortly)")
+                .setColor(getEmbedColor())
+        );
     }
 }

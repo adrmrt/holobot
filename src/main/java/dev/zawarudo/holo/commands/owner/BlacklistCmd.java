@@ -1,154 +1,157 @@
 package dev.zawarudo.holo.commands.owner;
 
+import dev.zawarudo.holo.commands.CommandMetadata;
+import dev.zawarudo.holo.commands.CommandCategory;
+import dev.zawarudo.holo.core.command.CommandContext;
+import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.core.security.BlacklistService;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
-import dev.zawarudo.holo.commands.AbstractCommand;
-import dev.zawarudo.holo.commands.CommandCategory;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
 
 /**
  * Command to blacklist a user from using the bot.
  */
 @CommandInfo(name = "blacklist",
-		description = "Blacklists an user from using the bot.",
-		usage = "<user id|@mention> [reason...] | remove <user id|@mention>",
-		ownerOnly = true,
-		category = CommandCategory.OWNER)
-public class BlacklistCmd extends AbstractCommand {
+    description = "Blacklists an user from using the bot.",
+    usage = "<user id|@mention> [reason...] | remove <user id|@mention>",
+    ownerOnly = true,
+    category = CommandCategory.OWNER)
+public class BlacklistCmd implements CommandMetadata, ExecutableCommand {
 
-	private final BlacklistService blacklistService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistCmd.class);
 
-	public BlacklistCmd(BlacklistService blacklistService) {
-		this.blacklistService = blacklistService;
-	}
+    private final BlacklistService blacklistService;
 
-	@Override
-	public void onCommand(@NotNull MessageReceivedEvent event) {
-		deleteInvoke(event);
+    public BlacklistCmd(BlacklistService blacklistService) {
+        this.blacklistService = blacklistService;
+    }
 
-		if (args.length == 0) {
-			sendUsage(event, "Missing arguments.");
-			return;
-		}
+    @Override
+    public void execute(@NotNull CommandContext ctx) {
+        ctx.invocation().deleteInvokeIfPossible();
 
-		if (isRemoveMode(args[0])) {
-			handleRemove(event);
-			return;
-		}
+        if (!ctx.hasArgs()) {
+            sendUsage(ctx, "Missing arguments.");
+            return;
+        }
 
-		handleAdd(event);
-	}
+        if (isRemoveMode(ctx.args().getFirst())) {
+            handleRemove(ctx);
+            return;
+        }
 
-	private void handleAdd(@NotNull MessageReceivedEvent event) {
-		Long userId = parseUserId(args[0]);
-		if (userId == null) {
-			sendUsage(event, "Invalid user id / mention: `" + args[0] + "`");
-			return;
-		}
+        handleAdd(ctx);
+    }
 
-		String reason = parseReasonFromIndex(1);
+    private void handleAdd(CommandContext ctx) {
+        Long userId = parseUserId(ctx.args().getFirst());
+        if (userId == null) {
+            sendUsage(ctx, "Invalid user id / mention: `" + ctx.args().getFirst() + "`");
+            return;
+        }
 
-		try {
-			blacklistService.blacklist(
-					userId,
-					reason,
-					event.getMessage().getTimeCreated().toString()
-			);
-		} catch (SQLException ex) {
-			logger.error("Failed to blacklist userId={}", userId, ex);
-			sendErrorToOwner("Database error while blacklisting user.", ex);
-			return;
-		}
+        String reason = parseReasonFromIndex(ctx, 1);
 
-		User cached = event.getJDA().getUserById(userId);
-		String who = formatUser(cached, userId);
+        try {
+            blacklistService.blacklist(
+                userId,
+                reason,
+                ctx.message().map(m -> m.getTimeCreated().toString()).orElse("")
+            );
+        } catch (SQLException ex) {
+            LOGGER.error("Failed to blacklist userId={}", userId, ex);
+            sendErrorToOwner(ctx, "Database error while blacklisting user.");
+            return;
+        }
 
-		sendToOwner(embed()
-				.setTitle("User successfully blacklisted")
-				.setDescription("**User:** " + who + "\n**Reason:** " + reason));
-	}
+        User cached = ctx.jda().getUserById(userId);
+        String who = formatUser(cached, userId);
 
+        ctx.notifyOwner(embed()
+            .setTitle("User successfully blacklisted")
+            .setDescription("**User:** " + who + "\n**Reason:** " + reason));
+    }
 
-	private void handleRemove(@NotNull MessageReceivedEvent event) {
-		if (args.length < 2) {
-			sendUsage(event, "Missing user id / mention for remove.");
-			return;
-		}
+    private void handleRemove(CommandContext ctx) {
+        if (ctx.argCount() < 2) {
+            sendUsage(ctx, "Missing user id / mention for remove.");
+            return;
+        }
 
-		Long userId = parseUserId(args[1]);
-		if (userId == null) {
-			sendUsage(event, "Invalid user id / mention: `" + args[1] + "`");
-			return;
-		}
+        Long userId = parseUserId(ctx.args().get(1));
+        if (userId == null) {
+            sendUsage(ctx, "Invalid user id / mention: `" + ctx.args().get(1) + "`");
+            return;
+        }
 
-		try {
-			blacklistService.unblacklist(userId);
-		} catch (SQLException ex) {
-			logger.error("Failed to unblacklist userId={}", userId, ex);
-			sendErrorToOwner("Database error while removing user from blacklist.", ex);
-			return;
-		}
+        try {
+            blacklistService.unblacklist(userId);
+        } catch (SQLException ex) {
+            LOGGER.error("Failed to unblacklist userId={}", userId, ex);
+            sendErrorToOwner(ctx, "Database error while removing user from blacklist.");
+            return;
+        }
 
-		User cached = event.getJDA().getUserById(userId);
-		String who = formatUser(cached, userId);
+        User cached = ctx.jda().getUserById(userId);
+        String who = formatUser(cached, userId);
 
-		sendToOwner(embed()
-				.setTitle("User removed from blacklist")
-				.setDescription("**User:** " + who));
-	}
+        ctx.notifyOwner(embed()
+            .setTitle("User removed from blacklist")
+            .setDescription("**User:** " + who));
+    }
 
-	private boolean isRemoveMode(String firstArg) {
-		String s = firstArg.toLowerCase();
-		return s.equals("remove") || s.equals("unblacklist") || s.equals("delete");
-	}
+    private boolean isRemoveMode(String firstArg) {
+        String s = firstArg.toLowerCase();
+        return s.equals("remove") || s.equals("unblacklist") || s.equals("delete");
+    }
 
-	private Long parseUserId(String raw) {
-		String s = raw.trim()
-				.replace("<@!", "")
-				.replace("<@", "")
-				.replace(">", "");
+    private Long parseUserId(String raw) {
+        String s = raw.trim()
+            .replace("<@!", "")
+            .replace("<@", "")
+            .replace(">", "");
 
-		try {
-			return Long.parseLong(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException _) {
+            return null;
+        }
+    }
 
-	private String parseReasonFromIndex(int index) {
-		if (args.length <= index) return "None given";
-		String r = String.join(" ", Arrays.copyOfRange(args, index, args.length)).trim();
-		return r.isBlank() ? "None given" : r;
-	}
+    private String parseReasonFromIndex(CommandContext ctx, int index) {
+        if (ctx.argCount() <= index) return "None given";
+        String r = String.join(" ", ctx.args().subList(index, ctx.args().size())).trim();
+        return r.isBlank() ? "None given" : r;
+    }
 
-	private String formatUser(User cached, long userId) {
-		if (cached == null) return "`" + userId + "`";
-		return cached.getAsMention() + " (`" + cached.getName() + "`, `" + cached.getId() + "`)";
-	}
+    private String formatUser(User cached, long userId) {
+        if (cached == null) return "`" + userId + "`";
+        return cached.getAsMention() + " (`" + cached.getName() + "`, `" + cached.getId() + "`)";
+    }
 
-	private void sendUsage(@NotNull MessageReceivedEvent event, String message) {
-		String p = getPrefix(event);
-		sendToOwner(embed()
-				.setTitle("Incorrect Usage")
-				.setDescription(message + "\n\n" +
-						"Add: `" + p + "blacklist <userId|@mention> [reason...]`\n" +
-						"Remove: `" + p + "blacklist remove <userId|@mention>`"));
-	}
+    private void sendUsage(CommandContext ctx, String message) {
+        String p = ctx.prefix().orElse("");
+        ctx.notifyOwner(embed()
+            .setTitle("Incorrect Usage")
+            .setDescription(message + "\n\n" +
+                "Add: `" + p + "blacklist <userId|@mention> [reason...]`\n" +
+                "Remove: `" + p + "blacklist remove <userId|@mention>`"));
+    }
 
-	private void sendErrorToOwner(String message, Exception ex) {
-		sendToOwner(embed()
-				.setTitle("Error")
-				.setDescription(message));
-	}
+    private void sendErrorToOwner(CommandContext ctx, String message) {
+        ctx.notifyOwner(embed()
+            .setTitle("Error")
+            .setDescription(message));
+    }
 
-	private EmbedBuilder embed() {
-		return new EmbedBuilder().setTimestamp(Instant.now());
-	}
+    private EmbedBuilder embed() {
+        return new EmbedBuilder().setTimestamp(Instant.now());
+    }
 }
