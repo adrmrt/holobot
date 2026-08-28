@@ -59,6 +59,7 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
         int max = response.players != null ? response.players.max : 0;
         builder.addField("Players", online + " / " + max, true);
         builder.addField("Version", response.version != null ? response.version.name : "Unknown", true);
+        builder.addField("Ping", response.getPing() + " ms", true);
         String modded = moddedLabel(response);
         if (modded != null) {
             builder.addField("Modded", modded, true);
@@ -99,7 +100,7 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
         return Arrays.stream(response.players.sample)
             .filter(p -> !PLACEHOLDER_UUID.equals(p.id))
             .map(p -> p.name)
-            .collect(Collectors.joining(", "));
+            .collect(Collectors.joining("\n"));
     }
 
     private String moddedLabel(MCPingResponse response) {
