@@ -58,8 +58,9 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
         int max = response.players != null ? response.players.max : 0;
         builder.addField("Players", online + " / " + max, true);
         builder.addField("Version", response.version != null ? response.version.name : "Unknown", true);
-        if (isModded(response)) {
-            builder.addField("Modded", "Forge", true);
+        String modded = moddedLabel(response);
+        if (modded != null) {
+            builder.addField("Modded", modded, true);
         }
 
         String sample = playerSample(response);
@@ -99,12 +100,15 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
             .collect(Collectors.joining(", "));
     }
 
-    /**
-     * The published MCPing 1.0.0 doesn't decode Forge's mod list, so {@code forgeData.mods} is
-     * always empty even on modded servers. The presence of the forgeData/modInfo block itself
-     * (only sent by Forge/FML servers) is what actually signals "this is modded".
-     */
-    private boolean isModded(MCPingResponse response) {
-        return response.forgeData != null || response.modInfo != null;
+    private String moddedLabel(MCPingResponse response) {
+        if (response.forgeData != null) {
+            return response.forgeData.mods != null && response.forgeData.mods.length > 0
+                ? "Forge (" + response.forgeData.mods.length + " mods)"
+                : "Forge";
+        }
+        if (response.modinfo != null) {
+            return "Forge";
+        }
+        return null;
     }
 }
