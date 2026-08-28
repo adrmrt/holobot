@@ -27,6 +27,7 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
 
     private static final String HOST = "cronos.pterodactyl.anachronis.dev";
     private static final int PORT = 25565;
+    private static final String PLACEHOLDER_UUID = "00000000-0000-0000-0000-000000000000";
 
     private final MinecraftServerClient client = new MinecraftServerClient();
 
@@ -96,6 +97,7 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
             return "";
         }
         return Arrays.stream(response.players.sample)
+            .filter(p -> !PLACEHOLDER_UUID.equals(p.id))
             .map(p -> p.name)
             .collect(Collectors.joining(", "));
     }
