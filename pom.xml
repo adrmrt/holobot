@@ -147,6 +147,13 @@
             <version>2.14.0</version>
         </dependency>
 
+        <!-- Minecraft Server List Ping, used by the mce2 command -->
+        <dependency>
+            <groupId>net.lenni0451</groupId>
+            <artifactId>MCPing</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+
         <!-- Dependency to work with .env files -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
