@@ -5,6 +5,7 @@ import dev.zawarudo.holo.commands.anime.AnimeSearchCmd;
 import dev.zawarudo.holo.commands.anime.MangaSearchCmd;
 import dev.zawarudo.holo.commands.fun.*;
 import dev.zawarudo.holo.commands.games.AkinatorCmd;
+import dev.zawarudo.holo.commands.games.Mce2Cmd;
 import dev.zawarudo.holo.commands.general.*;
 import dev.zawarudo.holo.commands.image.*;
 import dev.zawarudo.holo.commands.owner.*;
@@ -75,6 +76,7 @@ public class CommandManager extends ListenerAdapter {
 
         // Game Cmds
         addCommand(new AkinatorCmd(waiter, akinatorSessionManager));
+        addCommand(new Mce2Cmd());
 
         // Image Cmds
         addCommand(new ActionCmd());
