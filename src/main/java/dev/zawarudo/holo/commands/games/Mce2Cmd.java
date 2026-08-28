@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @CommandInfo(name = "mce2",
@@ -55,7 +56,10 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
             builder.setDescription(motd);
         }
 
-        int online = response.players != null ? response.players.online : 0;
+        List<String> onlinePlayers = onlinePlayerNames(response);
+        int online = response.players != null && response.players.sample != null
+            ? onlinePlayers.size()
+            : (response.players != null ? response.players.online : 0);
         int max = response.players != null ? response.players.max : 0;
         builder.addField("Players", online + " / " + max, true);
         builder.addField("Version", response.version != null ? response.version.name : "Unknown", true);
@@ -65,9 +69,8 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
             builder.addField("Modded", modded, true);
         }
 
-        String sample = playerSample(response);
-        if (!sample.isEmpty()) {
-            builder.addField("Online now", sample, false);
+        if (!onlinePlayers.isEmpty()) {
+            builder.addField("Online now", String.join("\n", onlinePlayers), false);
         }
 
         ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
@@ -93,14 +96,14 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
         return rawDescription;
     }
 
-    private String playerSample(MCPingResponse response) {
+    private List<String> onlinePlayerNames(MCPingResponse response) {
         if (response.players == null || response.players.sample == null) {
-            return "";
+            return List.of();
         }
         return Arrays.stream(response.players.sample)
-            .filter(p -> !PLACEHOLDER_UUID.equals(p.id))
+            .filter(p -> p.id != null && !PLACEHOLDER_UUID.equals(p.id))
             .map(p -> p.name)
-            .collect(Collectors.joining("\n"));
+            .collect(Collectors.toList());
     }
 
     private String moddedLabel(MCPingResponse response) {
