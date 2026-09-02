@@ -41,4 +41,9 @@ public class CapturingReply implements CommandContext.Reply {
     public void errorEmbed(@NotNull String content) {
         lastError = content;
     }
+
+    @Override
+    public void errorEmbed(@NotNull String content, boolean delete) {
+        lastError = content;
+    }
 }

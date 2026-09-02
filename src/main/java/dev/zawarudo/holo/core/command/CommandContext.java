@@ -299,6 +299,14 @@ public final class CommandContext {
 
         /** Sends a pre-styled error embed containing the given message. */
         void errorEmbed(@NotNull String content);
+
+        /**
+         * Sends a pre-styled error embed containing the given message.
+         *
+         * @param content the error message to display
+         * @param delete  whether the embed should be automatically deleted after a delay
+         */
+        void errorEmbed(@NotNull String content, boolean delete);
     }
 
     private static String requireNonBlank(String s, String name) {

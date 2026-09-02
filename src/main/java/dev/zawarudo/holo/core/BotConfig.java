@@ -19,6 +19,8 @@ public final class BotConfig {
     private final String dictionaryKey;
     private final String thesaurusKey;
     private final String catApiKey;
+    private final String mce2RconPassword;
+    private final int mce2RconPort;
 
     private final String defaultPrefix;
     private final String dbPath;
@@ -33,6 +35,8 @@ public final class BotConfig {
         String dictionaryKey,
         String thesaurusKey,
         String catApiKey,
+        String mce2RconPassword,
+        int mce2RconPort,
         String defaultPrefix,
         String dbPath
     ) {
@@ -45,6 +49,8 @@ public final class BotConfig {
         this.dictionaryKey = dictionaryKey;
         this.thesaurusKey = thesaurusKey;
         this.catApiKey = nullToEmpty(catApiKey);
+        this.mce2RconPassword = nullToEmpty(mce2RconPassword);
+        this.mce2RconPort = mce2RconPort;
         this.defaultPrefix = defaultPrefix == null || defaultPrefix.isBlank() ? "<" : defaultPrefix;
         this.dbPath = dbPath;
     }
@@ -113,6 +119,20 @@ public final class BotConfig {
     }
 
     /**
+     * RCON password for the MC Eternal 2 server.
+     */
+    public String getMce2RconPassword() {
+        return mce2RconPassword;
+    }
+
+    /**
+     * RCON port for the MC Eternal 2 server.
+     */
+    public int getMce2RconPort() {
+        return mce2RconPort;
+    }
+
+    /**
      * Default command prefix (defaults to {@code "<"}).
      */
     public String getDefaultPrefix() {
@@ -139,6 +159,8 @@ public final class BotConfig {
         private String dictionaryKey;
         private String thesaurusKey;
         private String catApiKey;
+        private String mce2RconPassword;
+        private int mce2RconPort = 25575;
         private String defaultPrefix = "<";
         private String dbPath;
 
@@ -187,6 +209,16 @@ public final class BotConfig {
             return this;
         }
 
+        public Builder mce2RconPassword(String mce2RconPassword) {
+            this.mce2RconPassword = mce2RconPassword;
+            return this;
+        }
+
+        public Builder mce2RconPort(int mce2RconPort) {
+            this.mce2RconPort = mce2RconPort;
+            return this;
+        }
+
         public Builder defaultPrefix(String defaultPrefix) {
             this.defaultPrefix = defaultPrefix;
             return this;
@@ -211,6 +243,8 @@ public final class BotConfig {
                 dictionaryKey,
                 thesaurusKey,
                 catApiKey,
+                mce2RconPassword,
+                mce2RconPort,
                 defaultPrefix,
                 dbPath
             );
@@ -234,6 +268,8 @@ public final class BotConfig {
             ", dictionaryKey=" + mask(dictionaryKey) +
             ", thesaurusKey=" + mask(thesaurusKey) +
             ", catApiKey=" + mask(catApiKey) +
+            ", mce2RconPassword=" + mask(mce2RconPassword) +
+            ", mce2RconPort=" + mce2RconPort +
             ", defaultPrefix='" + defaultPrefix + '\'' +
             ", dbPath='" + dbPath + '\'' +
             '}';

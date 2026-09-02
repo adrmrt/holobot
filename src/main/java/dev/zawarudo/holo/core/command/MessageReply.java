@@ -60,6 +60,16 @@ public final class MessageReply implements CommandContext.Reply {
         embed(embed, ERROR_DELETE_AFTER_SECONDS, TimeUnit.SECONDS);
     }
 
+    @Override
+    public void errorEmbed(@NotNull String content, boolean delete) {
+        MessageEmbed embed = buildErrorEmbed(content);
+        if (delete) {
+            embed(embed, ERROR_DELETE_AFTER_SECONDS, TimeUnit.SECONDS);
+        } else {
+            replyTo.replyEmbeds(embed).queue();
+        }
+    }
+
     public @NotNull Message replyTo() {
         return replyTo;
     }

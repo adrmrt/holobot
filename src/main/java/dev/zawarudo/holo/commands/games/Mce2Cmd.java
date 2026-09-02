@@ -73,8 +73,7 @@ public class Mce2Cmd implements CommandMetadata, ExecutableCommand {
             builder.addField("Online now", String.join("\n", onlinePlayers), false);
         }
 
-        ctx.member().ifPresent(m -> builder.setFooter("Invoked by " + m.getEffectiveName(), ctx.user().getEffectiveAvatarUrl()));
-        ctx.channel().sendMessageEmbeds(builder.build()).queue();
+        ctx.reply().embed(builder);
     }
 
     /**
