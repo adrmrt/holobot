@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Command to catch the current Pokémon in a guild channel.
+ * Command to catch the current Pokemon in a guild channel.
  */
 @CommandInfo(name = "catch",
     description = "Use this command to catch the current Pokémon of a text channel. " +

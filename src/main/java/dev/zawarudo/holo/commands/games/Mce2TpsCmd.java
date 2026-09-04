@@ -63,7 +63,7 @@ public class Mce2TpsCmd implements CommandMetadata, ExecutableCommand {
     }
 
     /**
-     * spark's console output uses legacy {@code §}-prefixed color codes, which don't render in Discord.
+     * spark's console output uses legacy {@code \u00A7}-prefixed color codes, which don't render in Discord.
      */
     private String stripColorCodes(String text) {
         return text.replaceAll("§[0-9a-fk-or]", "");

@@ -21,7 +21,7 @@ public final class PokeApiClient {
      */
     public static final String BASE_URL = "https://pokeapi.co/api/v2/";
     /**
-     * The number of Pokémon that exist.
+     * The number of Pokemon that exist.
      */
     public static final int POKEMON_COUNT = 1025;
 
@@ -31,9 +31,9 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a {@link PokemonSpecies} object from a given Pokédex id.
+     * Returns a {@link PokemonSpecies} object from a given Pokedex id.
      *
-     * @param id The Pokédex id of the desired Pokémon species.
+     * @param id The Pokedex id of the desired Pokemon species.
      * @return A {@link PokemonSpecies} object
      */
     public static PokemonSpecies getPokemonSpecies(int id) throws InvalidIdException, APIException {
@@ -47,9 +47,9 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a {@link PokemonSpecies} object from a given Pokémon species name.
+     * Returns a {@link PokemonSpecies} object from a given Pokemon species name.
      *
-     * @param name The name of the desired Pokémon species.
+     * @param name The name of the desired Pokemon species.
      * @return A {@link PokemonSpecies} object
      */
     public static PokemonSpecies getPokemonSpecies(String name) throws NotFoundException, APIException {
@@ -63,9 +63,9 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a {@link Pokemon} object from a given Pokédex id.
+     * Returns a {@link Pokemon} object from a given Pokedex id.
      *
-     * @param id The Pokédex id of the desired Pokémon.
+     * @param id The Pokedex id of the desired Pokemon.
      * @return A {@link Pokemon} object
      */
     public static Pokemon getPokemon(int id) throws InvalidIdException, APIException {
@@ -79,9 +79,9 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a {@link Pokemon} object from a given Pokémon name.
+     * Returns a {@link Pokemon} object from a given Pokemon name.
      *
-     * @param name The name of the desired Pokémon.
+     * @param name The name of the desired Pokemon.
      * @return A {@link Pokemon} object
      */
     public static Pokemon getPokemon(String name) throws NotFoundException, APIException {
@@ -121,7 +121,7 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a random {@link PokemonSpecies} object from all existing Pokémon species.
+     * Returns a random {@link PokemonSpecies} object from all existing Pokemon species.
      *
      * @return A {@link PokemonSpecies} object
      */
@@ -141,7 +141,7 @@ public final class PokeApiClient {
     }
 
     /**
-     * Returns a random {@link Pokemon} object from all existing Pokémon species.
+     * Returns a random {@link Pokemon} object from all existing Pokemon species.
      *
      * @return A {@link Pokemon} object
      */
@@ -198,7 +198,7 @@ public final class PokeApiClient {
      * Fetches all the given ids and returns a list of {@link Pokemon}. Uses
      * parallelization to be as quick as possible.
      *
-     * @param ids An array of Pokémon ids.
+     * @param ids An array of Pokemon ids.
      */
     public static List<Pokemon> getPokemon(int... ids) throws InterruptedException, ExecutionException {
         int poolSize = Math.min(ids.length, Runtime.getRuntime().availableProcessors());

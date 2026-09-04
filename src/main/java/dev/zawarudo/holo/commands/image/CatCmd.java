@@ -28,7 +28,7 @@ public class CatCmd implements CommandMetadata, ExecutableCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatCmd.class);
 
-    /** Maps lowercase breed name → breed record. Populated at construction. Empty on API failure. */
+    /** Maps lowercase breed name to breed record. Populated at construction. Empty on API failure. */
     private final Map<String, TheCatApiClient.CatBreed> breeds = new LinkedHashMap<>();
 
     public CatCmd() {
