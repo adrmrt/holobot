@@ -52,6 +52,7 @@ config.json
 config.properties
 /conventions.md
 /checklist.md
+/plans/
 *.ppk
 
 /data/

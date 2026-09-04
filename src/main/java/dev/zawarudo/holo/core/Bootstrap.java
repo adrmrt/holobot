@@ -84,6 +84,7 @@ public final class Bootstrap {
             .dictionaryKey(env.get("KEY_DICTIONARY", ""))
             .thesaurusKey(env.get("KEY_THESAURUS", ""))
             .catApiKey(env.get("CAT_API_KEY", ""))
+            .malClientId(env.get("MAL_CLIENT_ID", ""))
             .mce2RconPassword(env.get("MCE2_RCON_PASSWORD", ""))
             .mce2RconPort(Integer.parseInt(env.get("MCE2_RCON_PORT", "25575")))
             .build();

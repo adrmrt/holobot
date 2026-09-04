@@ -19,6 +19,7 @@ public final class BotConfig {
     private final String dictionaryKey;
     private final String thesaurusKey;
     private final String catApiKey;
+    private final String malClientId;
     private final String mce2RconPassword;
     private final int mce2RconPort;
 
@@ -35,6 +36,7 @@ public final class BotConfig {
         String dictionaryKey,
         String thesaurusKey,
         String catApiKey,
+        String malClientId,
         String mce2RconPassword,
         int mce2RconPort,
         String defaultPrefix,
@@ -49,6 +51,7 @@ public final class BotConfig {
         this.dictionaryKey = dictionaryKey;
         this.thesaurusKey = thesaurusKey;
         this.catApiKey = nullToEmpty(catApiKey);
+        this.malClientId = nullToEmpty(malClientId);
         this.mce2RconPassword = nullToEmpty(mce2RconPassword);
         this.mce2RconPort = mce2RconPort;
         this.defaultPrefix = defaultPrefix == null || defaultPrefix.isBlank() ? "<" : defaultPrefix;
@@ -119,6 +122,13 @@ public final class BotConfig {
     }
 
     /**
+     * MyAnimeList API client ID.
+     */
+    public String getMalClientId() {
+        return malClientId;
+    }
+
+    /**
      * RCON password for the MC Eternal 2 server.
      */
     public String getMce2RconPassword() {
@@ -159,6 +169,7 @@ public final class BotConfig {
         private String dictionaryKey;
         private String thesaurusKey;
         private String catApiKey;
+        private String malClientId;
         private String mce2RconPassword;
         private int mce2RconPort = 25575;
         private String defaultPrefix = "<";
@@ -209,6 +220,11 @@ public final class BotConfig {
             return this;
         }
 
+        public Builder malClientId(String malClientId) {
+            this.malClientId = malClientId;
+            return this;
+        }
+
         public Builder mce2RconPassword(String mce2RconPassword) {
             this.mce2RconPassword = mce2RconPassword;
             return this;
@@ -243,6 +259,7 @@ public final class BotConfig {
                 dictionaryKey,
                 thesaurusKey,
                 catApiKey,
+                malClientId,
                 mce2RconPassword,
                 mce2RconPort,
                 defaultPrefix,
@@ -268,6 +285,7 @@ public final class BotConfig {
             ", dictionaryKey=" + mask(dictionaryKey) +
             ", thesaurusKey=" + mask(thesaurusKey) +
             ", catApiKey=" + mask(catApiKey) +
+            ", malClientId=" + mask(malClientId) +
             ", mce2RconPassword=" + mask(mce2RconPassword) +
             ", mce2RconPort=" + mce2RconPort +
             ", defaultPrefix='" + defaultPrefix + '\'' +
