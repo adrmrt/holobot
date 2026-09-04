@@ -40,6 +40,9 @@ hs_err_pid*
 # Ignore databases
 *.db
 
+# Python cache (scripts/)
+__pycache__/
+
 /src/main/java/dev/zawarudo/holo/experimental/
 /src/main/java/dev/zawarudo/holo/development/
 

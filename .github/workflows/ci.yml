@@ -29,6 +29,9 @@ jobs:
       - name: Run unit tests
         run: mvn -B test
 
+      - name: Check for non-ASCII characters in Java source
+        run: python3 scripts/check_ascii.py
+
   lint-commits:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
