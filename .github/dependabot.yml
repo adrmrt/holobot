@@ -9,9 +9,13 @@ updates:
         patterns:
           - '*'
     commit-message:
-      prefix: "mvn"
+      prefix: "chore"
+      include: "scope"
     open-pull-requests-limit: 25 # Maximum number of open pull requests
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
