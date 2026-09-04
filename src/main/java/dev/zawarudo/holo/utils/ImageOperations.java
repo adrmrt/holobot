@@ -223,10 +223,10 @@ public final class ImageOperations {
     /**
      * Converts an RGB color to HSV.
      *
-     * @param r Red channel [0–255]
-     * @param g Green channel [0–255]
-     * @param b Blue channel [0–255]
-     * @return float[] { hue [0–360), saturation [0–1], value [0–1] }
+     * @param r Red channel [0-255]
+     * @param g Green channel [0-255]
+     * @param b Blue channel [0-255]
+     * @return float[] { hue [0-360), saturation [0-1], value [0-1] }
      */
     public static float[] rgbToHsv(int r, int g, int b) {
         // Normalize RGB to [0..1] for stable floating-point math
@@ -261,9 +261,9 @@ public final class ImageOperations {
     /**
      * Converts an HSV color to RGB.
      *
-     * @param h Hue in degrees [0–360)
-     * @param s Saturation [0–1]
-     * @param v Value (brightness) [0–1]
+     * @param h Hue in degrees [0-360)
+     * @param s Saturation [0-1]
+     * @param v Value (brightness) [0-1]
      * @return int RGB packed as 0xRRGGBB
      */
     public static int hsvToRgb(float h, float s, float v) {
@@ -320,17 +320,17 @@ public final class ImageOperations {
      * Clamps an integer value to the valid 8-bit color channel range.
      *
      * @param v Input value
-     * @return Value clamped to [0–255]
+     * @return Value clamped to [0-255]
      */
     public static int clamp255(int v) {
         return v < 0 ? 0 : Math.min(v, 255);
     }
 
     /**
-     * Clamps a floating-point value to the normalized range [0–1].
+     * Clamps a floating-point value to the normalized range [0-1].
      *
      * @param v Input value
-     * @return Value clamped to [0–1]
+     * @return Value clamped to [0-1]
      */
     public static float clamp01(float v) {
         return v < 0f ? 0f : Math.min(v, 1f);

@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.Locale;
 
 /**
- * Utility class for Pokémon-related functionality.
+ * Utility class for Pokemon-related functionality.
  */
 public final class PokemonUtils {
 
@@ -51,10 +51,10 @@ public final class PokemonUtils {
     }
 
     /**
-     * Draws a black silhouette of the given Pokémon on the background.
+     * Draws a black silhouette of the given Pokemon on the background.
      *
-     * @param pokemon The Pokémon whose silhouette should be drawn.
-     * @return A {@link BufferedImage} of the Pokémon silhouette on a background.
+     * @param pokemon The Pokemon whose silhouette should be drawn.
+     * @return A {@link BufferedImage} of the Pokemon silhouette on a background.
      */
     public static BufferedImage drawHiddenPokemon(Pokemon pokemon) throws IOException {
         BufferedImage blackPokemon = getBlackPokemon(pokemon);

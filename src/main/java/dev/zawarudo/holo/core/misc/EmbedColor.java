@@ -29,7 +29,7 @@ public enum EmbedColor {
      */
     INSPIRO(new Color(35, 96, 19)),
     /**
-     * The color of Pokémon-related commands.
+     * The color of Pokemon-related commands.
      */
     POKEMON(new Color(255, 0, 0)),
     /**

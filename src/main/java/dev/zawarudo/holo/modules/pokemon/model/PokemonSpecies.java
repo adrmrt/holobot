@@ -15,8 +15,8 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * A Pokémon Species forms the basis for at least one Pokémon. Attributes of a
- * Pokémon species are shared across all varieties of Pokémon.
+ * A Pokemon Species forms the basis for at least one Pokemon. Attributes of a
+ * Pokemon species are shared across all varieties of Pokemon.
  */
 public class PokemonSpecies implements Comparable<PokemonSpecies> {
     @SerializedName("name")
@@ -72,7 +72,7 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     List<Variety> varieties;
 
     /**
-     * A Pokédex entry in a given language and game version
+     * A Pokedex entry in a given language and game version
      */
     public static class PokedexEntry {
         @SerializedName("flavor_text")
@@ -114,14 +114,14 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
         Nameable pokemon;
 
         /**
-         * Returns whether this is the default variety of the Pokémon.
+         * Returns whether this is the default variety of the Pokemon.
          */
         public boolean isDefault() {
             return isDefault;
         }
 
         /**
-         * Returns the Pokémon this variety is of.
+         * Returns the Pokemon this variety is of.
          */
         public Nameable getPokemon() {
             return pokemon;
@@ -129,123 +129,123 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns the English name of this Pokémon species.
+     * Returns the English name of this Pokemon species.
      */
     public String getName() {
         return Formatter.formatPokemonName(name);
     }
 
     /**
-     * Returns the Pokédex id of this Pokémon species. Note that the id is from the national Pokédex.
+     * Returns the Pokedex id of this Pokemon species. Note that the id is from the national Pokedex.
      */
     public int getPokedexId() {
         return pokedexId;
     }
 
     /**
-     * Returns the generation this Pokémon species was introduced in.
+     * Returns the generation this Pokemon species was introduced in.
      */
     public Nameable getGeneration() {
         return generation;
     }
 
     /**
-     * Returns the gender rate of this Pokémon species, in eights; or -1 for genderless.
+     * Returns the gender rate of this Pokemon species, in eights; or -1 for genderless.
      */
     public int getGenderRate() {
         return genderRate;
     }
 
     /**
-     * Returns whether there are differences between male and female members of this Pokémon species.
+     * Returns whether there are differences between male and female members of this Pokemon species.
      */
     public boolean hasGenderDifferences() {
         return hasGenderDifferences;
     }
 
     /**
-     * Returns the url to the evolution chain of this Pokémon species.
+     * Returns the url to the evolution chain of this Pokemon species.
      */
     public String getEvolutionChainUrl() {
         return evolutionChain.getUrl();
     }
 
     /**
-     * Returns the Pokémon species that evolves into this one.
+     * Returns the Pokemon species that evolves into this one.
      */
     public Nameable getEvolvesFromSpecies() {
         return evolvesFromSpecies;
     }
 
     /**
-     * Returns the base capture rate of this Pokémon species; up to 255. The higher the number, the easier it is to catch.
+     * Returns the base capture rate of this Pokemon species; up to 255. The higher the number, the easier it is to catch.
      */
     public int getCaptureRate() {
         return captureRate;
     }
 
     /**
-     * Returns the happiness when caught by a normal Pokéball; up to 255. The higher the number, the happier the Pokémon.
+     * Returns the happiness when caught by a normal Pokeball; up to 255. The higher the number, the happier the Pokemon.
      */
     public int getBaseHappiness() {
         return baseHappiness;
     }
 
     /**
-     * Returns the habitat of this Pokémon species.
+     * Returns the habitat of this Pokemon species.
      */
     public Nameable getHabitat() {
         return habitat;
     }
 
     /**
-     * Returns the rate at which this Pokémon species gains levels.
+     * Returns the rate at which this Pokemon species gains levels.
      */
     public Nameable getGrowthRate() {
         return growthRate;
     }
 
     /**
-     * Returns the color of this Pokémon for the Pokédex search function.
+     * Returns the color of this Pokemon for the Pokedex search function.
      */
     public String getColor() {
         return color.getName();
     }
 
     /**
-     * Returns a list of egg groups this Pokémon species is a member of.
+     * Returns a list of egg groups this Pokemon species is a member of.
      */
     public List<Nameable> getEggGroups() {
         return eggGroups;
     }
 
     /**
-     * Returns the shape of this Pokémon for the Pokédex search function.
+     * Returns the shape of this Pokemon for the Pokedex search function.
      */
     public Nameable getShape() {
         return shape;
     }
 
     /**
-     * Checks whether this Pokémon is a baby. Baby Pokémon are at the lowest
-     * stage of Pokémon evolution and cannot breed.
+     * Checks whether this Pokemon is a baby. Baby Pokemon are at the lowest
+     * stage of Pokemon evolution and cannot breed.
      */
     public boolean isBaby() {
         return isBaby;
     }
 
     /**
-     * Checks whether this Pokémon is a legendary Pokémon. Legendary Pokémon
-     * are a group of incredibly rare and often very powerful Pokémon, generally
-     * featured prominently in the legends and myths of the Pokémon world.
+     * Checks whether this Pokemon is a legendary Pokemon. Legendary Pokemon
+     * are a group of incredibly rare and often very powerful Pokemon, generally
+     * featured prominently in the legends and myths of the Pokemon world.
      */
     public boolean isLegendary() {
         return isLegendary;
     }
 
     /**
-     * Checks whether this Pokémon is a mythical Pokémon. Mythical Pokémon
-     * are a group of Pokémon seen so rarely that some question their very
+     * Checks whether this Pokemon is a mythical Pokemon. Mythical Pokemon
+     * are a group of Pokemon seen so rarely that some question their very
      * existence.
      */
     public boolean isMythical() {
@@ -253,8 +253,8 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Checks whether this Pokémon species is an Ultra Beast. The Ultra Beasts are
-     * a group of Pokémon originating from Ultra Space.
+     * Checks whether this Pokemon species is an Ultra Beast. The Ultra Beasts are
+     * a group of Pokemon originating from Ultra Space.
      */
     public boolean isUltraBeast() {
         // Ids of Ultra Beast Pokémon
@@ -263,7 +263,7 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns the name of the Pokémon in a given language. Note that the language
+     * Returns the name of the Pokemon in a given language. Note that the language
      * is given in its abbreviated form, i.e. English -> en.
      */
     public String getName(String language) {
@@ -276,7 +276,7 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns the genus of the Pokémon in a given language. Note that the language
+     * Returns the genus of the Pokemon in a given language. Note that the language
      * is its abbreviated form, i.e. English -> en.
      */
     @Nullable
@@ -290,10 +290,10 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns a random Pokédex entry of the Pokémon in a given language.
+     * Returns a random Pokedex entry of the Pokemon in a given language.
      *
      * @param language = The language of the entry
-     * @return The Pokédex entry of the Pokémon in a given language.
+     * @return The Pokedex entry of the Pokemon in a given language.
      */
     @Nullable
     public String getPokedexEntry(String language) {
@@ -310,12 +310,12 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns the Pokédex entry of the Pokémon in a given language ang game
+     * Returns the Pokedex entry of the Pokemon in a given language ang game
      * version.
      *
      * @param language = The language of the entry
      * @param version  = The game version of the entry
-     * @return The Pokédex entry of the Pokémon in a given language and game
+     * @return The Pokedex entry of the Pokemon in a given language and game
      * version.
      */
     @Nullable
@@ -329,10 +329,10 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns a list of Pokédex entries for this Pokémon in a given language.
+     * Returns a list of Pokedex entries for this Pokemon in a given language.
      *
      * @param language = The language the entries should be in
-     * @return List of Pokédex entries
+     * @return List of Pokedex entries
      */
     public List<String> getPokedexEntries(String language) {
         List<String> list = new ArrayList<>();
@@ -345,14 +345,14 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns whether this Pokémon has multiple forms and can switch between them.
+     * Returns whether this Pokemon has multiple forms and can switch between them.
      */
     public boolean isFormSwitchable() {
         return formsSwitchable;
     }
 
     /**
-     * Returns the description of the form of a Pokémon in a given language. Note that the language
+     * Returns the description of the form of a Pokemon in a given language. Note that the language
      * is given in its abbreviated form, i.e. English -> en.
      */
     @Nullable
@@ -366,7 +366,7 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns a list of Pokémon that exist within this Pokémon species.
+     * Returns a list of Pokemon that exist within this Pokemon species.
      */
     public List<Variety> getVarieties() {
         return varieties;
@@ -382,7 +382,7 @@ public class PokemonSpecies implements Comparable<PokemonSpecies> {
     }
 
     /**
-     * Returns an individual Pokémon. In this case, it's the default variant.
+     * Returns an individual Pokemon. In this case, it's the default variant.
      */
     public Pokemon getPokemon() throws APIException, NotFoundException {
         String pokemonName = getDefaultVarietyName();

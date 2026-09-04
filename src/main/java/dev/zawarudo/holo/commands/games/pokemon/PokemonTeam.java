@@ -26,9 +26,9 @@ public class PokemonTeam {
     }
 
     /**
-     * Constructs a team with the given Pokémon.
+     * Constructs a team with the given Pokemon.
      *
-     * @param team The Pokémon to add to the team.
+     * @param team The Pokemon to add to the team.
      */
     public PokemonTeam(Pokemon... team) {
         if (team.length > 6) {
@@ -38,7 +38,7 @@ public class PokemonTeam {
     }
 
     /**
-     * Generates a collage of the Pokémon team.
+     * Generates a collage of the Pokemon team.
      *
      * @return A {@link BufferedImage} of the collage.
      * @throws IOException If an I/O error occurs.
@@ -68,13 +68,13 @@ public class PokemonTeam {
     }
 
     /**
-     * Method to draw a Pokémon and its name onto a background
+     * Method to draw a Pokemon and its name onto a background
      *
-     * @param img    = Picture of the Pokémon
+     * @param img    = Picture of the Pokemon
      * @param color1 = Color of the first type
      * @param color2 = Color of the second type
-     * @param name   = Name of the Pokémon and its Pokédex id
-     * @return A BufferedImage displaying the Pokémon with background and name
+     * @param name   = Name of the Pokemon and its Pokedex id
+     * @return A BufferedImage displaying the Pokemon with background and name
      */
     private static BufferedImage draw(BufferedImage img, Color color1, Color color2, String name) {
         int width = 500;
@@ -106,11 +106,11 @@ public class PokemonTeam {
     }
 
     /**
-     * Helper method to draw the name of the Pokémon in the right position
+     * Helper method to draw the name of the Pokemon in the right position
      *
      * @param g2   = Graphics2D
-     * @param text = Name and id of the Pok�mon
-     * @param rect = A rectangle of the size of the Pok�mon image
+     * @param text = Name and id of the Pokemon
+     * @param rect = A rectangle of the size of the Pokemon image
      * @param font = Font of the text
      */
     private static void drawName(Graphics2D g2, String text, Rectangle rect, Font font) {
@@ -123,7 +123,7 @@ public class PokemonTeam {
     }
 
     /**
-     * Method to draw a simple gray square for when there is no Pokémon in a slot.
+     * Method to draw a simple gray square for when there is no Pokemon in a slot.
      */
     private static BufferedImage drawGray() {
         int width = 500;

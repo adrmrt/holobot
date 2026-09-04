@@ -5,8 +5,8 @@ import dev.zawarudo.holo.utils.Emote;
 import java.awt.*;
 
 /**
- * Enum representing each Pokémon type. Serves as a container for the formatted
- * name, emote and color of each Pokémon type.
+ * Enum representing each Pokemon type. Serves as a container for the formatted
+ * name, emote and color of each Pokemon type.
  */
 public enum PokemonType {
 
@@ -40,21 +40,21 @@ public enum PokemonType {
     }
 
     /**
-     * Returns the formatted name of the Pokémon type.
+     * Returns the formatted name of the Pokemon type.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the emote of the Pokémon type.
+     * Returns the emote of the Pokemon type.
      */
     public Emote getEmote() {
         return emote;
     }
 
     /**
-     * Returns the color of the Pokémon type.
+     * Returns the color of the Pokemon type.
      */
     public Color getColor() {
         return color;

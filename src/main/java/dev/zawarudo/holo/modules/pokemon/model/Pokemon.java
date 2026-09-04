@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pokémon are the creatures that inhabit the world of Pokémon. They can be caught using
- * Pokéballs and trained by battling with other Pokémon. Each Pokémon belongs to a specific
- * species but may take on a variant which makes it differ from other Pokémon of the same
+ * Pokemon are the creatures that inhabit the world of Pokemon. They can be caught using
+ * Pokeballs and trained by battling with other Pokemon. Each Pokemon belongs to a specific
+ * species but may take on a variant which makes it differ from other Pokemon of the same
  * species, such as base stats, available abilities and types. See
  * <a href="http://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_(species)">Bulbapedia</a>
  * for greater detail.
@@ -50,9 +50,9 @@ public class Pokemon implements Comparable<Pokemon> {
     List<Stat> stats;
 
     /**
-     * Types are properties for Pokémon and their moves. Each type has three properties: which
-     * types of Pokémon it is super effective against, which types of Pokémon it is not very
-     * effective against, and which types of Pokémon it is completely ineffective against.
+     * Types are properties for Pokemon and their moves. Each type has three properties: which
+     * types of Pokemon it is super effective against, which types of Pokemon it is not very
+     * effective against, and which types of Pokemon it is completely ineffective against.
      */
     public static class PokemonType {
         @SerializedName("type")
@@ -61,14 +61,14 @@ public class Pokemon implements Comparable<Pokemon> {
         private int slot;
 
         /**
-         * The type the referenced Pokémon has.
+         * The type the referenced Pokemon has.
          */
         public Nameable getType() {
             return type;
         }
 
         /**
-         * The order this type appears among the types of this Pokémon.
+         * The order this type appears among the types of this Pokemon.
          */
         public int getSlot() {
             return slot;
@@ -153,14 +153,14 @@ public class Pokemon implements Comparable<Pokemon> {
             private Nameable version;
 
             /**
-             * The chance of this Pokémon holding this item.
+             * The chance of this Pokemon holding this item.
              */
             public int getRarity() {
                 return rarity;
             }
 
             /**
-             * The version of the game this item is held by the referenced Pokémon.
+             * The version of the game this item is held by the referenced Pokemon.
              */
             public Nameable getVersion() {
                 return version;
@@ -168,14 +168,14 @@ public class Pokemon implements Comparable<Pokemon> {
         }
 
         /**
-         * The item the referenced Pokémon holds.
+         * The item the referenced Pokemon holds.
          */
         public Nameable getItem() {
             return item;
         }
 
         /**
-         * The details of the different game versions in which the Pokémon holds the item.
+         * The details of the different game versions in which the Pokemon holds the item.
          */
         public List<VersionDetails> getDetails() {
             return details;
@@ -346,7 +346,7 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns a list of types of this Pokémon. Note that a Pokémon can either have
+     * Returns a list of types of this Pokemon. Note that a Pokemon can either have
      * one or two types.
      */
     public List<String> getTypes() {
@@ -363,14 +363,14 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * The weight of this Pokémon in grams.
+     * The weight of this Pokemon in grams.
      */
     public int getWeight() {
         return weight * 100;
     }
 
     /**
-     * The height of this Pokémon in centimetres.
+     * The height of this Pokemon in centimetres.
      */
     public int getHeight() {
         return height * 10;
@@ -381,7 +381,7 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns a list of forms this Pokémon can take on.
+     * Returns a list of forms this Pokemon can take on.
      */
     public List<Nameable> getForms() {
         return forms;
@@ -392,7 +392,7 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns the base experience gained for defeating this Pokémon.
+     * Returns the base experience gained for defeating this Pokemon.
      */
     public int getBaseExperience() {
         return baseExperience;
@@ -403,9 +403,9 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns a list of abilities this Pokémon can have. Note that a Pokémon can
+     * Returns a list of abilities this Pokemon can have. Note that a Pokemon can
      * have at most three abilities: two normal and one hidden ability. If the
-     * Pokémon has a hidden ability, it will always be in the last slot.
+     * Pokemon has a hidden ability, it will always be in the last slot.
      */
     public List<String> getAbilitiesAsString() {
         return abilities.stream().map(Ability::getName).map(Formatter::formatPokemonName).toList();
@@ -419,28 +419,28 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns a list of items this Pokémon may be holding when encountered.
+     * Returns a list of items this Pokemon may be holding when encountered.
      */
     public List<HeldItem> getHeldItems() {
         return heldItems;
     }
 
     /**
-     * Returns a list of base stat values for this Pokémon.
+     * Returns a list of base stat values for this Pokemon.
      */
     public List<Stat> getStats() {
         return stats;
     }
 
     /**
-     * Returns an {@link URL} link to the shiny sprite of the Pokémon.
+     * Returns an {@link URL} link to the shiny sprite of the Pokemon.
      */
     public String getShiny() {
         return sprites.frontShiny;
     }
 
     /**
-     * Returns an {@link URL} link to the given form of the Pokémon.
+     * Returns an {@link URL} link to the given form of the Pokemon.
      */
     public String getPokemonForm(String formName) {
         for (Nameable form : forms) {
@@ -452,7 +452,7 @@ public class Pokemon implements Comparable<Pokemon> {
     }
 
     /**
-     * Returns the {@link PokemonSpecies} of this Pokémon.
+     * Returns the {@link PokemonSpecies} of this Pokemon.
      */
     public PokemonSpecies getPokemonSpecies() throws NotFoundException, APIException {
         return PokeApiClient.getPokemonSpecies(species.getName());

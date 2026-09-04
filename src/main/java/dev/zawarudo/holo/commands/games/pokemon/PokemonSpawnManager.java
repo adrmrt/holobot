@@ -38,7 +38,7 @@ public class PokemonSpawnManager {
      */
     private final Map<Long, Pokemon> pokemon;
     /**
-     * {@link Message}s containing the embed with the Pokémon in each {@link TextChannel}
+     * {@link Message}s containing the embed with the Pokemon in each {@link TextChannel}
      */
     private final Map<Long, Message> messages;
 
@@ -52,7 +52,7 @@ public class PokemonSpawnManager {
     }
 
     /**
-     * Starts spawning Pokémon in the channels.
+     * Starts spawning Pokemon in the channels.
      */
     public void spawnPokemon() {
         EmbedBuilder builder = new EmbedBuilder();
@@ -143,7 +143,7 @@ public class PokemonSpawnManager {
     }
 
     /**
-     * Deletes the message containing the Pokémon in the given {@link TextChannel}
+     * Deletes the message containing the Pokemon in the given {@link TextChannel}
      */
     public void deleteMessage(long channelId) {
         if (messages.containsKey(channelId)) {
@@ -159,7 +159,7 @@ public class PokemonSpawnManager {
     }
 
     /**
-     * Returns the {@link Message} containing the Pokémon in the given {@link TextChannel}
+     * Returns the {@link Message} containing the Pokemon in the given {@link TextChannel}
      */
     public Message getMessage(long channelId) {
         return messages.get(channelId);
