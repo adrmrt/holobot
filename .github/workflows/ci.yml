@@ -29,6 +29,13 @@ jobs:
       - name: Run unit tests
         run: mvn -B test
 
+  check-ascii:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Check for non-ASCII characters in Java source
         run: python3 scripts/check_ascii.py
 
