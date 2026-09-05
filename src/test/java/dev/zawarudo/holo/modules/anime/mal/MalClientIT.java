@@ -41,6 +41,14 @@ class MalClientIT {
         assertTrue(first.id() > 0);
         assertNotNull(first.title());
         assertFalse(first.title().isBlank());
+
+        // Fields requiring @SerializedName (snake_case wire keys) actually round-trip -
+        // regression guard for a bug where the reflective fields= builder silently sent
+        // camelCase names MAL doesn't recognize, leaving these null.
+        assertNotNull(first.mediaType(), "mediaType should be populated (e.g. \"tv\", \"movie\")");
+        assertFalse(first.mediaType().isBlank());
+        assertNotNull(first.mainPicture(), "mainPicture should be populated");
+        assertNotNull(first.startSeason(), "startSeason should be populated for an aired anime");
     }
 
     @Test
@@ -53,6 +61,12 @@ class MalClientIT {
         assertTrue(first.id() > 0);
         assertNotNull(first.title());
         assertFalse(first.title().isBlank());
+
+        assertNotNull(first.mediaType(), "mediaType should be populated (e.g. \"manga\")");
+        assertFalse(first.mediaType().isBlank());
+        assertNotNull(first.authors(), "authors should be populated via the NestedFields selector");
+        assertFalse(first.authors().isEmpty());
+        assertNotNull(first.authors().getFirst().node().firstName());
     }
 
     @Test

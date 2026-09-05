@@ -1,7 +1,6 @@
 package dev.zawarudo.holo.modules.anime.mal;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.HoloHttp;
@@ -11,15 +10,12 @@ import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
 import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
 
-import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Client for the official MyAnimeList API v2. Public search/detail endpoints only need the
@@ -29,10 +25,15 @@ final class MalApiClient {
 
     private static final String BASE_URL = "https://api.myanimelist.net/v2";
 
-    // Derived from the DTO shape itself (see fieldsOf) so the request always matches what
-    // MalDtos.Anime/Manga actually declare - no separate field list to keep in sync by hand.
-    private static final String ANIME_FIELDS = fieldsOf(MalDtos.Anime.class);
-    private static final String MANGA_FIELDS = fieldsOf(MalDtos.Manga.class);
+    // Must list every field MalDtos.Anime declares (its wire key, i.e. after @SerializedName).
+    // MalDtosFieldsConsistencyTest asserts these two stay in sync with the DTO shape.
+    static final String ANIME_FIELDS = "id,title,main_picture,alternative_titles,synopsis,mean,rank,"
+        + "media_type,status,num_episodes,start_season,genres,studios,source";
+
+    // Must list every field MalDtos.Manga declares. authors needs the nested selector because
+    // MAL only returns author names when explicitly asked via authors{first_name,last_name}.
+    static final String MANGA_FIELDS = "id,title,main_picture,alternative_titles,synopsis,mean,rank,"
+        + "media_type,status,num_chapters,num_volumes,genres,authors{first_name,last_name}";
 
     private static final Gson GSON = new Gson();
 
@@ -93,25 +94,5 @@ final class MalApiClient {
 
     private static String encodeFields(String fields) {
         return URLEncoder.encode(fields, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Builds a MAL {@code fields=} value from a DTO record's own components, so the request
-     * always matches what the record declares. Each component contributes its wire key (its
-     * {@link SerializedName} if annotated, otherwise its own name) plus any
-     * {@link MalDtos.NestedFields} selector.
-     */
-    private static String fieldsOf(Class<? extends Record> dto) {
-        return Arrays.stream(dto.getRecordComponents())
-            .map(MalApiClient::fieldSpec)
-            .collect(Collectors.joining(","));
-    }
-
-    private static String fieldSpec(RecordComponent component) {
-        SerializedName serializedName = component.getAnnotation(SerializedName.class);
-        String key = serializedName != null ? serializedName.value() : component.getName();
-
-        MalDtos.NestedFields nested = component.getAnnotation(MalDtos.NestedFields.class);
-        return nested != null ? key + nested.value() : key;
     }
 }
