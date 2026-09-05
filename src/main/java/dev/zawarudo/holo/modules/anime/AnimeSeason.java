@@ -1,40 +1,29 @@
 package dev.zawarudo.holo.modules.anime;
 
-import dev.zawarudo.holo.modules.anime.jikan.JikanApiClient;
-import dev.zawarudo.holo.modules.anime.jikan.model.AbstractMedium;
-import dev.zawarudo.holo.modules.anime.jikan.model.Anime;
-import dev.zawarudo.holo.modules.anime.jikan.model.Broadcast;
-import dev.zawarudo.holo.modules.anime.jikan.model.Season;
-import dev.zawarudo.holo.utils.DateTimeUtils;
+import com.google.gson.JsonArray;
+import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
+import dev.zawarudo.holo.modules.anime.anilist.AniListMappers;
+import dev.zawarudo.holo.modules.anime.anilist.AniListSeason;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AnimeSeason {
 
-    private static final String TARGET_TIME_ZONE = "Europe/Zurich";
-
     public static void main(String[] args) throws APIException {
-        List<Anime> seasonalAnime = JikanApiClient.getSeason(Season.FALL, 2024);
+        JsonArray media = new AniListApiClient().searchSeasonRaw(AniListSeason.FALL, 2024, 50)
+            .getAsJsonObject("Page").getAsJsonArray("media");
+        List<SeasonalAnime> seasonalAnime = new ArrayList<>(AniListMappers.toSeasonalAnime(media));
 
         // Sort by popularity
-        seasonalAnime.sort(Comparator.comparingInt(AbstractMedium::getPopularity));
+        seasonalAnime.sort(Comparator.comparingInt(SeasonalAnime::popularity));
 
-        Map<String, List<Anime>> map = seasonalAnime.stream()
-            .filter(anime -> {
-                Broadcast b = anime.getBroadcast();
-                return b.getString().isPresent() &&
-                    b.getDay().isPresent() &&
-                    b.getTime().isPresent() &&
-                    b.getTimeZone().isPresent();
-            })
+        Map<String, List<SeasonalAnime>> map = seasonalAnime.stream()
+            .filter(anime -> anime.startDate() != null)
             .collect(Collectors.groupingBy(
-                anime -> getFormattedDateString(
-                    DateTimeUtils.convertDate(anime.getStartDate(), TARGET_TIME_ZONE)
-                ),
+                anime -> getFormattedDateString(anime.startDate()),
                 TreeMap::new,
                 Collectors.toList()
             ));
@@ -44,18 +33,15 @@ public class AnimeSeason {
 
         for (String key : map.keySet()) {
             System.out.println(key);
-            map.get(key).stream()
-                .peek(anime -> anime.changeBroadcastTimeZone(TARGET_TIME_ZONE))
-                .forEach(System.out::println);
+            map.get(key).forEach(System.out::println);
             System.out.println();
         }
     }
 
     // TODO: Pick cover of most popular anime for each day
 
-    private static String getFormattedDateString(String date) {
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse(date);
+    private static String getFormattedDateString(java.time.LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH);
-        return zonedDateTime.format(formatter);
+        return date.format(formatter);
     }
 }

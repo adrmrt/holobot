@@ -169,12 +169,12 @@ public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
         // Scores
         String scoreLabel = switch (manga.platform()) {
             case ANILIST -> "AniList Score";
-            case MAL_JIKAN, MAL -> "MAL Score";
+            case MAL -> "MAL Score";
         };
         String scoreValue = manga.score();
         String rankLabel = switch (manga.platform()) {
             case ANILIST -> "AniList Rank";
-            case MAL_JIKAN, MAL -> "MAL Rank";
+            case MAL -> "MAL Rank";
         };
         String rankValue = formatRank(manga.rank());
 

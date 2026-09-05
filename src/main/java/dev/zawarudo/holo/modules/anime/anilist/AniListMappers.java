@@ -6,10 +6,15 @@ import com.google.gson.JsonObject;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.AnimeResult;
 import dev.zawarudo.holo.modules.anime.MangaResult;
+import dev.zawarudo.holo.modules.anime.SeasonalAnime;
 import dev.zawarudo.holo.utils.Formatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +44,80 @@ public final class AniListMappers {
             out.add(mapManga(el.getAsJsonObject()));
         }
         return out;
+    }
+
+    public static @NotNull List<SeasonalAnime> toSeasonalAnime(@Nullable JsonArray media) {
+        if (media == null || media.isEmpty()) return List.of();
+
+        List<SeasonalAnime> out = new ArrayList<>(media.size());
+        for (JsonElement el : media) {
+            if (el == null || !el.isJsonObject()) continue;
+            out.add(mapSeasonalAnime(el.getAsJsonObject()));
+        }
+        return out;
+    }
+
+    private static @NotNull SeasonalAnime mapSeasonalAnime(@NotNull JsonObject object) {
+        int id = object.get("id").getAsInt();
+
+        JsonObject titleObj = getSafeObject(object, "title");
+        String title = pickFirstNonBlank(
+            getSafeString(titleObj, "romaji"),
+            getSafeString(titleObj, "english"),
+            getSafeString(titleObj, "native"),
+            "Unknown"
+        );
+
+        return new SeasonalAnime(
+            id,
+            title,
+            safeText(getSafeString(object, "siteUrl"), ""),
+            intValNullable(object.get("popularity"), 0),
+            extractStartDate(getSafeObject(object, "startDate")),
+            extractNextAiringAt(getSafeObject(object, "nextAiringEpisode"))
+        );
+    }
+
+    private static @Nullable LocalDate extractStartDate(@Nullable JsonObject startDate) {
+        if (startDate == null) return null;
+
+        Integer year = intOrNull(startDate.get("year"));
+        Integer month = intOrNull(startDate.get("month"));
+        Integer day = intOrNull(startDate.get("day"));
+        if (year == null || month == null || day == null) return null;
+
+        try {
+            return LocalDate.of(year, month, day);
+        } catch (java.time.DateTimeException _) {
+            return null;
+        }
+    }
+
+    private static @Nullable ZonedDateTime extractNextAiringAt(@Nullable JsonObject nextAiringEpisode) {
+        if (nextAiringEpisode == null) return null;
+
+        Long airingAt = longOrNull(nextAiringEpisode.get("airingAt"));
+        if (airingAt == null) return null;
+
+        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(airingAt), ZoneOffset.UTC);
+    }
+
+    private static @Nullable Integer intOrNull(@Nullable JsonElement el) {
+        if (el == null || el.isJsonNull()) return null;
+        try {
+            return el.getAsInt();
+        } catch (UnsupportedOperationException | NumberFormatException _) {
+            return null;
+        }
+    }
+
+    private static @Nullable Long longOrNull(@Nullable JsonElement el) {
+        if (el == null || el.isJsonNull()) return null;
+        try {
+            return el.getAsLong();
+        } catch (UnsupportedOperationException | NumberFormatException _) {
+            return null;
+        }
     }
 
     private static @NotNull AnimeResult mapAnime(@NotNull JsonObject object) {

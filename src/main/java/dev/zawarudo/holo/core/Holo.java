@@ -20,7 +20,6 @@ import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
 import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
 import dev.zawarudo.holo.modules.anime.anilist.AniListProvider;
-import dev.zawarudo.holo.modules.anime.jikan.JikanProvider;
 import dev.zawarudo.holo.modules.anime.mal.MalProvider;
 import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
@@ -126,12 +125,18 @@ public class Holo extends ListenerAdapter {
         AniListApiClient aniListClient = new AniListApiClient();
 
         List<MediaSearchProvider> providers = new ArrayList<>(List.of(
-            new AniListProvider(aniListClient),
-            new JikanProvider()
+            new AniListProvider(aniListClient)
         ));
-        MalProvider.create(botConfig.getMalClientId()).ifPresent(providers::add);
+        List<MediaPlatform> order = new ArrayList<>(List.of(MediaPlatform.ANILIST));
 
-        List<MediaPlatform> order = List.of(MediaPlatform.ANILIST, MediaPlatform.MAL);
+        MalProvider.create(botConfig.getMalClientId()).ifPresentOrElse(
+            provider -> {
+                providers.add(provider);
+                order.add(MediaPlatform.MAL);
+            },
+            () -> LOGGER.warn("MAL_CLIENT_ID is not configured; MyAnimeList search fallback is disabled.")
+        );
+
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
 
         gitHubClient = new GitHubClient(botConfig.getGitHubToken());

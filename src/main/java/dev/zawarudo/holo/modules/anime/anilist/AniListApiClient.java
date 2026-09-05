@@ -79,12 +79,35 @@ public final class AniListApiClient {
         }
         """;
 
+    private static final String Q_SEASON = """
+        query ($season: MediaSeason, $year: Int, $perPage: Int) {
+          Page(perPage: $perPage) {
+            media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
+              id
+              siteUrl
+              title { romaji english native }
+              popularity
+              startDate { year month day }
+              nextAiringEpisode { airingAt }
+            }
+          }
+        }
+        """;
+
     public JsonObject searchAnimeRaw(String query, int limit) throws APIException {
         return request(Q_SEARCH_ANIME, variablesSearch(query, limit));
     }
 
     public JsonObject searchMangaRaw(String query, int limit) throws APIException {
         return request(Q_SEARCH_MANGA, variablesSearch(query, limit));
+    }
+
+    public JsonObject searchSeasonRaw(AniListSeason season, int year, int perPage) throws APIException {
+        JsonObject vars = new JsonObject();
+        vars.addProperty("season", season.name());
+        vars.addProperty("year", year);
+        vars.addProperty("perPage", perPage);
+        return request(Q_SEASON, vars);
     }
 
     private JsonObject variablesSearch(String query, int limit) {

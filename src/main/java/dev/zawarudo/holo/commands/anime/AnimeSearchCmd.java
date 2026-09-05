@@ -166,12 +166,12 @@ public class AnimeSearchCmd implements CommandMetadata, ExecutableCommand {
         // Scores
         String scoreLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Score";
-            case MAL_JIKAN, MAL -> "MAL Score";
+            case MAL -> "MAL Score";
         };
         String scoreValue = anime.score();
         String rankLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Rank";
-            case MAL_JIKAN, MAL -> "MAL Rank";
+            case MAL -> "MAL Rank";
         };
         String rankValue = formatRank(anime.rank());
 
