@@ -131,7 +131,7 @@ public class Holo extends ListenerAdapter {
         ));
         MalProvider.create(botConfig.getMalClientId()).ifPresent(providers::add);
 
-        List<MediaPlatform> order = List.of(MediaPlatform.MAL_JIKAN, MediaPlatform.ANILIST);
+        List<MediaPlatform> order = List.of(MediaPlatform.ANILIST, MediaPlatform.MAL);
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
 
         gitHubClient = new GitHubClient(botConfig.getGitHubToken());

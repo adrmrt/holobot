@@ -222,7 +222,7 @@ public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
     @Nullable
     private static MediaPlatform parsePlatformFlag(String token) {
         return switch (token.toLowerCase()) {
-            case "mal", "myanimelist" -> MediaPlatform.MAL_JIKAN;
+            case "mal", "myanimelist" -> MediaPlatform.MAL;
             case "anilist", "al" -> MediaPlatform.ANILIST;
             default -> null;
         };
