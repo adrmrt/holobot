@@ -9,6 +9,8 @@ import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
 import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
 import dev.zawarudo.holo.utils.exceptions.InvalidRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
@@ -22,6 +24,8 @@ import java.util.Objects;
  * {@code X-MAL-CLIENT-ID} header, no OAuth2 token.
  */
 final class MalApiClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MalApiClient.class);
 
     private static final String BASE_URL = "https://api.myanimelist.net/v2";
 
@@ -75,8 +79,10 @@ final class MalApiClient {
         String body;
         try {
             body = HoloHttp.getString(url, Map.of("X-MAL-CLIENT-ID", clientId));
+            LOGGER.debug("MAL response: {}", body);
         } catch (HttpStatusException e) {
             int code = e.getStatusCode();
+            LOGGER.debug("MAL error response ({}): {}", code, e.getBodySnippet());
 
             if (code == 429) {
                 throw new APIException("429 Too Many Requests (MAL rate limit).", e);

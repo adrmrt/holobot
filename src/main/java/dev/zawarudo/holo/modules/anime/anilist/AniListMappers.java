@@ -44,18 +44,18 @@ public final class AniListMappers {
     private static @NotNull AnimeResult mapAnime(@NotNull JsonObject object) {
         int id = object.get("id").getAsInt();
 
-        JsonObject titleObj = object.getAsJsonObject("title");
+        JsonObject titleObj = getSafeObject(object, "title");
         String titleRomaji = getSafeString(titleObj, "romaji");
         String titleEnglish = getSafeString(titleObj, "english");
         String titleNative = getSafeString(titleObj, "native");
         String displayTitle = pickFirstNonBlank(titleRomaji, titleEnglish, titleNative, "Unknown");
 
-        String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
+        String imageUrl = selectBestImage(getSafeObject(object, "coverImage"));
 
         String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
-        int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
+        int rank = getAllTimeRank(getSafeArray(object, "rankings"), 0);
 
         String season = formatSeason(object);
 
@@ -80,8 +80,8 @@ public final class AniListMappers {
             emptyToNull(getSafeString(object, "status")),
             season,
 
-            List.of(), // studios not requested
-            extractGenres(object.getAsJsonArray("genres")),
+            extractStudios(getSafeObject(object, "studios")),
+            extractGenres(getSafeArray(object, "genres")),
             List.of(), // themes not requested
             List.of()  // demographics not requested
         );
@@ -91,18 +91,18 @@ public final class AniListMappers {
     private static @NotNull MangaResult mapManga(@NotNull JsonObject object) {
         int id = object.get("id").getAsInt();
 
-        JsonObject titleObj = object.getAsJsonObject("title");
+        JsonObject titleObj = getSafeObject(object, "title");
         String titleRomaji = getSafeString(titleObj, "romaji");
         String titleEnglish = getSafeString(titleObj, "english");
         String titleNative = getSafeString(titleObj, "native");
         String displayTitle = pickFirstNonBlank(titleRomaji, titleEnglish, titleNative, "Unknown");
 
-        String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
+        String imageUrl = selectBestImage(getSafeObject(object, "coverImage"));
 
         String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
-        int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
+        int rank = getAllTimeRank(getSafeArray(object, "rankings"), 0);
 
         return new MangaResult(
             MediaPlatform.ANILIST,
@@ -125,10 +125,22 @@ public final class AniListMappers {
 
             emptyToNull(getSafeString(object, "status")),
             List.of(), // authors not requested
-            extractGenres(object.getAsJsonArray("genres")),
+            extractGenres(getSafeArray(object, "genres")),
             List.of(), // themes not requested
             List.of()  // demographics not requested
         );
+    }
+
+    private static @Nullable JsonObject getSafeObject(@Nullable JsonObject o, @NotNull String key) {
+        if (o == null) return null;
+        JsonElement el = o.get(key);
+        return (el == null || !el.isJsonObject()) ? null : el.getAsJsonObject();
+    }
+
+    private static @Nullable JsonArray getSafeArray(@Nullable JsonObject o, @NotNull String key) {
+        if (o == null) return null;
+        JsonElement el = o.get(key);
+        return (el == null || !el.isJsonArray()) ? null : el.getAsJsonArray();
     }
 
     private static @Nullable String getSafeString(@Nullable JsonObject o, @NotNull String key) {
@@ -178,16 +190,26 @@ public final class AniListMappers {
     private static @Nullable String selectBestImage(@Nullable JsonObject coverImage) {
         if (coverImage == null || coverImage.isJsonNull()) return null;
 
-        String extraLarge = coverImage.get("extraLarge").getAsString();
-        if (extraLarge != null && !extraLarge.isBlank()) return extraLarge;
+        String extraLarge = getSafeString(coverImage, "extraLarge");
+        if (extraLarge != null) return extraLarge;
 
-        String large = coverImage.get("large").getAsString();
-        if (large != null && !large.isBlank()) return large;
+        String large = getSafeString(coverImage, "large");
+        if (large != null) return large;
 
-        String medium = coverImage.get("medium").getAsString();
-        if (medium != null && !medium.isBlank()) return medium;
+        return getSafeString(coverImage, "medium");
+    }
 
-        return null;
+    private static @NotNull List<String> extractStudios(@Nullable JsonObject studios) {
+        JsonArray nodes = getSafeArray(studios, "nodes");
+        if (nodes == null || nodes.isEmpty()) return List.of();
+
+        List<String> names = new ArrayList<>(nodes.size());
+        for (JsonElement el : nodes) {
+            if (el == null || !el.isJsonObject()) continue;
+            String name = getSafeString(el.getAsJsonObject(), "name");
+            if (name != null) names.add(name);
+        }
+        return names.isEmpty() ? List.of() : List.copyOf(names);
     }
 
     private static @Nullable String formatSeason(@NotNull JsonObject object) {
