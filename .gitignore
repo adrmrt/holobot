@@ -48,8 +48,6 @@ __pycache__/
 
 # Sensitive files
 .env
-config.json
-config.properties
 /conventions.md
 /checklist.md
 /plans/
