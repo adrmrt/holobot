@@ -169,12 +169,12 @@ public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
         // Scores
         String scoreLabel = switch (manga.platform()) {
             case ANILIST -> "AniList Score";
-            case MAL_JIKAN -> "MAL Score";
+            case MAL -> "MAL Score";
         };
         String scoreValue = manga.score();
         String rankLabel = switch (manga.platform()) {
             case ANILIST -> "AniList Rank";
-            case MAL_JIKAN -> "MAL Rank";
+            case MAL -> "MAL Rank";
         };
         String rankValue = formatRank(manga.rank());
 
@@ -222,7 +222,7 @@ public class MangaSearchCmd implements CommandMetadata, ExecutableCommand {
     @Nullable
     private static MediaPlatform parsePlatformFlag(String token) {
         return switch (token.toLowerCase()) {
-            case "mal", "myanimelist" -> MediaPlatform.MAL_JIKAN;
+            case "mal", "myanimelist" -> MediaPlatform.MAL;
             case "anilist", "al" -> MediaPlatform.ANILIST;
             default -> null;
         };

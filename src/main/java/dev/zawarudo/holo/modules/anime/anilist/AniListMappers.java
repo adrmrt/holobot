@@ -6,10 +6,15 @@ import com.google.gson.JsonObject;
 import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.AnimeResult;
 import dev.zawarudo.holo.modules.anime.MangaResult;
+import dev.zawarudo.holo.modules.anime.SeasonalAnime;
 import dev.zawarudo.holo.utils.Formatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,21 +46,95 @@ public final class AniListMappers {
         return out;
     }
 
+    public static @NotNull List<SeasonalAnime> toSeasonalAnime(@Nullable JsonArray media) {
+        if (media == null || media.isEmpty()) return List.of();
+
+        List<SeasonalAnime> out = new ArrayList<>(media.size());
+        for (JsonElement el : media) {
+            if (el == null || !el.isJsonObject()) continue;
+            out.add(mapSeasonalAnime(el.getAsJsonObject()));
+        }
+        return out;
+    }
+
+    private static @NotNull SeasonalAnime mapSeasonalAnime(@NotNull JsonObject object) {
+        int id = object.get("id").getAsInt();
+
+        JsonObject titleObj = getSafeObject(object, "title");
+        String title = pickFirstNonBlank(
+            getSafeString(titleObj, "romaji"),
+            getSafeString(titleObj, "english"),
+            getSafeString(titleObj, "native"),
+            "Unknown"
+        );
+
+        return new SeasonalAnime(
+            id,
+            title,
+            safeText(getSafeString(object, "siteUrl"), ""),
+            intValNullable(object.get("popularity"), 0),
+            extractStartDate(getSafeObject(object, "startDate")),
+            extractNextAiringAt(getSafeObject(object, "nextAiringEpisode"))
+        );
+    }
+
+    private static @Nullable LocalDate extractStartDate(@Nullable JsonObject startDate) {
+        if (startDate == null) return null;
+
+        Integer year = intOrNull(startDate.get("year"));
+        Integer month = intOrNull(startDate.get("month"));
+        Integer day = intOrNull(startDate.get("day"));
+        if (year == null || month == null || day == null) return null;
+
+        try {
+            return LocalDate.of(year, month, day);
+        } catch (java.time.DateTimeException _) {
+            return null;
+        }
+    }
+
+    private static @Nullable ZonedDateTime extractNextAiringAt(@Nullable JsonObject nextAiringEpisode) {
+        if (nextAiringEpisode == null) return null;
+
+        Long airingAt = longOrNull(nextAiringEpisode.get("airingAt"));
+        if (airingAt == null) return null;
+
+        return ZonedDateTime.ofInstant(Instant.ofEpochSecond(airingAt), ZoneOffset.UTC);
+    }
+
+    private static @Nullable Integer intOrNull(@Nullable JsonElement el) {
+        if (el == null || el.isJsonNull()) return null;
+        try {
+            return el.getAsInt();
+        } catch (UnsupportedOperationException | NumberFormatException _) {
+            return null;
+        }
+    }
+
+    private static @Nullable Long longOrNull(@Nullable JsonElement el) {
+        if (el == null || el.isJsonNull()) return null;
+        try {
+            return el.getAsLong();
+        } catch (UnsupportedOperationException | NumberFormatException _) {
+            return null;
+        }
+    }
+
     private static @NotNull AnimeResult mapAnime(@NotNull JsonObject object) {
         int id = object.get("id").getAsInt();
 
-        JsonObject titleObj = object.getAsJsonObject("title");
+        JsonObject titleObj = getSafeObject(object, "title");
         String titleRomaji = getSafeString(titleObj, "romaji");
         String titleEnglish = getSafeString(titleObj, "english");
         String titleNative = getSafeString(titleObj, "native");
         String displayTitle = pickFirstNonBlank(titleRomaji, titleEnglish, titleNative, "Unknown");
 
-        String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
+        String imageUrl = selectBestImage(getSafeObject(object, "coverImage"));
 
         String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
-        int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
+        int rank = getAllTimeRank(getSafeArray(object, "rankings"), 0);
 
         String season = formatSeason(object);
 
@@ -80,8 +159,8 @@ public final class AniListMappers {
             emptyToNull(getSafeString(object, "status")),
             season,
 
-            List.of(), // studios not requested
-            extractGenres(object.getAsJsonArray("genres")),
+            extractStudios(getSafeObject(object, "studios")),
+            extractGenres(getSafeArray(object, "genres")),
             List.of(), // themes not requested
             List.of()  // demographics not requested
         );
@@ -91,18 +170,18 @@ public final class AniListMappers {
     private static @NotNull MangaResult mapManga(@NotNull JsonObject object) {
         int id = object.get("id").getAsInt();
 
-        JsonObject titleObj = object.getAsJsonObject("title");
+        JsonObject titleObj = getSafeObject(object, "title");
         String titleRomaji = getSafeString(titleObj, "romaji");
         String titleEnglish = getSafeString(titleObj, "english");
         String titleNative = getSafeString(titleObj, "native");
         String displayTitle = pickFirstNonBlank(titleRomaji, titleEnglish, titleNative, "Unknown");
 
-        String imageUrl = selectBestImage(object.getAsJsonObject("coverImage"));
+        String imageUrl = selectBestImage(getSafeObject(object, "coverImage"));
 
         String description = Formatter.htmlToDiscord(getSafeString(object, "description"));
 
         String averageScoreStr = formatAverageScore(object.get("averageScore"));
-        int rank = getAllTimeRank(object.getAsJsonArray("rankings"), 0);
+        int rank = getAllTimeRank(getSafeArray(object, "rankings"), 0);
 
         return new MangaResult(
             MediaPlatform.ANILIST,
@@ -125,10 +204,22 @@ public final class AniListMappers {
 
             emptyToNull(getSafeString(object, "status")),
             List.of(), // authors not requested
-            extractGenres(object.getAsJsonArray("genres")),
+            extractGenres(getSafeArray(object, "genres")),
             List.of(), // themes not requested
             List.of()  // demographics not requested
         );
+    }
+
+    private static @Nullable JsonObject getSafeObject(@Nullable JsonObject o, @NotNull String key) {
+        if (o == null) return null;
+        JsonElement el = o.get(key);
+        return (el == null || !el.isJsonObject()) ? null : el.getAsJsonObject();
+    }
+
+    private static @Nullable JsonArray getSafeArray(@Nullable JsonObject o, @NotNull String key) {
+        if (o == null) return null;
+        JsonElement el = o.get(key);
+        return (el == null || !el.isJsonArray()) ? null : el.getAsJsonArray();
     }
 
     private static @Nullable String getSafeString(@Nullable JsonObject o, @NotNull String key) {
@@ -178,16 +269,26 @@ public final class AniListMappers {
     private static @Nullable String selectBestImage(@Nullable JsonObject coverImage) {
         if (coverImage == null || coverImage.isJsonNull()) return null;
 
-        String extraLarge = coverImage.get("extraLarge").getAsString();
-        if (extraLarge != null && !extraLarge.isBlank()) return extraLarge;
+        String extraLarge = getSafeString(coverImage, "extraLarge");
+        if (extraLarge != null) return extraLarge;
 
-        String large = coverImage.get("large").getAsString();
-        if (large != null && !large.isBlank()) return large;
+        String large = getSafeString(coverImage, "large");
+        if (large != null) return large;
 
-        String medium = coverImage.get("medium").getAsString();
-        if (medium != null && !medium.isBlank()) return medium;
+        return getSafeString(coverImage, "medium");
+    }
 
-        return null;
+    private static @NotNull List<String> extractStudios(@Nullable JsonObject studios) {
+        JsonArray nodes = getSafeArray(studios, "nodes");
+        if (nodes == null || nodes.isEmpty()) return List.of();
+
+        List<String> names = new ArrayList<>(nodes.size());
+        for (JsonElement el : nodes) {
+            if (el == null || !el.isJsonObject()) continue;
+            String name = getSafeString(el.getAsJsonObject(), "name");
+            if (name != null) names.add(name);
+        }
+        return names.isEmpty() ? List.of() : List.copyOf(names);
     }
 
     private static @Nullable String formatSeason(@NotNull JsonObject object) {

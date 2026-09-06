@@ -1,13 +1,16 @@
 package dev.zawarudo.holo.modules.anime;
 
-import dev.zawarudo.holo.modules.anime.jikan.JikanApiClient;
-import dev.zawarudo.holo.modules.anime.jikan.model.Anime;
-import dev.zawarudo.holo.modules.anime.jikan.model.Season;
+import com.google.gson.JsonArray;
+import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
+import dev.zawarudo.holo.modules.anime.anilist.AniListMappers;
+import dev.zawarudo.holo.modules.anime.anilist.AniListSeason;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -24,15 +27,15 @@ public final class SeasonPlan {
     /**
      * Creates an image displaying the anime that air on the respective week day.
      */
-    public static BufferedImage createWeekPlan(Season season, int year) throws APIException {
-        List<Anime> seasonalAnime = JikanApiClient.getSeason(season, year);
+    public static BufferedImage createWeekPlan(AniListSeason season, int year) throws APIException {
+        List<SeasonalAnime> seasonalAnime = fetchSeason(season, year);
 
-        for (Anime anime : seasonalAnime) {
-            anime.changeBroadcastTimeZone("Europe/Zurich");
+        for (SeasonalAnime anime : seasonalAnime) {
+            if (anime.nextAiringAt() == null) continue;
 
-            LOGGER.info(anime.getTitle());
-
-            LOGGER.info("{} {}", anime.getBroadcast().getDay(), anime.getBroadcast().getTime());
+            ZonedDateTime local = anime.nextAiringAt().withZoneSameInstant(ZoneId.of("Europe/Zurich"));
+            LOGGER.info(anime.title());
+            LOGGER.info("{} {}", local.getDayOfWeek(), local.toLocalTime());
         }
 
         throw new UnsupportedOperationException("Not yet implemented!");
@@ -41,11 +44,17 @@ public final class SeasonPlan {
     /**
      * Creates an image displaying the start dates of the seasonal anime.
      */
-    public static BufferedImage createStartPlan(Season season, int year) throws APIException {
+    public static BufferedImage createStartPlan(AniListSeason season, int year) throws APIException {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+    private static List<SeasonalAnime> fetchSeason(AniListSeason season, int year) throws APIException {
+        JsonArray media = new AniListApiClient().searchSeasonRaw(season, year, 50)
+            .getAsJsonObject("Page").getAsJsonArray("media");
+        return AniListMappers.toSeasonalAnime(media);
+    }
+
     public static void main(String[] args) throws APIException {
-        createWeekPlan(Season.FALL, 2024);
+        createWeekPlan(AniListSeason.FALL, 2024);
     }
 }

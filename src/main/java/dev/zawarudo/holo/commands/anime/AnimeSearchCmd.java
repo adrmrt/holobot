@@ -166,12 +166,12 @@ public class AnimeSearchCmd implements CommandMetadata, ExecutableCommand {
         // Scores
         String scoreLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Score";
-            case MAL_JIKAN -> "MAL Score";
+            case MAL -> "MAL Score";
         };
         String scoreValue = anime.score();
         String rankLabel = switch (anime.platform()) {
             case ANILIST -> "AniList Rank";
-            case MAL_JIKAN -> "MAL Rank";
+            case MAL -> "MAL Rank";
         };
         String rankValue = formatRank(anime.rank());
 
@@ -214,7 +214,7 @@ public class AnimeSearchCmd implements CommandMetadata, ExecutableCommand {
     @Nullable
     private static MediaPlatform parsePlatformFlag(String token) {
         return switch (token.toLowerCase()) {
-            case "mal", "myanimelist" -> MediaPlatform.MAL_JIKAN;
+            case "mal", "myanimelist" -> MediaPlatform.MAL;
             case "anilist", "al" -> MediaPlatform.ANILIST;
             default -> null;
         };

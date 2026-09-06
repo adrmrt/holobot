@@ -1,26 +1,15 @@
 package dev.zawarudo.holo.modules.anime;
 
-import dev.zawarudo.holo.modules.anime.jikan.model.Anime;
-import dev.zawarudo.holo.modules.anime.jikan.model.Broadcast;
-
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 
 public class AnimeWeek {
 
-    public static void sortAnimeByRelease(List<Anime> anime) {
-        anime.sort((a1, a2) -> {
-            String start1 = a1.getStartDate();
-            String start2 = a2.getStartDate();
-
-            int startComparison = start1.compareTo(start2);
-            if (startComparison != 0) {
-                return startComparison;
-            }
-
-            Broadcast b1 = a1.getBroadcast();
-            Broadcast b2 = a2.getBroadcast();
-
-            return b1.getTime().orElse("00:00").compareTo(b2.getTime().orElse("00:00"));
-        });
+    public static void sortAnimeByRelease(List<SeasonalAnime> anime) {
+        anime.sort(
+            Comparator.comparing(SeasonalAnime::startDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(a -> a.nextAiringAt() != null ? a.nextAiringAt().toLocalTime() : LocalTime.MIDNIGHT)
+        );
     }
 }

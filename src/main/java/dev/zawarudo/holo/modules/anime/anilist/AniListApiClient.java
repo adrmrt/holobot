@@ -4,19 +4,28 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.zawarudo.holo.utils.HoloHttp;
+import dev.zawarudo.holo.utils.HoloRateLimiter;
 import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.HttpStatusException;
 import dev.zawarudo.holo.utils.exceptions.HttpTransportException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-/*
- * TODO:
- *  - https://studio.apollographql.com/sandbox/explorer?endpoint=https://graphql.anilist.co
+/**
+ * Client for the public AniList GraphQL API (<a href="https://docs.anilist.co">docs.anilist.co</a>).
+ * No authentication needed for search queries.
  */
 public final class AniListApiClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AniListApiClient.class);
+
     private static final String BASE_URL = "https://graphql.anilist.co";
+
+    // AniList's documented limit is 90 req/min, dropped to 30 req/min during periods of high
+    // load - 1/sec stays under the normal limit without needing to track which mode is active.
+    private final HoloRateLimiter rateLimiter = new HoloRateLimiter(1);
 
     private static final String Q_SEARCH_ANIME = """
         query ($search: String, $perPage: Int) {
@@ -34,6 +43,7 @@ public final class AniListApiClient {
               genres
               season
               seasonYear
+              studios(isMain: true) { nodes { name } }
               rankings {
                 rank
                 type
@@ -69,12 +79,35 @@ public final class AniListApiClient {
         }
         """;
 
+    private static final String Q_SEASON = """
+        query ($season: MediaSeason, $year: Int, $perPage: Int) {
+          Page(perPage: $perPage) {
+            media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
+              id
+              siteUrl
+              title { romaji english native }
+              popularity
+              startDate { year month day }
+              nextAiringEpisode { airingAt }
+            }
+          }
+        }
+        """;
+
     public JsonObject searchAnimeRaw(String query, int limit) throws APIException {
         return request(Q_SEARCH_ANIME, variablesSearch(query, limit));
     }
 
     public JsonObject searchMangaRaw(String query, int limit) throws APIException {
         return request(Q_SEARCH_MANGA, variablesSearch(query, limit));
+    }
+
+    public JsonObject searchSeasonRaw(AniListSeason season, int year, int perPage) throws APIException {
+        JsonObject vars = new JsonObject();
+        vars.addProperty("season", season.name());
+        vars.addProperty("year", year);
+        vars.addProperty("perPage", perPage);
+        return request(Q_SEASON, vars);
     }
 
     private JsonObject variablesSearch(String query, int limit) {
@@ -85,12 +118,15 @@ public final class AniListApiClient {
     }
 
     private JsonObject request(String gqlQuery, JsonObject variables) throws APIException {
+        rateLimiter.acquire();
+
         JsonObject body = new JsonObject();
         body.addProperty("query", gqlQuery);
         body.add("variables", variables);
 
         try {
             JsonObject res = HoloHttp.postJsonObject(BASE_URL, body, Map.of());
+            LOGGER.debug("AniList response: {}", res);
 
             // GraphQL errors can come back with HTTP 200
             JsonArray errors = res.has("errors") ? res.getAsJsonArray("errors") : null;
@@ -104,6 +140,10 @@ public final class AniListApiClient {
 
             return res.getAsJsonObject("data");
         } catch (HttpStatusException e) {
+            LOGGER.debug("AniList error response ({}): {}", e.getStatusCode(), e.getBodySnippet());
+            if (e.getStatusCode() == 429) {
+                throw new APIException("429 Too Many Requests (AniList rate limit).", e);
+            }
             throw new APIException("AniList HTTP error: " + e.getStatusCode() + " (" + e.getUrl() + ")", e);
         } catch (HttpTransportException e) {
             throw new APIException("AniList transport error", e);

@@ -20,7 +20,7 @@ import dev.zawarudo.holo.modules.anime.MediaPlatform;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
 import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
 import dev.zawarudo.holo.modules.anime.anilist.AniListProvider;
-import dev.zawarudo.holo.modules.anime.jikan.JikanProvider;
+import dev.zawarudo.holo.modules.anime.mal.MalProvider;
 import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -123,11 +124,19 @@ public class Holo extends ListenerAdapter {
         // Init anime stuff
         AniListApiClient aniListClient = new AniListApiClient();
 
-        List<MediaSearchProvider> providers = List.of(
-            new AniListProvider(aniListClient),
-            new JikanProvider()
+        List<MediaSearchProvider> providers = new ArrayList<>(List.of(
+            new AniListProvider(aniListClient)
+        ));
+        List<MediaPlatform> order = new ArrayList<>(List.of(MediaPlatform.ANILIST));
+
+        MalProvider.create(botConfig.getMalClientId()).ifPresentOrElse(
+            provider -> {
+                providers.add(provider);
+                order.add(MediaPlatform.MAL);
+            },
+            () -> LOGGER.warn("MAL_CLIENT_ID is not configured; MyAnimeList search fallback is disabled.")
         );
-        List<MediaPlatform> order = List.of(MediaPlatform.MAL_JIKAN, MediaPlatform.ANILIST);
+
         MediaSearchService mediaSearchService = new MediaSearchService(providers, order, true);
 
         gitHubClient = new GitHubClient(botConfig.getGitHubToken());
