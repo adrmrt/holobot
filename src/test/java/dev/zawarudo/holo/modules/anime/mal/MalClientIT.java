@@ -73,5 +73,6 @@ class MalClientIT {
     void searchAnime_noMatches_returnsEmptyList() throws APIException, InvalidRequestException {
         List<MalDtos.Anime> results = client.searchAnime("asdkjhqweiuhqwoeiuasdlkjzxc", 3);
         assertNotNull(results);
+        assertTrue(results.isEmpty(), "Expected no results for a nonsense search term");
     }
 }

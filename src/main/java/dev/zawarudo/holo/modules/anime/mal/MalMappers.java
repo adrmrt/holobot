@@ -139,9 +139,18 @@ final class MalMappers {
         return authors.stream()
             .map(MalDtos.AuthorEntry::node)
             .filter(Objects::nonNull)
-            .map(node -> (node.firstName() + " " + node.lastName()).trim())
+            .map(node -> joinNonBlank(node.firstName(), node.lastName()))
             .filter(name -> !name.isBlank())
             .toList();
+    }
+
+    private static @NotNull String joinNonBlank(@Nullable String first, @Nullable String last) {
+        boolean hasFirst = first != null && !first.isBlank();
+        boolean hasLast = last != null && !last.isBlank();
+        if (hasFirst && hasLast) return first + " " + last;
+        if (hasFirst) return first;
+        if (hasLast) return last;
+        return "";
     }
 
     private static <T> @NotNull List<String> names(
