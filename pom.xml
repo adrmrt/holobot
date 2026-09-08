@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.zawarudo</groupId>
     <artifactId>holobot</artifactId>
-    <version>3.9.2-SNAPSHOT</version>
+    <version>3.9.2</version>
 
     <name>HoloBot</name>
     <description>Java Discord Bot</description>
