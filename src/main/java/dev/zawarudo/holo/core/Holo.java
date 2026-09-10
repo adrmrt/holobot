@@ -22,6 +22,7 @@ import dev.zawarudo.holo.modules.anime.anilist.AniListApiClient;
 import dev.zawarudo.holo.modules.anime.anilist.AniListProvider;
 import dev.zawarudo.holo.modules.anime.mal.MalProvider;
 import dev.zawarudo.holo.modules.anime.MediaSearchProvider;
+import dev.zawarudo.holo.modules.countdown.CountdownManager;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
@@ -120,6 +121,8 @@ public class Holo extends ListenerAdapter {
         // Register services
         XkcdSyncService xkcdSyncService = new XkcdSyncService(xkcdDao, executors.io());
         BlacklistService blacklistService = new BlacklistService(blacklistedDao);
+        CountdownManager countdownManager = new CountdownManager(countdownDao, jda, executors.scheduler(), executors.io());
+        countdownManager.start();
 
         // Init anime stuff
         AniListApiClient aniListClient = new AniListApiClient();
@@ -171,7 +174,7 @@ public class Holo extends ListenerAdapter {
             xkcdSyncService,
             blacklistService,
             mediaSearchService,
-            countdownDao,
+            countdownManager,
             imageResolver,
             userResolver
         );

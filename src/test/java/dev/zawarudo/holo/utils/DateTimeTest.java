@@ -73,4 +73,19 @@ class DateTimeTest {
         assertDoesNotThrow(() -> DateTimeUtils.parseDateTime("14.02.24 18:00"));
         assertDoesNotThrow(() -> DateTimeUtils.parseDateTime("14.02.24"));
     }
+
+    @Test
+    void testParseDateTimeWithReferenceZone() {
+        String input = "26.02.2024 18:00";
+        ZoneId tokyo = ZoneId.of("Asia/Tokyo");
+        long expected = LocalDateTime.of(2024, 2, 26, 18, 0).atZone(tokyo).toInstant().toEpochMilli();
+        assertEquals(expected, DateTimeUtils.parseDateTime(input, tokyo));
+    }
+
+    @Test
+    void testGetWeekDayFromMillis() {
+        // 26 February 2024 is a Monday
+        long millis = LocalDateTime.of(2024, 2, 26, 12, 0).atZone(ZH).toInstant().toEpochMilli();
+        assertEquals("Monday", DateTimeUtils.getWeekDayFromDate(millis, ZH));
+    }
 }

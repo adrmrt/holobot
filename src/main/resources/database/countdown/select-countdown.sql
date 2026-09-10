@@ -1,3 +1,1 @@
-SELECT *
-FROM Countdowns
-WHERE user_id = ?;
+SELECT * FROM Countdowns;

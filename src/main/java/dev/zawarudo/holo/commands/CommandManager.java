@@ -11,12 +11,12 @@ import dev.zawarudo.holo.commands.image.*;
 import dev.zawarudo.holo.commands.owner.*;
 import dev.zawarudo.holo.core.GuildConfigManager;
 import dev.zawarudo.holo.core.security.BlacklistService;
-import dev.zawarudo.holo.database.dao.CountdownDao;
 import dev.zawarudo.holo.database.dao.XkcdDao;
 import dev.zawarudo.holo.modules.GitHubClient;
 import dev.zawarudo.holo.modules.MerriamWebsterClient;
 import dev.zawarudo.holo.modules.akinator.AkinatorSessionManager;
 import dev.zawarudo.holo.modules.anime.MediaSearchService;
+import dev.zawarudo.holo.modules.countdown.CountdownManager;
 import dev.zawarudo.holo.modules.emotes.EmoteManager;
 import dev.zawarudo.holo.modules.xkcd.XkcdSyncService;
 import dev.zawarudo.holo.utils.ImageResolver;
@@ -53,7 +53,7 @@ public class CommandManager extends ListenerAdapter {
         XkcdSyncService xkcdSyncService,
         BlacklistService blacklistService,
         MediaSearchService mediaSearchService,
-        CountdownDao countdownDao,
+        CountdownManager countdownManager,
         ImageResolver imageResolver,
         UserResolver userResolver
     ) {
@@ -69,6 +69,8 @@ public class CommandManager extends ListenerAdapter {
         addCommand(new ServerRolesCmd());
         addCommand(new SuggestionCmd(gitHubClient));
         addCommand(new WhoisCmd(userResolver));
+        addCommand(new TimestampCmd());
+        addCommand(new DateCheckCmd());
 
         // Anime Cmds
         addCommand(new AnimeSearchCmd(waiter, mediaSearchService));
@@ -97,7 +99,7 @@ public class CommandManager extends ListenerAdapter {
 
         // Misc Cmds
         addCommand(new CoinFlipCmd());
-        addCommand(new CountdownCmd(countdownDao));
+        addCommand(new CountdownCmd(countdownManager));
         addCommand(new DictionaryCmd(waiter, merriamWebsterClient));
         addCommand(new Magic8BallCmd());
         addCommand(new UrbanDictionaryCmd(waiter));

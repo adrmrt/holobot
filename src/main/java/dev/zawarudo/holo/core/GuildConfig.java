@@ -15,6 +15,7 @@ public class GuildConfig {
     private final long guildId;
     private String prefix;
     private boolean nsfw;
+    private String timezone = "UTC";
 
     private final Set<String> disabledModules = new HashSet<>();
 
@@ -66,6 +67,20 @@ public class GuildConfig {
      */
     public void setAllowNSFW(boolean nsfw) {
         this.nsfw = nsfw;
+    }
+
+    /**
+     * Returns the IANA timezone id used as the reference zone for this guild's date/time input.
+     */
+    public String getTimezone() {
+        return timezone;
+    }
+
+    /**
+     * Sets the IANA timezone id used as the reference zone for this guild's date/time input.
+     */
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
 
     public Set<String> getDisabledModules() {

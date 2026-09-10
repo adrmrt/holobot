@@ -3,6 +3,7 @@ package dev.zawarudo.holo.utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -51,6 +52,17 @@ public final class DateTimeUtils {
     }
 
     public static long parseDateTime(@NotNull String input) {
+        return parseDateTime(input, ZoneId.systemDefault());
+    }
+
+    /**
+     * Parses the given date and/or time string into an epoch millisecond timestamp, using
+     * {@code referenceZone} as the zone for inputs that don't specify their own offset.
+     *
+     * @param input         The date and/or time string to parse.
+     * @param referenceZone The zone to assume when the input doesn't carry an explicit offset.
+     */
+    public static long parseDateTime(@NotNull String input, @NotNull ZoneId referenceZone) {
         input = input.trim();
 
         Pattern pattern = Pattern.compile("\\(UTC([+-]\\d+)\\)");
@@ -109,7 +121,7 @@ public final class DateTimeUtils {
                     return zonedDateTime.toInstant().toEpochMilli();
                 } else {
                     LocalDateTime localDateTime = LocalDateTime.parse(input, formatter);
-                    ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+                    ZonedDateTime zonedDateTime = localDateTime.atZone(referenceZone);
                     return zonedDateTime.toInstant().toEpochMilli();
                 }
             } catch (DateTimeParseException _) {
@@ -119,7 +131,7 @@ public final class DateTimeUtils {
         for (DateTimeFormatter formatter : dateFormatters) {
             try {
                 LocalDate localDate = LocalDate.parse(input, formatter);
-                ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
+                ZonedDateTime zonedDateTime = localDate.atStartOfDay(referenceZone);
                 return zonedDateTime.toInstant().toEpochMilli();
             } catch (DateTimeParseException _) {
             }
@@ -138,6 +150,14 @@ public final class DateTimeUtils {
     public static String getWeekDayFromDate(String dateString) {
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME);
         return zonedDateTime.format(DateTimeFormatter.ofPattern("EEEE"));
+    }
+
+    /**
+     * Retrieves the week day for an instant given as epoch milliseconds, viewed in the given zone.
+     */
+    public static String getWeekDayFromDate(long millis, ZoneId zone) {
+        ZonedDateTime zonedDateTime = Instant.ofEpochMilli(millis).atZone(zone);
+        return zonedDateTime.format(DateTimeFormatter.ofPattern("EEEE", Locale.ENGLISH));
     }
 
     /**
