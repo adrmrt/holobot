@@ -9,9 +9,9 @@ public record Countdown(long id, String name, long timeCreated, long dateTime, l
     public enum Visibility {
         /** Only visible to the creator, e.g. in DMs. */
         PRIVATE,
-        /** Visible to the creator's guild via {@code countdown list}. */
+        /** Visible to anyone in the creator's guild via {@code countdown <id>}. */
         PUBLIC,
-        /** Visible to everyone in the guild via {@code countdown all}. */
+        /** Visible to everyone in the guild via {@code countdown all} or {@code countdown <id>}. */
         GLOBAL
     }
 }

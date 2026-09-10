@@ -12,6 +12,7 @@ import dev.zawarudo.holo.utils.DiscordTimestamp;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,41 +76,70 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
     private void handleAdd(CommandContext ctx) {
         List<String> args = ctx.args();
         if (args.size() < 3) {
-            ctx.reply().errorEmbed(String.format("Usage: `%scountdown add [global|public|private] <name> <date/time>`", ctx.prefix().orElse("")));
+            ctx.reply().errorEmbed(addUsage(ctx));
             return;
         }
 
+        Optional<AddArgs> parsedArgs = parseAddArgs(args);
+        if (parsedArgs.isEmpty()) {
+            ctx.reply().errorEmbed(addUsage(ctx));
+            return;
+        }
+        AddArgs addArgs = parsedArgs.get();
+
+        if (addArgs.visibility() == Countdown.Visibility.GLOBAL && !ctx.isGuildAdmin()) {
+            ctx.reply().errorEmbed("Only server admins can create global countdowns!");
+            return;
+        }
+        if (addArgs.visibility() != Countdown.Visibility.PRIVATE && ctx.guild().isEmpty()) {
+            ctx.reply().errorEmbed("Public and global countdowns can only be created in a server!");
+            return;
+        }
+
+        createCountdown(ctx, addArgs.name(), addArgs.dateInput(), addArgs.visibility());
+    }
+
+    private String addUsage(CommandContext ctx) {
+        return String.format("""
+            Usage: `%scountdown add [global|public|private] <name> <date/time>`
+            - `private` (default): only you can see it, via `countdown list` or `countdown <id>`
+            - `public`: anyone in the server can view it via `countdown <id>`; `countdown list` still only shows your own
+            - `global`: visible to everyone in the server via `countdown all` or `countdown <id>` (admin-only to create)""",
+            ctx.prefix().orElse(""));
+    }
+
+    /**
+     * The name and date/time portion of a {@code countdown add} invocation, once the leading
+     * {@code add} token and optional visibility keyword have been separated out. Args are expected to
+     * already be tokenized (quoted phrases grouped into one entry) by {@link dev.zawarudo.holo.commands.CommandListener}.
+     */
+    record AddArgs(Countdown.Visibility visibility, String name, String dateInput) {
+    }
+
+    /**
+     * Splits {@code args} (starting with "add") into visibility, name, and the remaining date/time
+     * string. Returns empty if there aren't enough tokens left for both a name and a date.
+     */
+    static Optional<AddArgs> parseAddArgs(List<String> args) {
         Countdown.Visibility visibility = Countdown.Visibility.PRIVATE;
         int nameIdx = 1;
 
-        String maybeVisibility = args.get(1).toLowerCase(Locale.ROOT);
-        Optional<Countdown.Visibility> parsed = parseVisibility(maybeVisibility);
+        Optional<Countdown.Visibility> parsed = parseVisibility(args.get(1).toLowerCase(Locale.ROOT));
         if (parsed.isPresent()) {
             visibility = parsed.get();
             nameIdx = 2;
         }
 
-        if (visibility == Countdown.Visibility.GLOBAL && !ctx.isGuildAdmin()) {
-            ctx.reply().errorEmbed("Only server admins can create global countdowns!");
-            return;
-        }
-        if (visibility != Countdown.Visibility.PRIVATE && ctx.guild().isEmpty()) {
-            ctx.reply().errorEmbed("Public and global countdowns can only be created in a server!");
-            return;
-        }
-
         if (args.size() < nameIdx + 2) {
-            ctx.reply().errorEmbed(String.format("Usage: `%scountdown add [global|public|private] <name> <date/time>`", ctx.prefix().orElse("")));
-            return;
+            return Optional.empty();
         }
 
         String name = args.get(nameIdx);
         String dateInput = String.join(" ", args.subList(nameIdx + 1, args.size()));
-
-        createCountdown(ctx, name, dateInput, visibility);
+        return Optional.of(new AddArgs(visibility, name, dateInput));
     }
 
-    private Optional<Countdown.Visibility> parseVisibility(String value) {
+    private static Optional<Countdown.Visibility> parseVisibility(String value) {
         return switch (value) {
             case "global" -> Optional.of(Countdown.Visibility.GLOBAL);
             case "public" -> Optional.of(Countdown.Visibility.PUBLIC);
@@ -149,13 +179,21 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
     }
 
     private boolean isVisibleTo(CommandContext ctx, Countdown cd) {
-        if (cd.userId() == ctx.user().getIdLong()) {
+        Long viewerGuildId = ctx.guild().map(ISnowflake::getIdLong).orElse(null);
+        return isVisibleTo(ctx.user().getIdLong(), viewerGuildId, cd);
+    }
+
+    /**
+     * Whether {@code viewerId} (viewing from {@code viewerGuildId}, or {@code null} outside a guild)
+     * is allowed to see {@code cd}: the owner always can, and anyone in the same guild can see
+     * {@code PUBLIC} or {@code GLOBAL} countdowns created there.
+     */
+    static boolean isVisibleTo(long viewerId, Long viewerGuildId, Countdown cd) {
+        if (cd.userId() == viewerId) {
             return true;
         }
-        if (cd.visibility() == Countdown.Visibility.GLOBAL) {
-            return ctx.guild().map(g -> g.getIdLong() == cd.guildId()).orElse(false);
-        }
-        return false;
+        boolean sharedInGuild = cd.visibility() == Countdown.Visibility.GLOBAL || cd.visibility() == Countdown.Visibility.PUBLIC;
+        return sharedInGuild && viewerGuildId != null && viewerGuildId == cd.guildId();
     }
 
     private void showList(CommandContext ctx) {
@@ -215,7 +253,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             ZoneId zone = ctx.guildConfig().map(gc -> ZoneId.of(gc.getTimezone())).orElse(ZoneId.systemDefault());
             long millis = DateTimeUtils.parseDateTime(input, zone);
 
-            long guildId = ctx.guild().map(g -> g.getIdLong()).orElse(0L);
+            long guildId = ctx.guild().map(ISnowflake::getIdLong).orElse(0L);
             long channelId = ctx.channel().getIdLong();
 
             Countdown countdown = new Countdown(-1, name, created, millis, ctx.user().getIdLong(), guildId,

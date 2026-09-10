@@ -1,6 +1,4 @@
--- Installs baselined at version 1 (baselineOnMigrate) never actually ran V1's SQL, so
--- Countdowns may not exist yet even though "current" V1 creates it. Recreate it here with
--- its original V1 shape before altering, so both real-V1 and baselined installs converge.
+--- Create the Countdowns table if it doesn't exist
 CREATE TABLE IF NOT EXISTS Countdowns
 (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
