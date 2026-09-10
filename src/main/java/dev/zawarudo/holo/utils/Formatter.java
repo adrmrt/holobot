@@ -16,6 +16,16 @@ public final class Formatter {
     private Formatter() {
     }
 
+    /**
+     * Standard error message shown when {@link DateTimeUtils#parseDateTime(String)} fails, pointing
+     * the user to {@code timestamp formats} for the full list of accepted date/time formats.
+     */
+    public static String dateParseErrorHint(String prefix) {
+        return String.format(
+            "I can't parse your given date and/or time! Make sure you didn't make a typo and try again. " +
+                "Run `%stimestamp formats` to see all supported formats.", prefix);
+    }
+
     public static String formatTrackTime(long timeInMillis) {
         long hours = timeInMillis / TimeUnit.HOURS.toMillis(1);
         long minutes = timeInMillis % TimeUnit.HOURS.toMillis(1) / TimeUnit.MINUTES.toMillis(1);

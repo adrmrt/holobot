@@ -9,6 +9,7 @@ import dev.zawarudo.holo.modules.countdown.Countdown;
 import dev.zawarudo.holo.modules.countdown.CountdownManager;
 import dev.zawarudo.holo.utils.DateTimeUtils;
 import dev.zawarudo.holo.utils.DiscordTimestamp;
+import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -235,7 +236,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             LOGGER.error("Something went wrong", e);
             ctx.reply().errorEmbed("Something went wrong while storing your countdown.");
         } catch (IllegalArgumentException _) {
-            ctx.reply().errorEmbed("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.");
+            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
         }
     }
 

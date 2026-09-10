@@ -9,8 +9,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +23,23 @@ import java.util.regex.Pattern;
  * methods to format date and time strings and various conversion methods to specific formats.
  */
 public final class DateTimeUtils {
+
+    /**
+     * One example per accepted input shape for {@link #parseDateTime(String)}, shown to users who ask
+     * to see the supported formats. Keep in sync with the formatter lists in {@link #parseDateTime(String, ZoneId)}
+     * and {@link #tryParseWithoutYear(String, ZoneId)} whenever a shape is added or removed.
+     */
+    public static final List<String> FORMAT_EXAMPLES = List.of(
+        "13.02.2024 21:57",
+        "13/02/2024 21:57",
+        "2024-02-13 21:57",
+        "February 13, 2024 21:57",
+        "13.02.2024",
+        "2026/09/12 08:00 AM",
+        "2026/09/12 20:00",
+        "08/14 19:30",
+        "1708988340000"
+    );
 
     private DateTimeUtils() {
         throw new UnsupportedOperationException();
@@ -89,6 +109,10 @@ public final class DateTimeUtils {
             // American
             DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm", Locale.ENGLISH),
 
+            // Slash-separated, e.g. game update announcements: "2026/09/12 08:00 AM" / "2026/09/12 08:00"
+            DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm a", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"),
+
             // With timezone
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm Z"),
             DateTimeFormatter.ofPattern("dd/MM/yy HH:mm Z"),
@@ -96,6 +120,8 @@ public final class DateTimeUtils {
             DateTimeFormatter.ofPattern("dd.MM.yy HH:mm Z"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm Z"),
             DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm Z", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm a Z", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm Z"),
         };
 
         DateTimeFormatter[] dateFormatters = new DateTimeFormatter[]{
@@ -137,11 +163,48 @@ public final class DateTimeUtils {
             }
         }
 
+        Long withoutYear = tryParseWithoutYear(input, referenceZone);
+        if (withoutYear != null) {
+            return withoutYear;
+        }
+
         try {
             return Long.parseLong(input);
         } catch (NumberFormatException _) {
             throw new IllegalArgumentException("Unsupported date time format: " + input);
         }
+    }
+
+    /**
+     * Attempts to parse a date/time string that omits the year, e.g. game update announcements
+     * such as "08/14 19:30 (UTC+8)". The current year in {@code referenceZone} is assumed.
+     *
+     * @return The parsed epoch millisecond timestamp, or {@code null} if no year-less format matched.
+     */
+    private static Long tryParseWithoutYear(String input, ZoneId referenceZone) {
+        int currentYear = LocalDate.now(referenceZone).getYear();
+
+        DateTimeFormatter withZone = new DateTimeFormatterBuilder()
+            .appendPattern("MM/dd HH:mm Z")
+            .parseDefaulting(ChronoField.YEAR, currentYear)
+            .toFormatter(Locale.ENGLISH);
+        try {
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse(input, withZone);
+            return zonedDateTime.toInstant().toEpochMilli();
+        } catch (DateTimeParseException _) {
+        }
+
+        DateTimeFormatter withoutZone = new DateTimeFormatterBuilder()
+            .appendPattern("MM/dd HH:mm")
+            .parseDefaulting(ChronoField.YEAR, currentYear)
+            .toFormatter(Locale.ENGLISH);
+        try {
+            LocalDateTime localDateTime = LocalDateTime.parse(input, withoutZone);
+            return localDateTime.atZone(referenceZone).toInstant().toEpochMilli();
+        } catch (DateTimeParseException _) {
+        }
+
+        return null;
     }
 
     /**

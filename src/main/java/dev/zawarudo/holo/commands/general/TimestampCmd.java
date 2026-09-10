@@ -6,13 +6,16 @@ import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.DateTimeUtils;
 import dev.zawarudo.holo.utils.DiscordTimestamp;
+import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 @CommandInfo(name = "timestamp",
     description = "Converts a date and/or time into every Discord dynamic timestamp style, ready to copy and paste.",
-    usage = "<date and/or time>",
+    usage = "<date and/or time> | formats",
     example = "25/12/2026 18:00",
     alias = {"ts"},
     category = CommandCategory.GENERAL,
@@ -23,8 +26,12 @@ public class TimestampCmd implements CommandMetadata, ExecutableCommand {
     @Override
     public void execute(@NotNull CommandContext ctx) {
         if (!ctx.hasArgs()) {
-            ctx.reply().errorEmbed(String.format("Please provide a date and/or time! Usage: `%stimestamp %s`",
-                ctx.prefix().orElse(""), getUsage()));
+            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
+            return;
+        }
+
+        if ("formats".equals(ctx.args().getFirst().toLowerCase(Locale.ROOT))) {
+            showFormats(ctx);
             return;
         }
 
@@ -32,7 +39,7 @@ public class TimestampCmd implements CommandMetadata, ExecutableCommand {
         try {
             millis = DateTimeUtils.parseDateTime(ctx.argString());
         } catch (IllegalArgumentException e) {
-            ctx.reply().errorEmbed("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.");
+            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
             return;
         }
 
@@ -45,6 +52,21 @@ public class TimestampCmd implements CommandMetadata, ExecutableCommand {
             String code = style.getTimestamp(millis);
             builder.addField(styleName(style), String.format("%s\n`%s`", code, code), false);
         }
+
+        ctx.reply().embed(builder);
+    }
+
+    private void showFormats(CommandContext ctx) {
+        StringBuilder sb = new StringBuilder();
+        for (String example : DateTimeUtils.FORMAT_EXAMPLES) {
+            sb.append("`").append(example).append("`\n");
+        }
+        sb.append("\nAny of these also accepts a trailing offset, e.g. `(UTC+8)` or `(UTC-4)`.");
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(getEmbedColor());
+        builder.setTitle("Supported Date/Time Formats");
+        builder.setDescription(sb.toString());
 
         ctx.reply().embed(builder);
     }

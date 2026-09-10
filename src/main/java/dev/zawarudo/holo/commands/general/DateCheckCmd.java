@@ -6,6 +6,7 @@ import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.DateTimeUtils;
 import dev.zawarudo.holo.utils.DiscordTimestamp;
+import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +32,7 @@ public class DateCheckCmd implements CommandMetadata, ExecutableCommand {
     @Override
     public void execute(@NotNull CommandContext ctx) {
         if (!ctx.hasArgs()) {
-            ctx.reply().errorEmbed(String.format("Please provide a date and/or time! Usage: `%sdatecheck %s`",
-                ctx.prefix().orElse(""), getUsage()));
+            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
             return;
         }
 
@@ -49,7 +49,7 @@ public class DateCheckCmd implements CommandMetadata, ExecutableCommand {
         try {
             millis = DateTimeUtils.parseDateTime(dateInput);
         } catch (IllegalArgumentException e) {
-            ctx.reply().errorEmbed("I can't parse your given date and/or time! Make sure you didn't make a typo and try again.");
+            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
             return;
         }
 

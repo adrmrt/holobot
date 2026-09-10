@@ -53,4 +53,18 @@ class TimestampCmdTest {
         assertEquals(8, reply.lastEmbed.getFields().size());
         assertTrue(reply.lastEmbed.getFields().getFirst().getValue().contains("<t:"));
     }
+
+    @Test
+    void formatsSubcommand_listsSupportedFormats() {
+        execute("formats");
+        assertNotNull(reply.lastEmbed);
+        assertTrue(reply.lastEmbed.getDescription().contains("2026/09/12 08:00 AM"));
+    }
+
+    @Test
+    void invalidDate_hintsAtFormatsSubcommand() {
+        execute("not", "a", "date");
+        assertNotNull(reply.lastError);
+        assertTrue(reply.lastError.contains("timestamp formats"));
+    }
 }
