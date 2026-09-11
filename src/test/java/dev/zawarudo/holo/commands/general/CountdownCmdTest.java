@@ -63,29 +63,29 @@ class CountdownCmdTest {
     @Test
     void isVisibleTo_ownerAlwaysSeesTheirOwn() {
         Countdown priv = countdown(1L, 100L, Countdown.Visibility.PRIVATE);
-        assertTrue(CountdownCmd.isVisibleTo(1L, null, priv));
-        assertTrue(CountdownCmd.isVisibleTo(1L, 999L, priv));
+        assertTrue(priv.isVisibleTo(1L, 0L));
+        assertTrue(priv.isVisibleTo(1L, 999L));
     }
 
     @Test
     void isVisibleTo_privateHiddenFromOthers() {
         Countdown priv = countdown(1L, 100L, Countdown.Visibility.PRIVATE);
-        assertFalse(CountdownCmd.isVisibleTo(2L, 100L, priv));
+        assertFalse(priv.isVisibleTo(2L, 100L));
     }
 
     @Test
     void isVisibleTo_publicVisibleToSameGuildOnly() {
         Countdown pub = countdown(1L, 100L, Countdown.Visibility.PUBLIC);
-        assertTrue(CountdownCmd.isVisibleTo(2L, 100L, pub));
-        assertFalse(CountdownCmd.isVisibleTo(2L, 200L, pub));
-        assertFalse(CountdownCmd.isVisibleTo(2L, null, pub));
+        assertTrue(pub.isVisibleTo(2L, 100L));
+        assertFalse(pub.isVisibleTo(2L, 200L));
+        assertFalse(pub.isVisibleTo(2L, 0L));
     }
 
     @Test
     void isVisibleTo_globalVisibleToSameGuildOnly() {
         Countdown global = countdown(1L, 100L, Countdown.Visibility.GLOBAL);
-        assertTrue(CountdownCmd.isVisibleTo(2L, 100L, global));
-        assertFalse(CountdownCmd.isVisibleTo(2L, 200L, global));
+        assertTrue(global.isVisibleTo(2L, 100L));
+        assertFalse(global.isVisibleTo(2L, 200L));
     }
 
     private static Countdown countdown(long userId, long guildId, Countdown.Visibility visibility) {

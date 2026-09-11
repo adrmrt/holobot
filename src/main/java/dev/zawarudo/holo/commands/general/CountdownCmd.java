@@ -12,13 +12,11 @@ import dev.zawarudo.holo.utils.DiscordTimestamp;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -153,15 +151,13 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             long selectedId = Long.parseLong(rawId);
 
             Optional<Countdown> selectedCountdown = countdownManager.findById(selectedId);
-            if (selectedCountdown.isEmpty() || !isVisibleTo(ctx, selectedCountdown.get())) {
+            if (selectedCountdown.isEmpty() || !selectedCountdown.get().isVisibleTo(ctx.user().getIdLong(), ctx.guildIdOrZero())) {
                 ctx.reply().errorEmbed("You don't have a countdown with the given ID! Please check your list and try again.");
                 return;
             }
             Countdown cd = selectedCountdown.get();
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setColor(getEmbedColor());
-            builder.setTitle("Countdown Information");
+            EmbedBuilder builder = newEmbed("Countdown Information");
             builder.addField("ID", String.valueOf(cd.id()), true);
             builder.addField("Visibility", cd.visibility().name(), true);
             builder.addField("Name", cd.name(), false);
@@ -178,24 +174,6 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
         }
     }
 
-    private boolean isVisibleTo(CommandContext ctx, Countdown cd) {
-        Long viewerGuildId = ctx.guild().map(ISnowflake::getIdLong).orElse(null);
-        return isVisibleTo(ctx.user().getIdLong(), viewerGuildId, cd);
-    }
-
-    /**
-     * Whether {@code viewerId} (viewing from {@code viewerGuildId}, or {@code null} outside a guild)
-     * is allowed to see {@code cd}: the owner always can, and anyone in the same guild can see
-     * {@code PUBLIC} or {@code GLOBAL} countdowns created there.
-     */
-    static boolean isVisibleTo(long viewerId, Long viewerGuildId, Countdown cd) {
-        if (cd.userId() == viewerId) {
-            return true;
-        }
-        boolean sharedInGuild = cd.visibility() == Countdown.Visibility.GLOBAL || cd.visibility() == Countdown.Visibility.PUBLIC;
-        return sharedInGuild && viewerGuildId != null && viewerGuildId == cd.guildId();
-    }
-
     private void showList(CommandContext ctx) {
         try {
             List<Countdown> countdowns = countdownManager.listFor(ctx.user().getIdLong());
@@ -207,9 +185,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
                     .append(DiscordTimestamp.RELATIVE_TIME.getTimestamp(cd.dateTime())).append("\n");
             }
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setColor(getEmbedColor());
-            builder.setTitle("Your Countdowns");
+            EmbedBuilder builder = newEmbed("Your Countdowns");
             builder.setDescription(sb.isEmpty() ? "Your list is empty." : sb.toString());
 
             ctx.reply().embed(builder);
@@ -235,9 +211,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
                     .append(DiscordTimestamp.RELATIVE_TIME.getTimestamp(cd.dateTime())).append("\n");
             }
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setColor(getEmbedColor());
-            builder.setTitle("Server Countdowns");
+            EmbedBuilder builder = newEmbed("Server Countdowns");
             builder.setDescription(sb.isEmpty() ? "There are no global countdowns in this server." : sb.toString());
 
             ctx.reply().embed(builder);
@@ -250,19 +224,16 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
     private void createCountdown(CommandContext ctx, String name, String input, Countdown.Visibility visibility) {
         try {
             long created = System.currentTimeMillis();
-            ZoneId zone = ctx.guildConfig().map(gc -> ZoneId.of(gc.getTimezone())).orElse(ZoneId.systemDefault());
-            long millis = DateTimeUtils.parseDateTime(input, zone);
+            long millis = DateTimeUtils.parseDateTime(input, ctx.referenceZone());
 
-            long guildId = ctx.guild().map(ISnowflake::getIdLong).orElse(0L);
+            long guildId = ctx.guildIdOrZero();
             long channelId = ctx.channel().getIdLong();
 
             Countdown countdown = new Countdown(-1, name, created, millis, ctx.user().getIdLong(), guildId,
                 visibility, channelId, false);
             long id = countdownManager.createCountdown(countdown);
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setColor(getEmbedColor());
-            builder.setTitle("Created Countdown");
+            EmbedBuilder builder = newEmbed("Created Countdown");
             builder.addField("ID", String.valueOf(id), true);
             builder.addField("Visibility", visibility.name(), true);
             builder.addField("Name", name, false);

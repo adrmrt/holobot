@@ -80,12 +80,17 @@ public final class CountdownManager {
     private void notify(Countdown countdown) {
         try {
             MessageChannel channel = jda.getChannelById(MessageChannel.class, countdown.channelId());
-            if (channel != null) {
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.setTitle("Countdown Arrived!");
-                builder.setDescription(String.format("**%s** has arrived!", countdown.name()));
-                channel.sendMessageEmbeds(builder.build()).queue();
+            if (channel == null) {
+                LOGGER.warn("Countdown {} arrived but its channel {} is no longer accessible; marking notified anyway.",
+                    countdown.id(), countdown.channelId());
+                countdownDao.markNotified(countdown.id());
+                return;
             }
+
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle("Countdown Arrived!");
+            builder.setDescription(String.format("**%s** has arrived!", countdown.name()));
+            channel.sendMessageEmbeds(builder.build()).queue();
             countdownDao.markNotified(countdown.id());
         } catch (Exception e) {
             LOGGER.error("Failed to notify countdown {}", countdown.id(), e);

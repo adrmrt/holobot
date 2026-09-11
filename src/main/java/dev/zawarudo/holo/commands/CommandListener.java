@@ -180,12 +180,12 @@ public class CommandListener extends ListenerAdapter {
         return Bootstrap.holo.getConfig().getDefaultPrefix();
     }
 
+    // TODO: Extract into a dedicated Tokenizer class if parsing rules grow
     /**
      * Parses the given input string into a list of arguments, recognizing spaces as delimiters. Arguments
      * enclosed in double quotes are treated as single arguments.
      */
     static List<String> parseArguments(String input) {
-        // TODO: Extract into a dedicated Tokenizer class if parsing rules grow
         List<String> arguments = new ArrayList<>();
         Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"");
         Matcher matcher = pattern.matcher(input);

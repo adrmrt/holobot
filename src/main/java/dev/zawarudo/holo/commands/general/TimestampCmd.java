@@ -37,15 +37,13 @@ public class TimestampCmd implements CommandMetadata, ExecutableCommand {
 
         long millis;
         try {
-            millis = DateTimeUtils.parseDateTime(ctx.argString());
+            millis = DateTimeUtils.parseDateTime(ctx.argString(), ctx.referenceZone());
         } catch (IllegalArgumentException e) {
             ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
             return;
         }
 
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(getEmbedColor());
-        builder.setTitle("Discord Timestamps");
+        EmbedBuilder builder = newEmbed("Discord Timestamps");
         builder.setDescription("Here's your date and/or time in every Discord timestamp style. Click a field to copy its code.");
 
         for (DiscordTimestamp style : DiscordTimestamp.values()) {
@@ -63,9 +61,7 @@ public class TimestampCmd implements CommandMetadata, ExecutableCommand {
         }
         sb.append("\nAny of these also accepts a trailing offset, e.g. `(UTC+8)` or `(UTC-4)`.");
 
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(getEmbedColor());
-        builder.setTitle("Supported Date/Time Formats");
+        EmbedBuilder builder = newEmbed("Supported Date/Time Formats");
         builder.setDescription(sb.toString());
 
         ctx.reply().embed(builder);

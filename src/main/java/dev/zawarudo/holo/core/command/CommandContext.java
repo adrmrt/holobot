@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -131,6 +132,20 @@ public final class CommandContext {
     /** Returns the guild-specific configuration, or empty when invoked outside a guild. */
     public @NotNull Optional<GuildConfig> guildConfig() {
         return Optional.ofNullable(guildConfig);
+    }
+
+    /** Returns the id of the guild this command was invoked in, or {@code 0} when invoked outside a guild. */
+    public long guildIdOrZero() {
+        return guild().map(Guild::getIdLong).orElse(0L);
+    }
+
+    /**
+     * Returns the reference {@link ZoneId} for parsing date/time input given without an explicit
+     * offset: the guild's configured timezone, or the JVM's system default outside a guild / when
+     * no guild config is available.
+     */
+    public @NotNull ZoneId referenceZone() {
+        return guildConfig().map(gc -> ZoneId.of(gc.getTimezone())).orElse(ZoneId.systemDefault());
     }
 
     /** Returns the source this invocation originated from (message or slash command). */

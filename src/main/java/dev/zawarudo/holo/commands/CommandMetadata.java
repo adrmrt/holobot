@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.commands;
 
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,6 +106,17 @@ public interface CommandMetadata {
     @Nullable
     default Color getEmbedColor() {
         return getClass().getAnnotation(CommandInfo.class).embedColor().getColor();
+    }
+
+    /**
+     * Returns a new {@link EmbedBuilder} pre-set with this command's embed color and the given title.
+     */
+    @NotNull
+    default EmbedBuilder newEmbed(@NotNull String title) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(getEmbedColor());
+        builder.setTitle(title);
+        return builder;
     }
 
     /**

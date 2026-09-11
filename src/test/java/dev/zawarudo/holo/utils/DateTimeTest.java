@@ -144,4 +144,14 @@ class DateTimeTest {
     void testYearlessFormat_invalidDateStillThrows() {
         assertThrows(IllegalArgumentException.class, () -> DateTimeUtils.parseDateTime("13/40 19:30 (UTC+8)"));
     }
+
+    @Test
+    void formatExamples_allActuallyParse() {
+        // Guards DateTimeUtils.FORMAT_EXAMPLES against silently drifting out of sync with the
+        // formatters in parseDateTime/tryParseWithoutYear: every advertised example must parse.
+        for (String example : DateTimeUtils.FORMAT_EXAMPLES) {
+            assertDoesNotThrow(() -> DateTimeUtils.parseDateTime(example),
+                "Advertised format example failed to parse: " + example);
+        }
+    }
 }

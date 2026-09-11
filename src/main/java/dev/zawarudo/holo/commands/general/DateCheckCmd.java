@@ -45,15 +45,16 @@ public class DateCheckCmd implements CommandMetadata, ExecutableCommand {
             dateInput = String.join(" ", args.subList(0, args.size() - 1));
         }
 
+        ZoneId zone = timeZoneId != null ? ZoneId.of(timeZoneId) : ctx.referenceZone();
+
         long millis;
         try {
-            millis = DateTimeUtils.parseDateTime(dateInput);
+            millis = DateTimeUtils.parseDateTime(dateInput, zone);
         } catch (IllegalArgumentException e) {
             ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
             return;
         }
 
-        ZoneId zone = timeZoneId != null ? ZoneId.of(timeZoneId) : ZoneId.systemDefault();
         String weekday = DateTimeUtils.getWeekDayFromDate(millis, zone);
 
         long diff = millis - System.currentTimeMillis();
@@ -61,9 +62,7 @@ public class DateCheckCmd implements CommandMetadata, ExecutableCommand {
         String dayCount = daysDiff == 1 ? "1 day" : daysDiff + " days";
         String direction = diff >= 0 ? dayCount + " from now" : dayCount + " ago";
 
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(getEmbedColor());
-        builder.setTitle("Date Check");
+        EmbedBuilder builder = newEmbed("Date Check");
         builder.addField("Weekday", weekday, true);
         builder.addField("Relative", DiscordTimestamp.RELATIVE_TIME.getTimestamp(millis) + " (" + direction + ")", true);
         builder.addField("Full Date", DiscordTimestamp.LONG_DATE_TIME.getTimestamp(millis), false);
