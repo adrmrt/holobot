@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.10.1](https://github.com/adrmrt/holobot/compare/v3.10.0...v3.10.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **countdown:** small patches ([085907e](https://github.com/adrmrt/holobot/commit/085907edfb73fe5c33d5b68472c74ce526235b10))
+
+
+### Documentation
+
+* add more deployment details ([17bf5c4](https://github.com/adrmrt/holobot/commit/17bf5c48ad3f86c5b595ebd2abef6f2c3a4dc86c))
+
 ## [3.10.0](https://github.com/adrmrt/holobot/compare/v3.9.2...v3.10.0) (2026-09-11)
 
 
