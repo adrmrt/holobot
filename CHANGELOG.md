@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.10.0](https://github.com/adrmrt/holobot/compare/v3.9.2...v3.10.0) (2026-09-11)
+
+
+### Features
+
+* add timestamp, datecheck, and countdown commands ([#274](https://github.com/adrmrt/holobot/issues/274)) ([341a139](https://github.com/adrmrt/holobot/commit/341a13912aa5bb6deb1026543d1934f471fddb91))
+
+
+### Documentation
+
+* backfill changelog entries for pre-automation releases ([2c1c3ab](https://github.com/adrmrt/holobot/commit/2c1c3abdd991ac4b388c1d319df88fc33e7710e0))
+
 ## [3.9.2](https://github.com/adrmrt/holobot/compare/v3.9.1...v3.9.2) (2026-09-08)
 
 
