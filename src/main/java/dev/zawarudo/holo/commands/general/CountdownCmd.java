@@ -12,6 +12,7 @@ import dev.zawarudo.holo.utils.DiscordTimestamp;
 import dev.zawarudo.holo.utils.Formatter;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @CommandInfo(name = "countdown",
     description = "Create, view and remove countdowns.",
@@ -33,6 +35,9 @@ import java.util.Optional;
 public class CountdownCmd implements CommandMetadata, ExecutableCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CountdownCmd.class);
+
+    private static final int EPHEMERAL_REPLY_DELETE_MINUTES = 1;
+    private static final int CREATED_COUNTDOWN_DELETE_MINUTES = 5;
 
     private final CountdownManager countdownManager;
 
@@ -61,7 +66,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
 
         if ("remove".equals(sub) || "r".equals(sub)) {
             if (ctx.argCount() < 2) {
-                ctx.reply().errorEmbed(String.format("Usage: `%scountdown remove <id>`", ctx.prefix().orElse("")));
+                sendError(ctx, String.format("Usage: `%scountdown remove <id>`", ctx.prefix().orElse("")));
                 return;
             }
             removeCountdown(ctx, ctx.args().get(1));
@@ -74,23 +79,23 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
     private void handleAdd(CommandContext ctx) {
         List<String> args = ctx.args();
         if (args.size() < 3) {
-            ctx.reply().errorEmbed(addUsage(ctx));
+            sendError(ctx, addUsage(ctx));
             return;
         }
 
         Optional<AddArgs> parsedArgs = parseAddArgs(args);
         if (parsedArgs.isEmpty()) {
-            ctx.reply().errorEmbed(addUsage(ctx));
+            sendError(ctx, addUsage(ctx));
             return;
         }
         AddArgs addArgs = parsedArgs.get();
 
-        if (addArgs.visibility() == Countdown.Visibility.GLOBAL && !ctx.isGuildAdmin()) {
-            ctx.reply().errorEmbed("Only server admins can create global countdowns!");
+        if (addArgs.visibility() == Countdown.Visibility.GLOBAL && !ctx.isGuildAdmin() && !ctx.isBotOwner()) {
+            sendError(ctx, "Only server admins can create global countdowns!");
             return;
         }
         if (addArgs.visibility() != Countdown.Visibility.PRIVATE && ctx.guild().isEmpty()) {
-            ctx.reply().errorEmbed("Public and global countdowns can only be created in a server!");
+            sendError(ctx, "Public and global countdowns can only be created in a server!");
             return;
         }
 
@@ -152,7 +157,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
 
             Optional<Countdown> selectedCountdown = countdownManager.findById(selectedId);
             if (selectedCountdown.isEmpty() || !selectedCountdown.get().isVisibleTo(ctx.user().getIdLong(), ctx.guildIdOrZero())) {
-                ctx.reply().errorEmbed("You don't have a countdown with the given ID! Please check your list and try again.");
+                sendError(ctx, "You don't have a countdown with the given ID! Please check your list and try again.");
                 return;
             }
             Countdown cd = selectedCountdown.get();
@@ -168,9 +173,9 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             ctx.reply().embed(builder);
         } catch (SQLException e) {
             LOGGER.error("Something went wrong", e);
-            ctx.reply().errorEmbed("Something went wrong while working with the database.");
+            sendError(ctx, "Something went wrong while working with the database.");
         } catch (NumberFormatException _) {
-            ctx.reply().errorEmbed("Please enter a valid countdown ID!");
+            sendError(ctx, "Please enter a valid countdown ID!");
         }
     }
 
@@ -191,13 +196,13 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             ctx.reply().embed(builder);
         } catch (SQLException e) {
             LOGGER.error("Something went wrong", e);
-            ctx.reply().errorEmbed("Something went wrong while fetching your countdowns.");
+            sendError(ctx, "Something went wrong while fetching your countdowns.");
         }
     }
 
     private void showGlobalList(CommandContext ctx) {
         if (ctx.guild().isEmpty()) {
-            ctx.reply().errorEmbed("Global countdowns can only be viewed in a server!");
+            sendError(ctx, "Global countdowns can only be viewed in a server!");
             return;
         }
 
@@ -217,7 +222,7 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             ctx.reply().embed(builder);
         } catch (SQLException e) {
             LOGGER.error("Something went wrong", e);
-            ctx.reply().errorEmbed("Something went wrong while fetching the server's countdowns.");
+            sendError(ctx, "Something went wrong while fetching the server's countdowns.");
         }
     }
 
@@ -240,12 +245,12 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
             builder.addField("Date", DiscordTimestamp.LONG_DATE_TIME.getTimestamp(millis), false);
             builder.addField("Remaining Time", DiscordTimestamp.RELATIVE_TIME.getTimestamp(millis), false);
 
-            ctx.reply().embed(builder);
+            ctx.reply().embedAndDeleteInvoke(ctx, builder.build(), CREATED_COUNTDOWN_DELETE_MINUTES, TimeUnit.MINUTES);
         } catch (SQLException e) {
             LOGGER.error("Something went wrong", e);
-            ctx.reply().errorEmbed("Something went wrong while storing your countdown.");
+            sendError(ctx, "Something went wrong while storing your countdown.");
         } catch (IllegalArgumentException _) {
-            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
+            sendError(ctx, Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
         }
     }
 
@@ -255,17 +260,35 @@ public class CountdownCmd implements CommandMetadata, ExecutableCommand {
 
             Optional<Countdown> selectedCountdown = countdownManager.findById(selectedId);
             if (selectedCountdown.isEmpty() || selectedCountdown.get().userId() != ctx.user().getIdLong()) {
-                ctx.reply().errorEmbed("You don't have a countdown with the given ID! Please check your list and try again.");
+                sendError(ctx, "You don't have a countdown with the given ID! Please check your list and try again.");
                 return;
             }
 
             countdownManager.removeCountdown(selectedId);
-            ctx.reply().text("Successfully removed your countdown.");
+
+            MessageEmbed embed = newEmbed("Countdown Removed")
+                .setDescription("Successfully removed your countdown.")
+                .build();
+            ctx.reply().embedAndDeleteInvoke(ctx, embed, EPHEMERAL_REPLY_DELETE_MINUTES, TimeUnit.MINUTES);
         } catch (SQLException e) {
             LOGGER.error("Something went wrong", e);
-            ctx.reply().errorEmbed("Something went wrong while working with the database.");
+            sendError(ctx, "Something went wrong while working with the database.");
         } catch (NumberFormatException _) {
-            ctx.reply().errorEmbed("Please enter a valid countdown ID!");
+            sendError(ctx, "Please enter a valid countdown ID!");
         }
+    }
+
+    /**
+     * Sends a pre-styled error embed and deletes both it and the invoking message after
+     * {@link #EPHEMERAL_REPLY_DELETE_MINUTES} minute(s), to avoid cluttering the channel with
+     * transient usage/validation errors.
+     */
+    private void sendError(CommandContext ctx, String content) {
+        MessageEmbed embed = new EmbedBuilder()
+            .setTitle("Error")
+            .setDescription(content)
+            .setColor(EmbedColor.ERROR.getColor())
+            .build();
+        ctx.reply().embedAndDeleteInvoke(ctx, embed, EPHEMERAL_REPLY_DELETE_MINUTES, TimeUnit.MINUTES);
     }
 }
