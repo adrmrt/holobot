@@ -33,6 +33,10 @@ public enum EmbedColor {
      */
     POKEMON(new Color(255, 0, 0)),
     /**
+     * The color of countdown-related commands.
+     */
+    COUNTDOWN(new Color(230, 126, 34)),
+    /**
      * The color of MyAnimeList.
      */
     MAL(new Color(46, 81, 162)),

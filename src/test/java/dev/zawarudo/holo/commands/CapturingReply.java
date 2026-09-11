@@ -15,6 +15,7 @@ public class CapturingReply implements CommandContext.Reply {
 
     public String lastText;
     public String lastError;
+    public MessageEmbed lastEmbed;
 
     @Override
     public void typing() {
@@ -27,6 +28,7 @@ public class CapturingReply implements CommandContext.Reply {
 
     @Override
     public void embed(@NotNull EmbedBuilder embed) {
+        lastEmbed = embed.build();
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.zawarudo.holo.core.command;
 
 import dev.zawarudo.holo.core.Bootstrap;
 import dev.zawarudo.holo.core.GuildConfig;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +63,6 @@ public final class CommandContextFactory {
 
     private static boolean isGuildAdmin(@Nullable Member member) {
         if (member == null) return false;
-        return member.isOwner();
+        return member.isOwner() || member.hasPermission(Permission.ADMINISTRATOR);
     }
 }

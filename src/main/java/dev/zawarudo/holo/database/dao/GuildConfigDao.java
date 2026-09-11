@@ -30,6 +30,7 @@ public final class GuildConfigDao {
             ps.setString(2, config.getPrefix());
             ps.setBoolean(3, config.isNSFWEnabled());
             ps.setString(4, config.getDisabledModulesCsv());
+            ps.setString(5, config.getTimezone());
             ps.executeUpdate();
         }
     }
@@ -49,6 +50,10 @@ public final class GuildConfigDao {
                 config.setPrefix(rs.getString("prefix"));
                 config.setAllowNSFW(readBooleanLenient(rs, "nsfw"));
                 config.setDisabledModulesCsv(rs.getString("disabled_modules"));
+                String timezone = rs.getString("timezone");
+                if (timezone != null && !timezone.isBlank()) {
+                    config.setTimezone(timezone);
+                }
 
                 map.put(guildId, config);
             }
@@ -66,7 +71,8 @@ public final class GuildConfigDao {
             ps.setString(1, config.getPrefix());
             ps.setBoolean(2, config.isNSFWEnabled());
             ps.setString(3, config.getDisabledModulesCsv());
-            ps.setLong(4, config.getGuildId());
+            ps.setString(4, config.getTimezone());
+            ps.setLong(5, config.getGuildId());
 
             ps.executeUpdate();
         }
