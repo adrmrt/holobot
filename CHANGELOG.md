@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.2](https://github.com/adrmrt/holobot/compare/v3.10.1...v3.10.2) (2026-09-15)
+
+
+### Bug Fixes
+
+* **date:** parse day-first dates without a year and show usage on empty input ([6347818](https://github.com/adrmrt/holobot/commit/6347818af27a6e410cb32727eef914ce2e6032b4))
+
 ## [3.10.1](https://github.com/adrmrt/holobot/compare/v3.10.0...v3.10.1) (2026-09-11)
 
 
