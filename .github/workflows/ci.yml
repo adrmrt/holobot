@@ -21,7 +21,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-          cache: maven
+
+      # restore-keys falls back to the previous cache when pom.xml changes (e.g. release version bumps)
+      - name: Cache Maven dependencies
+        uses: actions/cache@v6
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-
 
       - name: Compile
         run: mvn -B compile
