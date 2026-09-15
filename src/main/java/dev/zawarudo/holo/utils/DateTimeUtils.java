@@ -37,7 +37,8 @@ public final class DateTimeUtils {
         "13.02.2024",
         "2026/09/12 08:00 AM",
         "2026/09/12 20:00",
-        "08/14 19:30",
+        "14/08 19:30",
+        "14.08 07:30 PM",
         "1708988340000"
     );
 
@@ -177,31 +178,31 @@ public final class DateTimeUtils {
 
     /**
      * Attempts to parse a date/time string that omits the year, e.g. game update announcements
-     * such as "08/14 19:30 (UTC+8)". The current year in {@code referenceZone} is assumed.
+     * such as "14/08 19:30 (UTC+8)". Day comes before month. The current year in {@code referenceZone} is assumed.
      *
      * @return The parsed epoch millisecond timestamp, or {@code null} if no year-less format matched.
      */
     private static Long tryParseWithoutYear(String input, ZoneId referenceZone) {
         int currentYear = LocalDate.now(referenceZone).getYear();
 
-        DateTimeFormatter withZone = new DateTimeFormatterBuilder()
-            .appendPattern("MM/dd HH:mm Z")
-            .parseDefaulting(ChronoField.YEAR, currentYear)
-            .toFormatter(Locale.ENGLISH);
-        try {
-            ZonedDateTime zonedDateTime = ZonedDateTime.parse(input, withZone);
-            return zonedDateTime.toInstant().toEpochMilli();
-        } catch (DateTimeParseException _) {
-        }
+        for (String pattern : List.of("dd/MM hh:mm a", "dd/MM HH:mm", "dd.MM hh:mm a", "dd.MM HH:mm")) {
+            DateTimeFormatter withZone = new DateTimeFormatterBuilder()
+                .appendPattern(pattern + " Z")
+                .parseDefaulting(ChronoField.YEAR, currentYear)
+                .toFormatter(Locale.ENGLISH);
+            try {
+                return ZonedDateTime.parse(input, withZone).toInstant().toEpochMilli();
+            } catch (DateTimeParseException _) {
+            }
 
-        DateTimeFormatter withoutZone = new DateTimeFormatterBuilder()
-            .appendPattern("MM/dd HH:mm")
-            .parseDefaulting(ChronoField.YEAR, currentYear)
-            .toFormatter(Locale.ENGLISH);
-        try {
-            LocalDateTime localDateTime = LocalDateTime.parse(input, withoutZone);
-            return localDateTime.atZone(referenceZone).toInstant().toEpochMilli();
-        } catch (DateTimeParseException _) {
+            DateTimeFormatter withoutZone = new DateTimeFormatterBuilder()
+                .appendPattern(pattern)
+                .parseDefaulting(ChronoField.YEAR, currentYear)
+                .toFormatter(Locale.ENGLISH);
+            try {
+                return LocalDateTime.parse(input, withoutZone).atZone(referenceZone).toInstant().toEpochMilli();
+            } catch (DateTimeParseException _) {
+            }
         }
 
         return null;

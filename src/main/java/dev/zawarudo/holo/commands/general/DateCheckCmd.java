@@ -32,7 +32,8 @@ public class DateCheckCmd implements CommandMetadata, ExecutableCommand {
     @Override
     public void execute(@NotNull CommandContext ctx) {
         if (!ctx.hasArgs()) {
-            ctx.reply().errorEmbed(Formatter.dateParseErrorHint(ctx.prefix().orElse("")));
+            ctx.reply().errorEmbed(String.format("Please give me a date and/or time!\nUsage: `%sdatecheck %s`",
+                ctx.prefix().orElse(""), getUsage()));
             return;
         }
 

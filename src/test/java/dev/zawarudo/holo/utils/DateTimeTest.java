@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -126,18 +127,18 @@ class DateTimeTest {
 
     @Test
     void testYearlessFormat_assumesCurrentYear() {
-        // Format used by e.g. Honkai: Star Rail livestream announcements: "08/14 19:30 (UTC+8)"
         int currentYear = ZonedDateTime.now(ZH).getYear();
         long expected = ZonedDateTime.of(currentYear, 8, 14, 19, 30, 0, 0, ZoneId.of("UTC+8"))
             .toInstant().toEpochMilli();
-        assertEquals(expected, DateTimeUtils.parseDateTime("08/14 19:30 (UTC+8)"));
+        assertEquals(expected, DateTimeUtils.parseDateTime("14/08 19:30 (UTC+8)"));
     }
 
-    @Test
-    void testYearlessFormat_withoutTimezoneUsesReferenceZone() {
+    @ParameterizedTest
+    @ValueSource(strings = {"23.09 05:00", "23/09 05:00", "23/09 05:00 AM", "23.09 05:00 AM"})
+    void testYearlessFormat_dayFirstWithoutTimezoneUsesReferenceZone(String input) {
         int currentYear = ZonedDateTime.now(ZH).getYear();
-        long expected = LocalDateTime.of(currentYear, 8, 14, 19, 30).atZone(ZH).toInstant().toEpochMilli();
-        assertEquals(expected, DateTimeUtils.parseDateTime("08/14 19:30"));
+        long expected = LocalDateTime.of(currentYear, 9, 23, 5, 0).atZone(ZH).toInstant().toEpochMilli();
+        assertEquals(expected, DateTimeUtils.parseDateTime(input));
     }
 
     @Test

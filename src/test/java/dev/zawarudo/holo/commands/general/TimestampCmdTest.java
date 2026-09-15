@@ -37,6 +37,7 @@ class TimestampCmdTest {
     void noArgs_showsError() {
         execute();
         assertNotNull(reply.lastError);
+        assertTrue(reply.lastError.contains("Usage: `!timestamp"));
         assertNull(reply.lastEmbed);
     }
 

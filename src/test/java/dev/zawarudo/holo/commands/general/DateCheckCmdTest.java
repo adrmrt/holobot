@@ -54,6 +54,7 @@ class DateCheckCmdTest {
     void noArgs_showsError() {
         execute();
         assertNotNull(reply.lastError);
+        assertTrue(reply.lastError.contains("Usage: `!datecheck"));
         assertNull(reply.lastEmbed);
     }
 
