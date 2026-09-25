@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.3](https://github.com/adrmrt/holobot/compare/v3.10.2...v3.10.3) (2026-09-25)
+
+
+### Bug Fixes
+
+* **date:** accept single-digit hours in date/time input ([eb2cc9b](https://github.com/adrmrt/holobot/commit/eb2cc9b28d66d6695f0ad8612d6b4d4a5590d99d))
+
 ## [3.10.2](https://github.com/adrmrt/holobot/compare/v3.10.1...v3.10.2) (2026-09-15)
 
 
