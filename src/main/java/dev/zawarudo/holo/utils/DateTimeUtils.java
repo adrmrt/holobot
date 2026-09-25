@@ -98,31 +98,31 @@ public final class DateTimeUtils {
 
         DateTimeFormatter[] dateTimeFormatters = new DateTimeFormatter[]{
             // European date time formats
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
-            DateTimeFormatter.ofPattern("dd/MM/yy HH:mm"),
-            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"),
-            DateTimeFormatter.ofPattern("dd.MM.yy HH:mm"),
-            DateTimeFormatter.ofPattern("dd. MMMM yyyy HH:mm", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm"),
+            DateTimeFormatter.ofPattern("dd/MM/yy H:mm"),
+            DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm"),
+            DateTimeFormatter.ofPattern("dd.MM.yy H:mm"),
+            DateTimeFormatter.ofPattern("dd. MMMM yyyy H:mm", Locale.ENGLISH),
 
             // ISO 8601
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm"),
 
             // American
-            DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("MMMM d, yyyy H:mm", Locale.ENGLISH),
 
             // Slash-separated, e.g. game update announcements: "2026/09/12 08:00 AM" / "2026/09/12 08:00"
-            DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm a", Locale.ENGLISH),
-            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd h:mm a", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd H:mm"),
 
             // With timezone
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm Z"),
-            DateTimeFormatter.ofPattern("dd/MM/yy HH:mm Z"),
-            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm Z"),
-            DateTimeFormatter.ofPattern("dd.MM.yy HH:mm Z"),
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm Z"),
-            DateTimeFormatter.ofPattern("MMMM d, yyyy HH:mm Z", Locale.ENGLISH),
-            DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm a Z", Locale.ENGLISH),
-            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm Z"),
+            DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm Z"),
+            DateTimeFormatter.ofPattern("dd/MM/yy H:mm Z"),
+            DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm Z"),
+            DateTimeFormatter.ofPattern("dd.MM.yy H:mm Z"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm Z"),
+            DateTimeFormatter.ofPattern("MMMM d, yyyy H:mm Z", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd h:mm a Z", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("yyyy/MM/dd H:mm Z"),
         };
 
         DateTimeFormatter[] dateFormatters = new DateTimeFormatter[]{
@@ -185,7 +185,7 @@ public final class DateTimeUtils {
     private static Long tryParseWithoutYear(String input, ZoneId referenceZone) {
         int currentYear = LocalDate.now(referenceZone).getYear();
 
-        for (String pattern : List.of("dd/MM hh:mm a", "dd/MM HH:mm", "dd.MM hh:mm a", "dd.MM HH:mm")) {
+        for (String pattern : List.of("dd/MM h:mm a", "dd/MM H:mm", "dd.MM h:mm a", "dd.MM H:mm")) {
             DateTimeFormatter withZone = new DateTimeFormatterBuilder()
                 .appendPattern(pattern + " Z")
                 .parseDefaulting(ChronoField.YEAR, currentYear)

@@ -42,6 +42,13 @@ class DateTimeTest {
     }
 
     @Test
+    void testSingleDigitHourWithTimezone() {
+        long expected = ZonedDateTime.of(2026, 9, 29, 4, 0, 0, 0, ZoneId.of("UTC+1"))
+            .toInstant().toEpochMilli();
+        assertEquals(expected, DateTimeUtils.parseDateTime("29.09.2026 4:00 (UTC+1)"));
+    }
+
+    @Test
     void testAmericanFormat() {
         String input = "February 26, 2024 23:59";
         long expected = LocalDateTime.of(2024, 2, 26, 23, 59)
