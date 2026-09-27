@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.4](https://github.com/adrmrt/holobot/compare/v3.10.3...v3.10.4) (2026-09-27)
+
+
+### Bug Fixes
+
+* **akinator:** bump akiwrapper to 3.0.4 ([7c9e0d5](https://github.com/adrmrt/holobot/commit/7c9e0d551b105bdda91eb2dc33f38fac587ca26b))
+
 ## [3.10.3](https://github.com/adrmrt/holobot/compare/v3.10.2...v3.10.3) (2026-09-25)
 
 
