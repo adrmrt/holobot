@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +46,7 @@ public class PokemonTeamCmd implements CommandMetadata, ExecutableCommand {
                 // Generate 6 random Pokémon ids
                 List<Integer> ids = new ArrayList<>();
                 for (int i = 0; i < 6; i++) {
-                    ids.add(new Random().nextInt(PokeApiClient.POKEMON_COUNT) + 1);
+                    ids.add(PokeApiClient.nextRandomId());
                 }
                 List<Pokemon> pokemon = PokeApiClient.getPokemon(ids.stream().mapToInt(k -> k).toArray());
                 PokemonTeam team = new PokemonTeam(pokemon.toArray(new Pokemon[0]));
