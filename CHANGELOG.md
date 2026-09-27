@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.5](https://github.com/adrmrt/holobot/compare/v3.10.4...v3.10.5) (2026-09-27)
+
+
+### Bug Fixes
+
+* **music:** restore YouTube playback and reduce voice stutter ([35c82cc](https://github.com/adrmrt/holobot/commit/35c82cc61d26826d58b4a0cf50735bcad5e5e778))
+
 ## [3.10.4](https://github.com/adrmrt/holobot/compare/v3.10.3...v3.10.4) (2026-09-27)
 
 
