@@ -183,33 +183,46 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.18.2</version>
+            <!-- TODO: Update to a stable version once available -->
+            <version>2be8e542d3f6f178e048dca565892684c2e40177-SNAPSHOT</version>
         </dependency>
 
         <!-- Discord DAVE (E2EE voice) support -->
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>adapter-jda</artifactId>
-            <version>85e76e911</version>
+            <version>0.1.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>impl-jni</artifactId>
-            <version>539e600fa</version>
+            <version>0.1.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-linux-musl-x86-64</artifactId>
-            <version>539e600fa</version>
+            <version>0.1.3</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-win-x86-64</artifactId>
-            <version>117ad37e8</version>
+            <version>0.1.3</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Native UDP audio sending (JDA-NAS), avoids stutter from JVM scheduling -->
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>udpqueue-native-linux-musl-x86-64</artifactId>
+            <version>0.2.12</version>
+        </dependency>
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>udpqueue-native-win-x86-64</artifactId>
+            <version>0.2.12</version>
         </dependency>
 
         <!-- Jsoup HTML parser -->

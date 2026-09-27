@@ -5,6 +5,11 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.clients.Android;
+import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.Ios;
+import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.WebEmbedded;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
@@ -22,7 +27,9 @@ public class PlayerManager {
     public PlayerManager() {
         musicManagers = new HashMap<>();
         audioPlayerManager = new DefaultAudioPlayerManager();
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        // ANDROID and IOS first: as of 2026-09 the default clients (ANDROID_VR, WEB, WEB_EMBEDDED) fail playback
+        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(true,
+                new Android(), new Ios(), new AndroidVr(), new Web(), new WebEmbedded()));
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
@@ -33,6 +40,10 @@ public class PlayerManager {
             guild.getAudioManager().setSendingHandler(guildMusicManager.getAudioPlayerHandler());
             return guildMusicManager;
         });
+    }
+
+    AudioPlayerManager getAudioPlayerManager() {
+        return audioPlayerManager;
     }
 
     public void loadAndPlay(Guild guild, String trackUrl, AudioLoadResultHandler audioLoadResultHandler) {

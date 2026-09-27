@@ -1,6 +1,7 @@
 package dev.zawarudo.holo.core;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import dev.zawarudo.holo.commands.CommandListener;
 import dev.zawarudo.holo.commands.CommandManager;
 import dev.zawarudo.holo.commands.ModuleRegistry;
@@ -92,6 +93,7 @@ public class Holo extends ListenerAdapter {
         // Create a new JDA instance
         JDABuilder builder = JDABuilder.createDefault(getConfig().getBotToken());
         builder.setAudioModuleConfig(new AudioModuleConfig()
+            .withAudioSendFactory(new NativeAudioSendFactory())
             .withDaveSessionFactory(new LDJDADaveSessionFactory(new NativeDaveFactory())));
         builder.enableIntents(EnumSet.allOf(GatewayIntent.class));
         builder.setChunkingFilter(ChunkingFilter.ALL);
