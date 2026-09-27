@@ -1,0 +1,30 @@
+name: Nightly
+
+# Catches upstream API changes that no commit would trigger
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      # verify = compile + unit tests + integration tests (*IT.java against live APIs) + package
+      - name: Build and run all tests
+        env:
+          MAL_CLIENT_ID: ${{ secrets.MAL_CLIENT_ID }}
+          KEY_DICTIONARY: ${{ secrets.KEY_DICTIONARY }}
+          KEY_THESAURUS: ${{ secrets.KEY_THESAURUS }}
+        run: mvn -B verify

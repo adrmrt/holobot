@@ -1,5 +1,11 @@
 # HoloBot (Java Discord Bot)
 
+[![CI](https://img.shields.io/github/actions/workflow/status/adrmrt/holobot/ci.yml?branch=main&label=CI&style=for-the-badge)](https://github.com/adrmrt/holobot/actions/workflows/ci.yml)
+[![API health](https://img.shields.io/github/actions/workflow/status/adrmrt/holobot/nightly.yml?label=API%20health&style=for-the-badge)](https://github.com/adrmrt/holobot/actions/workflows/nightly.yml)
+[![Release](https://img.shields.io/github/v/release/adrmrt/holobot?style=for-the-badge)](https://github.com/adrmrt/holobot/releases/latest)
+[![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk&style=for-the-badge)](https://adoptium.net/)
+[![License](https://img.shields.io/github/license/adrmrt/holobot?style=for-the-badge)](LICENSE)
+
 HoloBot is a Discord bot written in Java and backed by [JDA (Java Discord API)](https://github.com/discord-jda/JDA). This bot started as a personal project to learn Java and programming in general and is now an active bot that provides its services and features to several Discord servers.
 
 ## Features

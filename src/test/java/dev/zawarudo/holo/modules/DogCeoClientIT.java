@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DogCeoClientTest {
+class DogCeoClientIT {
 
     @Test
     void testRandomImage() throws APIException {

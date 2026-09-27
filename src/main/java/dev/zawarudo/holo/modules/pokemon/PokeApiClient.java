@@ -6,6 +6,7 @@ import dev.zawarudo.holo.modules.pokemon.model.EvolutionChain;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonSpecies;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonType;
+import dev.zawarudo.holo.modules.RandomOrgClient;
 import dev.zawarudo.holo.utils.HoloHttp;
 import dev.zawarudo.holo.utils.exceptions.*;
 
@@ -171,27 +172,8 @@ public final class PokeApiClient {
         }
     }
 
-    private static int nextRandomId() {
-        try {
-            return getRandomNumberFromRandomOrg();
-        } catch (Exception _) {
-            // fallback
-            return 1 + java.util.concurrent.ThreadLocalRandom.current().nextInt(POKEMON_COUNT);
-        }
-    }
-
-    private static int getRandomNumberFromRandomOrg() throws APIException {
-        String url = "https://www.random.org/integers/?num=1&min=1&max=" + POKEMON_COUNT + "&col=1&base=10&format=plain";
-        try {
-            String line = HoloHttp.readLine(url).trim();
-            return Integer.parseInt(line);
-        } catch (HttpStatusException e) {
-            throw new APIException("random.org returned HTTP " + e.getStatusCode(), e);
-        } catch (HttpTransportException e) {
-            throw new APIException("I/O error contacting random.org", e);
-        } catch (NumberFormatException e) {
-            throw new APIException("random.org returned an invalid number", e);
-        }
+    public static int nextRandomId() {
+        return RandomOrgClient.nextInt(1, POKEMON_COUNT);
     }
 
     /**

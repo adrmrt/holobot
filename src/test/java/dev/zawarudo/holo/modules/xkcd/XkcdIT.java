@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class XkcdTest {
+class XkcdIT {
 
     private static XkcdComic latest;
     private static XkcdComic comic;
