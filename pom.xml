@@ -170,7 +170,7 @@
         <dependency>
             <groupId>org.eu.zajc</groupId>
             <artifactId>akiwrapper</artifactId>
-            <version>3.0.3</version>
+            <version>3.0.4</version>
         </dependency>
 
         <!-- LavaPlayer -->
