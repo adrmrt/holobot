@@ -13,9 +13,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DanbooruTest {
+class DanbooruIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DanbooruTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DanbooruIT.class);
 
     @Test
     void testPostCount() throws APIException, InvalidRequestException {
