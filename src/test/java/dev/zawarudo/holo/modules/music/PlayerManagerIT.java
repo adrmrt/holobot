@@ -1,5 +1,6 @@
 package dev.zawarudo.holo.modules.music;
 
+import dev.lavalink.youtube.AllClientsFailedException;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Checks that YouTube tracks load and stream with the source configuration in {@link PlayerManager}.
@@ -34,7 +36,15 @@ class PlayerManagerIT {
     @Test
     @Timeout(60)
     void video_streamsAudio() throws Exception {
-        AudioItem item = manager.loadItemSync(VIDEO_URL);
+        AudioItem item;
+        try {
+            item = manager.loadItemSync(VIDEO_URL);
+        } catch (AllClientsFailedException e) {
+            // YouTube puts a login wall in front of datacenter IPs such as GitHub runners, which says nothing about our code
+            assumeFalse(System.getenv("CI") != null && e.getMessage().contains("requires login"),
+                    "YouTube requires login from this CI runner's IP");
+            throw e;
+        }
         AudioTrack track = assertInstanceOf(AudioTrack.class, item);
 
         AudioPlayer player = manager.createPlayer();

@@ -28,3 +28,11 @@ jobs:
           KEY_DICTIONARY: ${{ secrets.KEY_DICTIONARY }}
           KEY_THESAURUS: ${{ secrets.KEY_THESAURUS }}
         run: mvn -B verify
+
+      # PlayerManagerIT skips when YouTube walls off the runner IP; repeated warnings can mean a real YouTube change
+      - name: Warn on YouTube login wall
+        if: always()
+        run: |
+          if grep -q "YouTube requires login" target/failsafe-reports/*.xml 2>/dev/null; then
+            echo "::warning title=YouTube login wall::PlayerManagerIT video test skipped because YouTube required login from this runner"
+          fi
