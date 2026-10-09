@@ -163,7 +163,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.7.1-jre</version>
+            <version>33.7.2-jre</version>
         </dependency>
 
         <!-- Akinator API wrapper -->
@@ -191,25 +191,25 @@
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>adapter-jda</artifactId>
-            <version>0.1.2</version>
+            <version>0.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>impl-jni</artifactId>
-            <version>0.1.2</version>
+            <version>0.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-linux-musl-x86-64</artifactId>
-            <version>0.1.3</version>
+            <version>0.1.4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>moe.kyokobot.libdave</groupId>
             <artifactId>natives-win-x86-64</artifactId>
-            <version>0.1.3</version>
+            <version>0.1.4</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -242,7 +242,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>13.8.0</version>
+            <version>13.9.0</version>
         </dependency>
 
         <!-- JLyrics to browse lyrics and song information -->
@@ -263,12 +263,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
