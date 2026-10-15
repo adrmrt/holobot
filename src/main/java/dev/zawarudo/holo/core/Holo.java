@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import dev.zawarudo.holo.commands.CommandListener;
 import dev.zawarudo.holo.commands.CommandManager;
 import dev.zawarudo.holo.commands.ModuleRegistry;
+import dev.zawarudo.holo.commands.games.pokemon.PokemonCatchListener;
 import dev.zawarudo.holo.commands.games.pokemon.PokemonModule;
 import dev.zawarudo.holo.commands.games.pokemon.PokemonSpawnManager;
 import dev.zawarudo.holo.commands.music.MusicModule;
@@ -119,6 +120,7 @@ public class Holo extends ListenerAdapter {
         EmoteDao emoteDao = new EmoteDao(sqlManager);
         BlacklistedDao blacklistedDao = new BlacklistedDao(sqlManager);
         CountdownDao countdownDao = new CountdownDao(sqlManager);
+        PokemonDao pokemonDao = new PokemonDao(sqlManager);
 
         // Register services
         XkcdSyncService xkcdSyncService = new XkcdSyncService(xkcdDao, executors.io());
@@ -149,7 +151,8 @@ public class Holo extends ListenerAdapter {
 
         emoteManager = new EmoteManager(emoteDao);
         guildConfigManager = new GuildConfigManager(guildConfigDao);
-        pokemonSpawnManager = new PokemonSpawnManager(jda);
+        pokemonSpawnManager = new PokemonSpawnManager(pokemonDao, guildConfigManager, jda, executors.scheduler(), executors.io());
+        pokemonSpawnManager.start();
         akinatorSessionManager = new AkinatorSessionManager();
         permissionManager = new PermissionManager(blacklistService);
 
@@ -161,7 +164,7 @@ public class Holo extends ListenerAdapter {
         // Initialize command modules
         moduleRegistry = new ModuleRegistry();
         moduleRegistry.register(new MusicModule(waiter));
-        moduleRegistry.register(new PokemonModule(pokemonSpawnManager));
+        moduleRegistry.register(new PokemonModule(pokemonSpawnManager, pokemonDao, waiter, userResolver));
 
         // Warning: Commands only get initialized here
         commandManager = new CommandManager(
@@ -186,7 +189,8 @@ public class Holo extends ListenerAdapter {
         jda.addEventListener(
             new CommandListener(commandManager, permissionManager, executors.io(), ctxFactory),
             new MiscListener(emoteManager),
-            new GuildListener(guildConfigManager, emoteManager)
+            new GuildListener(guildConfigManager, emoteManager),
+            new PokemonCatchListener(pokemonSpawnManager, executors.io())
         );
     }
 
@@ -212,10 +216,6 @@ public class Holo extends ListenerAdapter {
 
     public PermissionManager getPermissionManager() {
         return permissionManager;
-    }
-
-    public PokemonSpawnManager getPokemonSpawnManager() {
-        return pokemonSpawnManager;
     }
 
     public SQLManager getSQLManager() {

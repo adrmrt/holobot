@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -150,10 +151,34 @@ public final class Formatter {
         return string.substring(0, string.indexOf(character));
     }
 
+    /** English Pokemon names that the generic slug formatting gets wrong, keyed by PokeAPI species slug. */
+    private static final Map<String, String> SPECIAL_POKEMON_NAMES = Map.ofEntries(
+        Map.entry("nidoran-f", "Nidoran♀"),
+        Map.entry("nidoran-m", "Nidoran♂"),
+        Map.entry("farfetchd", "Farfetch’d"),
+        Map.entry("sirfetchd", "Sirfetch’d"),
+        Map.entry("ho-oh", "Ho-Oh"),
+        Map.entry("porygon-z", "Porygon-Z"),
+        Map.entry("flabebe", "Flabébé"),
+        Map.entry("type-null", "Type: Null"),
+        Map.entry("jangmo-o", "Jangmo-o"),
+        Map.entry("hakamo-o", "Hakamo-o"),
+        Map.entry("kommo-o", "Kommo-o"),
+        Map.entry("wo-chien", "Wo-Chien"),
+        Map.entry("chien-pao", "Chien-Pao"),
+        Map.entry("ting-lu", "Ting-Lu"),
+        Map.entry("chi-yu", "Chi-Yu")
+    );
+
     /**
-     * Formats a given String the following way: lightning-rod -> Lightning Rod
+     * Formats a given String the following way: lightning-rod -> Lightning Rod. Pokemon species
+     * slugs whose English name has special characters return that name, e.g. type-null -> Type: Null.
      */
     public static String formatPokemonName(String name) {
+        String special = SPECIAL_POKEMON_NAMES.get(name);
+        if (special != null) {
+            return special;
+        }
         return Arrays.stream(name.replace("--", "-").split("-"))
             .map(Formatter::capitalize)
             .collect(Collectors.joining(" "))

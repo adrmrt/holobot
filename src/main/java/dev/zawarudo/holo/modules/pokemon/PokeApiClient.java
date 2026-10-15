@@ -10,6 +10,7 @@ import dev.zawarudo.holo.modules.RandomOrgClient;
 import dev.zawarudo.holo.utils.HoloHttp;
 import dev.zawarudo.holo.utils.exceptions.*;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -209,17 +210,15 @@ public final class PokeApiClient {
     }
 
     /**
-     * Replaces weird characters.
+     * Turns a Pokemon name as users type it into a PokeAPI slug, e.g. "Type: Null" -> type-null.
+     * Accents and punctuation are dropped, and the female and male signs become f and m.
      */
-    private static String escape(String name) {
-        return name.toLowerCase(Locale.UK).replace(" ", "-")
-            .replace(".", "")
-            .replace(":", "-")
-            .replace("'", "")
-            .replace("♀", "-f")
-            .replace("♂", "-m")
-            .replace(":female_sign:", "-f")
-            .replace(":male_sign:", "-m");
+    static String escape(String name) {
+        String s = name.toLowerCase(Locale.ROOT)
+            .replace("♀", " f")
+            .replace("♂", " m");
+        s = Normalizer.normalize(s, Normalizer.Form.NFD).replaceAll("[^a-z0-9\\s-]", "");
+        return s.trim().replaceAll("[\\s-]+", "-");
     }
 
     private static JsonObject fetchJsonOrThrow(String url) throws NotFoundException, APIException, InvalidRequestException {

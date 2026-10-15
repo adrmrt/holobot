@@ -7,10 +7,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.text.Normalizer;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Utility class for Pokemon-related functionality.
@@ -69,8 +72,48 @@ public final class PokemonUtils {
     }
 
     private static BufferedImage getBackgroundImage() throws IOException {
-        File bgFile = new File("src/main/resources/image/pokemon/background.png");
-        return ImageIO.read(bgFile);
+        try (InputStream in = PokemonUtils.class.getResourceAsStream("/image/pokemon/background.png")) {
+            if (in == null) {
+                throw new IOException("Missing resource image/pokemon/background.png");
+            }
+            return ImageIO.read(in);
+        }
+    }
+
+    /**
+     * Returns the points a catch is worth: 1, or 10 for legendaries and mythicals, times 5 for shinies.
+     */
+    public static int catchPoints(boolean legendaryOrMythical, boolean shiny) {
+        int points = legendaryOrMythical ? 10 : 1;
+        return shiny ? points * 5 : points;
+    }
+
+    /**
+     * Returns the normalized forms of the given names that a guess is compared against.
+     * German umlauts are accepted both plain (u) and spelled out (ue).
+     */
+    public static Set<String> nameKeys(String... names) {
+        Set<String> keys = new HashSet<>();
+        for (String name : names) {
+            keys.add(normalizeName(name));
+            keys.add(normalizeName(name.toLowerCase(Locale.ROOT)
+                .replace("ä", "ae")
+                .replace("ö", "oe")
+                .replace("ü", "ue")));
+        }
+        return keys;
+    }
+
+    /**
+     * Lowercases the name and drops accents, punctuation and spaces. The female and male signs
+     * become f and m, so "Nidoran f" matches Nidoran's female form.
+     */
+    public static String normalizeName(String name) {
+        String s = name.toLowerCase(Locale.ROOT)
+            .replace("♀", "f")
+            .replace("♂", "m")
+            .replace("ß", "ss");
+        return Normalizer.normalize(s, Normalizer.Form.NFD).replaceAll("[^a-z0-9]", "");
     }
 
     private static BufferedImage createPokemonScene(BufferedImage silhouette, BufferedImage background) {

@@ -12,7 +12,7 @@ HoloBot is a Discord bot written in Java and backed by [JDA (Java Discord API)](
 
 - **Music**: Play audio from YouTube, SoundCloud, Bandcamp, Vimeo, Twitch, and direct URLs; queue management, skip, shuffle, loop, and now-playing display
 - **Anime & Manga**: Search via MyAnimeList and AniList with interactive result selection
-- **Pokemon**: Random spawns across channels, catching, Pokédex, and team management
+- **Pokemon**: Random spawns across channels, catching with private guesses, collections, leaderboards, Pokédex, and team management
 - **Image processing**: Dominant color palette extraction, NSFW detection, and custom image filters
 - **Games**: Akinator and other interactive games
 - **Utility**: Dictionary (Merriam-Webster + Urban Dictionary), XKCD comics, countdowns, and more

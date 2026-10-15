@@ -8,9 +8,12 @@ import dev.zawarudo.holo.utils.ImageOperations;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +62,7 @@ public class PokemonTeam {
             List<String> types = pokemon.getTypes();
             PokemonType type1 = PokemonUtils.getType(types.get(0));
             PokemonType type2 = types.size() == 2 ? PokemonUtils.getType(types.get(1)) : null;
-            String string = String.format("#%03d %s", pokemon.getPokedexId(), Formatter.capitalize(pokemon.getSpecies().getName()));
+            String string = String.format("#%03d %s", pokemon.getPokedexId(), Formatter.formatPokemonName(pokemon.getSpecies().getName()));
 
             BufferedImage img = draw(artwork, type1.getColor(), type2 != null ? type2.getColor() : null, string);
             images.add(img);
@@ -114,12 +117,20 @@ public class PokemonTeam {
      * @param font = Font of the text
      */
     private static void drawName(Graphics2D g2, String text, Rectangle rect, Font font) {
-        FontMetrics metrics = g2.getFontMetrics(font);
-        int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+        // Comic Sans lacks some glyphs, e.g. the gender signs in Nidoran's names, so those use a fallback font
+        Font fallback = new Font(Font.DIALOG, font.getStyle(), font.getSize());
+        AttributedString styled = new AttributedString(text);
+        styled.addAttribute(TextAttribute.FONT, font);
+        for (int i = 0; i < text.length(); i++) {
+            if (!font.canDisplay(text.charAt(i))) {
+                styled.addAttribute(TextAttribute.FONT, fallback, i, i + 1);
+            }
+        }
+        TextLayout layout = new TextLayout(styled.getIterator(), g2.getFontRenderContext());
+        float x = rect.x + (rect.width - layout.getAdvance()) / 2;
         int y = rect.height - 20;
         g2.setColor(Color.BLACK);
-        g2.setFont(font);
-        g2.drawString(text, x, y);
+        layout.draw(g2, x, y);
     }
 
     /**

@@ -28,8 +28,6 @@ public class ShutdownCmd implements CommandMetadata, ExecutableCommand {
             return self.inAudioChannel();
         }).forEach(g -> g.getAudioManager().closeAudioConnection());
 
-        Bootstrap.holo.getPokemonSpawnManager().getMessages().values().forEach(m -> m.delete().queue());
-
         Bootstrap.shutdown();
     }
 }

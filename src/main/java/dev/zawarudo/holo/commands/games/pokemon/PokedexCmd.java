@@ -4,6 +4,7 @@ import dev.zawarudo.holo.commands.CommandMetadata;
 import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
+import dev.zawarudo.holo.database.dao.PokemonDao;
 import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonSpecies;
@@ -13,8 +14,11 @@ import dev.zawarudo.holo.utils.exceptions.APIException;
 import dev.zawarudo.holo.utils.exceptions.NotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -26,6 +30,14 @@ import java.util.stream.Collectors;
     guildOnly = false,
     category = CommandCategory.GAMES)
 public class PokedexCmd implements CommandMetadata, ExecutableCommand {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PokedexCmd.class);
+
+    private final PokemonDao dao;
+
+    public PokedexCmd(PokemonDao dao) {
+        this.dao = dao;
+    }
 
     @Override
     public void execute(@NotNull CommandContext ctx) {
@@ -112,7 +124,22 @@ public class PokedexCmd implements CommandMetadata, ExecutableCommand {
             builder.addField("Evolution", evolutionChain, false);
         }
         builder.setColor(getColor(species.getColor()));
+        builder.setFooter(caughtText(ctx.user().getIdLong(), species.getPokedexId()));
         ctx.channel().sendMessageEmbeds(builder.build()).queue();
+    }
+
+    private String caughtText(long userId, int speciesId) {
+        try {
+            int count = dao.countCatches(userId, speciesId);
+            return switch (count) {
+                case 0 -> "You haven't caught this Pokémon yet.";
+                case 1 -> "You've caught this Pokémon once.";
+                default -> "You've caught this Pokémon " + count + " times.";
+            };
+        } catch (SQLException e) {
+            LOGGER.error("Failed to count the catches of species id={} by user id={}", speciesId, userId, e);
+            return null;
+        }
     }
 
     private Color getColor(String color) {

@@ -26,8 +26,6 @@ public class RestartCmd implements CommandMetadata, ExecutableCommand {
             return g.getSelfMember().getVoiceState().inAudioChannel();
         }).forEach(g -> g.getAudioManager().closeAudioConnection());
 
-        //Bootstrap.holo.getPokemonSpawnManager().getMessages().values().forEach(m -> m.delete().queue());
-
         ctx.jda().shutdown();
         Bootstrap.restart();
     }
