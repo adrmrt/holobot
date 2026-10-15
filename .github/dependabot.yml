@@ -4,6 +4,9 @@ updates:
     directory: "/" # pom.xml file is in the project root folder
     schedule:
       interval: "weekly"
+      day: "friday"
+      time: "18:00"
+      timezone: "Europe/Zurich"
     groups:
       maven-dependencies:
         patterns:
@@ -16,6 +19,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "friday"
+      time: "18:00"
+      timezone: "Europe/Zurich"
     commit-message:
       prefix: "chore"
       include: "scope"
