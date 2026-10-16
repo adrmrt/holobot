@@ -24,14 +24,14 @@ import java.util.Optional;
     usage = "[reset [<user>] [confirm]]",
     embedColor = EmbedColor.POKEMON,
     category = CommandCategory.GAMES)
-public class PokeLbCmd implements CommandMetadata, ExecutableCommand {
+public class PokemonLeaderboardCmd implements CommandMetadata, ExecutableCommand {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PokeLbCmd.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PokemonLeaderboardCmd.class);
     private static final int TOP = 10;
 
     private final PokemonDao dao;
 
-    public PokeLbCmd(PokemonDao dao) {
+    public PokemonLeaderboardCmd(PokemonDao dao) {
         this.dao = dao;
     }
 

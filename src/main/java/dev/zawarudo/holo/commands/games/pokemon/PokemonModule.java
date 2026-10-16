@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import dev.zawarudo.holo.commands.CommandManager;
 import dev.zawarudo.holo.commands.CommandModule;
 import dev.zawarudo.holo.database.dao.PokemonDao;
+import dev.zawarudo.holo.modules.pokemon.PokemonSpawnManager;
 import dev.zawarudo.holo.utils.UserResolver;
 
 public class PokemonModule implements CommandModule {
@@ -36,7 +37,7 @@ public class PokemonModule implements CommandModule {
 
         registry.addCommand(new PcCmd(pokemonDao, userResolver, waiter), moduleId);
         registry.addCommand(new PokedexCmd(pokemonDao), moduleId);
-        registry.addCommand(new PokeLbCmd(pokemonDao), moduleId);
+        registry.addCommand(new PokemonLeaderboardCmd(pokemonDao), moduleId);
         registry.addCommand(new PokemonTeamCmd(), moduleId);
         registry.addCommand(new SpawnCmd(pokemonSpawnManager), moduleId);
     }

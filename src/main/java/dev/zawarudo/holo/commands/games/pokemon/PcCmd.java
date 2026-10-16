@@ -90,7 +90,6 @@ public class PcCmd implements CommandMetadata, ExecutableCommand {
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(page.owner().getEffectiveName() + "'s PC");
-        builder.setThumbnail(page.owner().getEffectiveAvatarUrl());
         builder.setDescription(page.summary() + "\n\n" + lines);
         builder.setColor(getEmbedColor());
         return ButtonPaginator.withPageFooter(builder, index, total);

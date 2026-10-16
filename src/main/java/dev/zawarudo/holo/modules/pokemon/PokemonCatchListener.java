@@ -1,7 +1,7 @@
-package dev.zawarudo.holo.commands.games.pokemon;
+package dev.zawarudo.holo.modules.pokemon;
 
-import dev.zawarudo.holo.commands.games.pokemon.PokemonSpawnManager.GuessResult;
-import dev.zawarudo.holo.commands.games.pokemon.PokemonSpawnManager.WildPokemon;
+import dev.zawarudo.holo.modules.pokemon.PokemonSpawnManager.GuessResult;
+import dev.zawarudo.holo.modules.pokemon.PokemonSpawnManager.WildPokemon;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.modals.Modal;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -78,15 +79,23 @@ public class PokemonCatchListener extends ListenerAdapter {
         switch (result) {
             case GuessResult.Gone _ -> reply(event, "This Pokémon is no longer here.");
             case GuessResult.NoGuessesLeft _ -> reply(event, "You're out of guesses for this Pokémon.");
-            case GuessResult.Wrong(int left) when left > 0 ->
-                reply(event, "Not quite! " + left + (left == 1 ? " guess" : " guesses") + " left.");
-            case GuessResult.Wrong _ -> reply(event, "Not quite! That was your last guess for this Pokémon.");
+            case GuessResult.Wrong(int left) -> reply(event, wrongGuessText(guess, left));
             case GuessResult.Caught(WildPokemon caught) -> {
                 event.deferEdit().queue();
                 String catcher = event.getMember() != null ? event.getMember().getEffectiveName() : event.getUser().getName();
                 io.execute(() -> spawnManager.completeCatch(caught, event.getUser(), catcher));
             }
         }
+    }
+
+    private static String wrongGuessText(String guess, int guessesLeft) {
+        String left = switch (guessesLeft) {
+            case 0 -> "That was your last guess for this Pokémon.";
+            case 1 -> "1 guess left.";
+            default -> guessesLeft + " guesses left.";
+        };
+        // Escaped so the guess can't break the bold formatting
+        return "Not quite right!\n\nYour guess: **" + MarkdownSanitizer.escape(guess.strip()) + "**\n\n" + left;
     }
 
     private static void reply(IReplyCallback event, String text) {

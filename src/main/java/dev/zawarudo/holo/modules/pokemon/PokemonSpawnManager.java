@@ -1,10 +1,9 @@
-package dev.zawarudo.holo.commands.games.pokemon;
+package dev.zawarudo.holo.modules.pokemon;
 
 import dev.zawarudo.holo.commands.CommandModule;
 import dev.zawarudo.holo.core.GuildConfigManager;
 import dev.zawarudo.holo.core.misc.EmbedColor;
 import dev.zawarudo.holo.database.dao.PokemonDao;
-import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonSpecies;
 import dev.zawarudo.holo.utils.ImageOperations;
@@ -58,8 +57,8 @@ public class PokemonSpawnManager {
     private static final Duration REVEAL_VISIBLE_FOR = Duration.ofMinutes(2);
     private static final long SWEEP_INTERVAL_SECONDS = 60;
     /** A legendary or mythical Pokemon is kept 1 in this many times, otherwise it is re-rolled. */
-    private static final int LEGENDARY_KEEP_ONE_IN = 10;
-    private static final int SHINY_ONE_IN = 512;
+    static final int LEGENDARY_KEEP_ONE_IN = 10;
+    static final int SHINY_ONE_IN = 512;
     private static final Color SHINY_COLOR = new Color(255, 215, 0);
 
     /** A wild Pokemon waiting in a channel, with the number of wrong guesses per user. */
@@ -280,11 +279,11 @@ public class PokemonSpawnManager {
                 return;
             }
 
-            PokemonSpecies species = forced != null ? forced.getPokemonSpecies() : randomSpecies();
-            Pokemon pokemon = forced != null ? forced : species.getPokemon();
-            boolean shiny = ThreadLocalRandom.current().nextInt(SHINY_ONE_IN) == 0;
+            PokemonSpecies species = forced != null ? speciesOf(forced) : randomSpecies();
+            Pokemon pokemon = forced != null ? forced : pokemonOf(species);
+            boolean shiny = rollShiny();
 
-            BufferedImage image = PokemonUtils.drawHiddenPokemon(pokemon);
+            BufferedImage image = drawSilhouette(pokemon);
             EmbedBuilder builder = new EmbedBuilder()
                 .setTitle("A wild Pokémon appeared!")
                 .setDescription("Press **Catch** and type its name!")
@@ -306,13 +305,39 @@ public class PokemonSpawnManager {
         }
     }
 
-    private static PokemonSpecies randomSpecies() throws APIException {
-        PokemonSpecies species = PokeApiClient.getRandomPokemonSpecies();
+    private PokemonSpecies randomSpecies() throws APIException {
+        PokemonSpecies species = fetchRandomSpecies();
         while ((species.isLegendary() || species.isMythical())
             && ThreadLocalRandom.current().nextInt(LEGENDARY_KEEP_ONE_IN) != 0) {
-            species = PokeApiClient.getRandomPokemonSpecies();
+            species = fetchRandomSpecies();
         }
         return species;
+    }
+
+    // PokeAPI lookups, the sprite download and the shiny roll; package-private so tests can replace them
+
+    PokemonSpecies fetchRandomSpecies() throws APIException {
+        return PokeApiClient.getRandomPokemonSpecies();
+    }
+
+    Pokemon fetchPokemon(int id) throws APIException, InvalidIdException {
+        return PokeApiClient.getPokemon(id);
+    }
+
+    PokemonSpecies speciesOf(Pokemon pokemon) throws APIException, NotFoundException {
+        return pokemon.getPokemonSpecies();
+    }
+
+    Pokemon pokemonOf(PokemonSpecies species) throws APIException, NotFoundException {
+        return species.getPokemon();
+    }
+
+    BufferedImage drawSilhouette(Pokemon pokemon) throws IOException {
+        return PokemonUtils.drawHiddenPokemon(pokemon);
+    }
+
+    boolean rollShiny() {
+        return ThreadLocalRandom.current().nextInt(SHINY_ONE_IN) == 0;
     }
 
     private EmbedBuilder revealEmbed(WildPokemon pokemon, String titleFormat) {
@@ -380,9 +405,9 @@ public class PokemonSpawnManager {
             // The spawn message was deleted while the bot was offline; the sweep spawns a new one
             return;
         }
-        Pokemon pokemon = PokeApiClient.getPokemon(row.pokemonId());
+        Pokemon pokemon = fetchPokemon(row.pokemonId());
         wild.put(row.channelId(), new WildPokemon(row.channelId(), row.guildId(), row.messageId(), pokemon,
-            pokemon.getPokemonSpecies(), row.shiny(), row.spawnedAt()));
+            speciesOf(pokemon), row.shiny(), row.spawnedAt()));
     }
 
     private void safeSweep() {

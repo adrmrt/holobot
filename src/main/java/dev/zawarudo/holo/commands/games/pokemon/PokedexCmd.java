@@ -6,6 +6,7 @@ import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.database.dao.PokemonDao;
 import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
+import dev.zawarudo.holo.modules.pokemon.PokemonUtils;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonSpecies;
 import dev.zawarudo.holo.utils.Formatter;

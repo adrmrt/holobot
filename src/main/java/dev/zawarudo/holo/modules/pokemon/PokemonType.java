@@ -1,4 +1,4 @@
-package dev.zawarudo.holo.commands.games.pokemon;
+package dev.zawarudo.holo.modules.pokemon;
 
 import dev.zawarudo.holo.utils.Emote;
 

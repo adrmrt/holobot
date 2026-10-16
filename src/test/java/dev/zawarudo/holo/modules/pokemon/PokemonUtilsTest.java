@@ -1,4 +1,4 @@
-package dev.zawarudo.holo.commands.games.pokemon;
+package dev.zawarudo.holo.modules.pokemon;
 
 import org.junit.jupiter.api.Test;
 

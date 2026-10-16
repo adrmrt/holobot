@@ -5,6 +5,7 @@ import dev.zawarudo.holo.commands.CommandCategory;
 import dev.zawarudo.holo.core.command.CommandContext;
 import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.modules.pokemon.PokeApiClient;
+import dev.zawarudo.holo.modules.pokemon.PokemonTeam;
 import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.utils.ImageOperations;
 import dev.zawarudo.holo.utils.annotations.CommandInfo;
