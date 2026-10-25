@@ -15,6 +15,7 @@ import dev.zawarudo.holo.utils.interact.ButtonPaginator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class PcCmd implements CommandMetadata, ExecutableCommand {
 
         if (entries.isEmpty()) {
             EmbedBuilder builder = new EmbedBuilder();
-            builder.setDescription(owner.getEffectiveName() + " hasn't caught any Pokémon yet.");
+            builder.setDescription(MarkdownSanitizer.escape(owner.getEffectiveName()) + " hasn't caught any Pokémon yet.");
             builder.setColor(getEmbedColor());
             ctx.reply().embed(builder);
             return;
@@ -89,7 +90,7 @@ public class PcCmd implements CommandMetadata, ExecutableCommand {
             .collect(Collectors.joining("\n"));
 
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(page.owner().getEffectiveName() + "'s PC");
+        builder.setTitle(MarkdownSanitizer.escape(page.owner().getEffectiveName()) + "'s PC");
         builder.setDescription(page.summary() + "\n\n" + lines);
         builder.setColor(getEmbedColor());
         return ButtonPaginator.withPageFooter(builder, index, total);
