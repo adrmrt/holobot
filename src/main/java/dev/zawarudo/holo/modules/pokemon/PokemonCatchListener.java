@@ -77,6 +77,11 @@ public class PokemonCatchListener extends ListenerAdapter {
             || blacklist.isBlacklisted(event.getUser().getIdLong())) {
             return;
         }
+        // Checked again, since the module may have been disabled while the form was open
+        if (!spawnManager.isEnabled(event.getGuild())) {
+            reply(event, "Pokémon are disabled on this server.");
+            return;
+        }
         long messageId = Long.parseLong(event.getModalId().substring(GUESS_MODAL_PREFIX.length()));
         ModalMapping value = event.getValue(NAME_INPUT_ID);
         String guess = value == null ? "" : value.getAsString();

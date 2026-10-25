@@ -129,12 +129,21 @@ class PokemonCatchListenerTest {
 
     @Test
     void disabledModuleRepliesPrivately() {
+        long spawn = f.wild().messageId();
+        listener.onButtonInteraction(press("pokemon:catch", spawn, ASH));
+        Modal earlierForm = openedModal;
+        openedModal = null;
         f.enabled = false;
 
-        listener.onButtonInteraction(press("pokemon:catch", f.wild().messageId(), ASH));
+        listener.onButtonInteraction(press("pokemon:catch", spawn, ASH));
+        listener.onModalInteraction(submit(earlierForm, "Charizard", ASH));
 
         assertNull(openedModal);
-        assertEquals(List.of(new Reply("Pokémon are disabled on this server.", true)), replies);
+        assertEquals(List.of(
+            new Reply("Pokémon are disabled on this server.", true),
+            new Reply("Pokémon are disabled on this server.", true)
+        ), replies);
+        assertEquals(spawn, f.wild().messageId(), "not caught");
     }
 
     @Test
