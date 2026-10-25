@@ -291,6 +291,31 @@ class PokemonSpawnManagerTest {
     }
 
     @Test
+    void catchAfterChannelRemovalDoesNotSpawnAgain() throws Exception {
+        f.start();
+        f.manager.addChannel(f.channel);
+        Caught caught = assertInstanceOf(Caught.class, f.guess(ASH, "Charizard"));
+
+        f.manager.removeChannel(CHANNEL_ID);
+        f.manager.completeCatch(caught.pokemon(), FakeDiscord.user(ASH, "Ash"), "Ash");
+
+        assertEquals(1, f.discord.messages.size(), "no new spawn");
+        assertTrue(f.manager.getWild(CHANNEL_ID).isEmpty());
+    }
+
+    @Test
+    void channelRemovedDuringSpawnGetsNoPokemon() throws Exception {
+        f.start();
+        f.manager.addChannel(f.channel);
+        f.duringSpawn = () -> f.manager.removeChannel(CHANNEL_ID);
+
+        f.catchAs(ASH, "Ash", "Charizard");
+
+        assertTrue(f.lastMessage().deleted, "new spawn message deleted");
+        assertTrue(f.manager.getWild(CHANNEL_ID).isEmpty());
+    }
+
+    @Test
     void channelWithoutPermissionsGetsPokemonOnceFixed() throws Exception {
         f.discord.hasPermissions = false;
         f.start();

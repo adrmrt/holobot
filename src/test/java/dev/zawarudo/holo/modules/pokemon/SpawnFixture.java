@@ -14,6 +14,7 @@ import dev.zawarudo.holo.modules.pokemon.model.Pokemon;
 import dev.zawarudo.holo.modules.pokemon.model.PokemonSpecies;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.junit.jupiter.api.function.Executable;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
@@ -73,6 +75,9 @@ final class SpawnFixture {
     TestPokemon next = CHARIZARD;
     boolean nextShiny;
     boolean enabled = true;
+    /** Runs while a spawn is being prepared, before its message is sent. */
+    Executable duringSpawn = () -> {
+    };
 
     private Runnable sweep;
 
@@ -114,6 +119,7 @@ final class SpawnFixture {
 
             @Override
             BufferedImage drawSilhouette(Pokemon pokemon) {
+                assertDoesNotThrow(duringSpawn);
                 return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             }
 

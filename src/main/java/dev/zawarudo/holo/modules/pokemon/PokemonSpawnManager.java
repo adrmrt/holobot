@@ -269,15 +269,16 @@ public class PokemonSpawnManager {
     }
 
     /**
-     * Spawns a Pokemon in the channel: the given one, or a random one if {@code null}. A random
-     * spawn is skipped if a Pokemon is already waiting there.
+     * Spawns a Pokemon in the channel: the given one, or a random one if {@code null}. Skipped if
+     * the channel is no longer a spawn channel; a random spawn is also skipped if a Pokemon is
+     * already waiting there.
      */
     private void spawn(long channelId, @Nullable Pokemon forced) {
         if (!spawning.add(channelId)) {
             return;
         }
         try {
-            if (forced == null && wild.containsKey(channelId)) {
+            if (!channels.containsKey(channelId) || (forced == null && wild.containsKey(channelId))) {
                 return;
             }
             TextChannel channel = jda.getTextChannelById(channelId);
@@ -308,7 +309,15 @@ public class PokemonSpawnManager {
                 .complete();
 
             long now = System.currentTimeMillis();
-            wild.put(channelId, new WildPokemon(channelId, channel.getGuild().getIdLong(), msg.getIdLong(), pokemon, species, shiny, now));
+            WildPokemon spawned = new WildPokemon(channelId, channel.getGuild().getIdLong(), msg.getIdLong(), pokemon, species, shiny, now);
+            wild.put(channelId, spawned);
+            // Removed while this spawn was in progress, so removeChannel may have missed it
+            if (!channels.containsKey(channelId)) {
+                if (wild.remove(channelId, spawned)) {
+                    deleteMessage(spawned);
+                }
+                return;
+            }
             dao.updateSpawn(channelId, pokemon.getPokedexId(), shiny, msg.getIdLong(), now);
         } catch (APIException | NotFoundException | IOException | SQLException | ErrorResponseException e) {
             LOGGER.error("Failed to spawn a Pokémon in channel id={}", channelId, e);
