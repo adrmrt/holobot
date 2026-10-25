@@ -30,5 +30,6 @@ class PokemonLeaderboardCmdTest {
         assertEquals(Optional.empty(), PokemonLeaderboardCmd.parseResetArgs(List.of("reset", "<@1>", "<@2>")));
         assertEquals(Optional.empty(), PokemonLeaderboardCmd.parseResetArgs(List.of("reset", "confirm", "<@1>")));
         assertEquals(Optional.empty(), PokemonLeaderboardCmd.parseResetArgs(List.of("reset", "12345678901234567890")));
+        assertEquals(Optional.empty(), PokemonLeaderboardCmd.parseResetArgs(List.of("reset", "9999999999999999999")));
     }
 }

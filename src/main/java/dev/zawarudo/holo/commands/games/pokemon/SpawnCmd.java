@@ -100,7 +100,8 @@ public class SpawnCmd implements CommandMetadata, ExecutableCommand {
             Pokemon pokemon;
             if ("random".equalsIgnoreCase(search)) {
                 pokemon = null;
-            } else if (isNumeric(search)) {
+            } else if (search.matches("\\d{1,9}")) {
+                // At most 9 ASCII digits, so it fits in an int
                 pokemon = PokeApiClient.getPokemon(Integer.parseInt(search));
             } else {
                 // Species lookup, so names like "deoxys" resolve to their default form
@@ -119,13 +120,6 @@ public class SpawnCmd implements CommandMetadata, ExecutableCommand {
         builder.setDescription(text);
         builder.setColor(getEmbedColor());
         ctx.reply().embed(builder.build(), 30, TimeUnit.SECONDS);
-    }
-
-    private static boolean isNumeric(String s) {
-        for (int i = 0; i < s.length(); i++) {
-            if (!Character.isDigit(s.charAt(i))) return false;
-        }
-        return !s.isBlank();
     }
 
     private void sendOwnerError(CommandContext ctx, String msg) {

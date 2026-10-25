@@ -96,10 +96,15 @@ public class PokemonLeaderboardCmd implements CommandMetadata, ExecutableCommand
         }
         // A mention (<@123>) or a plain user id
         String digits = target.getFirst().replaceAll("\\D", "");
-        if (target.size() > 1 || digits.isEmpty() || digits.length() > 19) {
+        if (target.size() > 1 || digits.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new ResetArgs(Long.parseLong(digits), confirm));
+        try {
+            return Optional.of(new ResetArgs(Long.parseLong(digits), confirm));
+        } catch (NumberFormatException _) {
+            // Too large for a user id
+            return Optional.empty();
+        }
     }
 
     /**
