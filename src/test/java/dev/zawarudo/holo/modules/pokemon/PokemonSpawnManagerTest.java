@@ -291,6 +291,33 @@ class PokemonSpawnManagerTest {
     }
 
     @Test
+    void channelWithoutPermissionsGetsPokemonOnceFixed() throws Exception {
+        f.discord.hasPermissions = false;
+        f.start();
+        f.manager.addChannel(f.channel);
+        f.sweep();
+
+        assertTrue(f.discord.messages.isEmpty());
+
+        f.discord.hasPermissions = true;
+        f.sweep();
+
+        assertEquals(1, f.discord.messages.size());
+    }
+
+    @Test
+    void deletedChannelIsRemoved() throws Exception {
+        f.start();
+        f.manager.addChannel(f.channel);
+
+        f.discord.deleteChannel(CHANNEL_ID);
+        f.sweep();
+
+        assertFalse(f.manager.isSpawnChannel(CHANNEL_ID));
+        assertTrue(f.dao.findAllSpawns().isEmpty());
+    }
+
+    @Test
     void forcedSpawnReplacesWaitingPokemon() throws Exception {
         f.start();
         f.manager.addChannel(f.channel);

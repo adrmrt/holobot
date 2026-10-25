@@ -12,6 +12,7 @@ import dev.zawarudo.holo.utils.exceptions.InvalidIdException;
 import dev.zawarudo.holo.utils.exceptions.NotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
@@ -172,6 +173,12 @@ public class PokemonSpawnManager {
         return guildConfigManager.getOrCreate(guild).isModuleEnabled(CommandModule.ModuleId.POKEMON);
     }
 
+    /** Whether the bot may post spawn messages, an embed with an image, in the channel. */
+    public static boolean canSpawnIn(@NotNull TextChannel channel) {
+        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL,
+            Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES);
+    }
+
     /**
      * Replaces the waiting Pokemon in a spawn channel with the given one, or a random one if {@code null}.
      */
@@ -278,6 +285,11 @@ public class PokemonSpawnManager {
                 LOGGER.warn("Pokémon spawn channel id={} is not accessible; skipping spawn.", channelId);
                 return;
             }
+            // ponytail: warns on every sweep until the permissions are fixed; tell the guild if that gets noisy
+            if (!canSpawnIn(channel)) {
+                LOGGER.warn("Missing permissions to spawn a Pokémon in channel id={}; skipping spawn.", channelId);
+                return;
+            }
 
             PokemonSpecies species = forced != null ? speciesOf(forced) : randomSpecies();
             Pokemon pokemon = forced != null ? forced : pokemonOf(species);
@@ -298,7 +310,7 @@ public class PokemonSpawnManager {
             long now = System.currentTimeMillis();
             wild.put(channelId, new WildPokemon(channelId, channel.getGuild().getIdLong(), msg.getIdLong(), pokemon, species, shiny, now));
             dao.updateSpawn(channelId, pokemon.getPokedexId(), shiny, msg.getIdLong(), now);
-        } catch (APIException | NotFoundException | IOException | SQLException e) {
+        } catch (APIException | NotFoundException | IOException | SQLException | ErrorResponseException e) {
             LOGGER.error("Failed to spawn a Pokémon in channel id={}", channelId, e);
         } finally {
             spawning.remove(channelId);
@@ -425,6 +437,11 @@ public class PokemonSpawnManager {
             if (guild == null || !isEnabled(guild)) {
                 return;
             }
+            if (jda.getTextChannelById(channelId) == null) {
+                // The guild is loaded but the channel isn't, so the channel was deleted
+                io.execute(() -> removeDeleted(channelId));
+                return;
+            }
             WildPokemon current = wild.get(channelId);
             if (current == null) {
                 io.execute(() -> spawn(channelId, null));
@@ -432,5 +449,14 @@ public class PokemonSpawnManager {
                 io.execute(() -> flee(current));
             }
         });
+    }
+
+    private void removeDeleted(long channelId) {
+        try {
+            removeChannel(channelId);
+            LOGGER.info("Removed Pokémon spawn channel id={} because it was deleted.", channelId);
+        } catch (SQLException e) {
+            LOGGER.error("Failed to remove the deleted Pokémon spawn channel id={}", channelId, e);
+        }
     }
 }

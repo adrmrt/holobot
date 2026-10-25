@@ -12,6 +12,7 @@ import dev.zawarudo.holo.core.command.ExecutableCommand;
 import dev.zawarudo.holo.utils.exceptions.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,12 @@ public class SpawnCmd implements CommandMetadata, ExecutableCommand {
             ctx.reply().errorEmbed("Pokémon can only spawn in regular text channels.");
             return;
         }
-        boolean added = pokemonSpawnManager.addChannel(ctx.channel().asTextChannel());
+        TextChannel channel = ctx.channel().asTextChannel();
+        if (!PokemonSpawnManager.canSpawnIn(channel)) {
+            ctx.reply().errorEmbed("I need the View Channel, Send Messages, Embed Links and Attach Files permissions in this channel.");
+            return;
+        }
+        boolean added = pokemonSpawnManager.addChannel(channel);
         confirm(ctx, added ? "Wild Pokémon will now spawn in this channel." : "This channel is already a spawn channel.");
     }
 

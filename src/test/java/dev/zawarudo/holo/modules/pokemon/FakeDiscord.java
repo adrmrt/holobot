@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.SelfMember;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -67,13 +68,16 @@ final class FakeDiscord {
     final JDA jda;
     /** Every message sent, oldest first. */
     final List<FakeMessage> messages = new ArrayList<>();
+    /** Whether the bot has the permissions it asks for. */
+    boolean hasPermissions = true;
 
     private final Map<Long, TextChannel> channels = new HashMap<>();
     private long nextMessageId = 1000;
 
     FakeDiscord(long guildId) {
         this.guildId = guildId;
-        this.guild = fake(Guild.class, Map.of("getIdLong", _ -> guildId));
+        SelfMember selfMember = fake(SelfMember.class, Map.of("hasPermission", _ -> hasPermissions));
+        this.guild = fake(Guild.class, Map.of("getIdLong", _ -> guildId, "getSelfMember", _ -> selfMember));
         this.jda = fake(JDA.class, Map.of(
             "getTextChannelById", a -> channels.get(toLong(a[0])),
             "getGuildById", a -> toLong(a[0]) == guildId ? guild : null
@@ -91,6 +95,10 @@ final class FakeDiscord {
         ));
         channels.put(channelId, channel);
         return channel;
+    }
+
+    void deleteChannel(long channelId) {
+        channels.remove(channelId);
     }
 
     /** Adds a message as if the bot had sent it before a restart. */
