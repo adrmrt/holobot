@@ -67,6 +67,7 @@ public class Holo extends ListenerAdapter {
     private GuildConfigManager guildConfigManager;
     private CommandManager commandManager;
     private PermissionManager permissionManager;
+    private BlacklistService blacklistService;
     private CommandContextFactory ctxFactory;
     private PokemonSpawnManager pokemonSpawnManager;
     private AkinatorSessionManager akinatorSessionManager;
@@ -124,7 +125,7 @@ public class Holo extends ListenerAdapter {
 
         // Register services
         XkcdSyncService xkcdSyncService = new XkcdSyncService(xkcdDao, executors.io());
-        BlacklistService blacklistService = new BlacklistService(blacklistedDao);
+        blacklistService = new BlacklistService(blacklistedDao);
         CountdownManager countdownManager = new CountdownManager(countdownDao, jda, executors.scheduler(), executors.io());
         countdownManager.start();
 
@@ -190,7 +191,7 @@ public class Holo extends ListenerAdapter {
             new CommandListener(commandManager, permissionManager, executors.io(), ctxFactory),
             new MiscListener(emoteManager),
             new GuildListener(guildConfigManager, emoteManager),
-            new PokemonCatchListener(pokemonSpawnManager, executors.io())
+            new PokemonCatchListener(pokemonSpawnManager, blacklistService, executors.io())
         );
     }
 

@@ -1,5 +1,6 @@
 package dev.zawarudo.holo.modules.pokemon;
 
+import dev.zawarudo.holo.core.security.BlacklistService;
 import dev.zawarudo.holo.modules.pokemon.PokemonSpawnManager.GuessResult;
 import dev.zawarudo.holo.modules.pokemon.PokemonSpawnManager.WildPokemon;
 import net.dv8tion.jda.api.components.label.Label;
@@ -20,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Handles the Catch button on spawn messages and the guess form it opens. Every answer except a
  * successful catch is only visible to the guesser, so others can't learn from wrong guesses.
+ * Blacklisted users are ignored, like for commands.
  */
 public class PokemonCatchListener extends ListenerAdapter {
 
@@ -28,16 +30,19 @@ public class PokemonCatchListener extends ListenerAdapter {
     private static final String NAME_INPUT_ID = "name";
 
     private final PokemonSpawnManager spawnManager;
+    private final BlacklistService blacklist;
     private final ExecutorService io;
 
-    public PokemonCatchListener(PokemonSpawnManager spawnManager, ExecutorService io) {
+    public PokemonCatchListener(PokemonSpawnManager spawnManager, BlacklistService blacklist, ExecutorService io) {
         this.spawnManager = spawnManager;
+        this.blacklist = blacklist;
         this.io = io;
     }
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (!PokemonSpawnManager.CATCH_BUTTON_ID.equals(event.getComponentId()) || event.getGuild() == null) {
+        if (!PokemonSpawnManager.CATCH_BUTTON_ID.equals(event.getComponentId()) || event.getGuild() == null
+            || blacklist.isBlacklisted(event.getUser().getIdLong())) {
             return;
         }
         if (!spawnManager.isEnabled(event.getGuild())) {
@@ -68,7 +73,8 @@ public class PokemonCatchListener extends ListenerAdapter {
 
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if (!event.getModalId().startsWith(GUESS_MODAL_PREFIX) || event.getGuild() == null) {
+        if (!event.getModalId().startsWith(GUESS_MODAL_PREFIX) || event.getGuild() == null
+            || blacklist.isBlacklisted(event.getUser().getIdLong())) {
             return;
         }
         long messageId = Long.parseLong(event.getModalId().substring(GUESS_MODAL_PREFIX.length()));

@@ -1,6 +1,9 @@
 package dev.zawarudo.holo.modules.pokemon;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import dev.zawarudo.holo.core.security.BlacklistService;
+import dev.zawarudo.holo.database.SQLManager;
+import dev.zawarudo.holo.database.dao.BlacklistedDao;
 import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -40,6 +43,7 @@ class PokemonCatchListenerTest {
 
     private SpawnFixture f;
     private PokemonCatchListener listener;
+    private BlacklistService blacklist;
     private final List<Reply> replies = new ArrayList<>();
     private Modal openedModal;
     private boolean editDeferred;
@@ -49,7 +53,8 @@ class PokemonCatchListenerTest {
         f = new SpawnFixture(dir);
         f.start();
         f.manager.addChannel(f.channel);
-        listener = new PokemonCatchListener(f.manager, MoreExecutors.newDirectExecutorService());
+        blacklist = new BlacklistService(new BlacklistedDao(new SQLManager()));
+        listener = new PokemonCatchListener(f.manager, blacklist, MoreExecutors.newDirectExecutorService());
     }
 
     @Test
@@ -130,6 +135,24 @@ class PokemonCatchListenerTest {
 
         assertNull(openedModal);
         assertEquals(List.of(new Reply("Pokémon are disabled on this server.", true)), replies);
+    }
+
+    @Test
+    void blacklistedUserIsIgnored() throws Exception {
+        long spawn = f.wild().messageId();
+        listener.onButtonInteraction(press("pokemon:catch", spawn, ASH));
+        Modal earlierForm = openedModal;
+        openedModal = null;
+        blacklist.blacklist(ASH, "spam", "2026-10-25");
+
+        listener.onButtonInteraction(press("pokemon:catch", spawn, ASH));
+        listener.onModalInteraction(submit(earlierForm, "Charizard", ASH));
+
+        assertNull(openedModal);
+        assertTrue(replies.isEmpty());
+        assertFalse(editDeferred);
+        assertEquals(spawn, f.wild().messageId(), "still waiting");
+        assertTrue(f.dao.findCollection(ASH).isEmpty());
     }
 
     @Test
